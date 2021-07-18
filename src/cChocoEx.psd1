@@ -17,7 +17,7 @@
     PowerShellVersion = '3.0'
 
     # Which PowerShell functions are exported from your module? (eg. Get-CoolObject)
-    FunctionsToExport = @('Start-cChocoEx','Get-cChocoExRing','Set-cChocoExRing','Update-cChocoEx','Get-cChocoExLog','Get-cChocoExConfig','Get-cChocoExFeature','Get-cChocoExMaintenanceWindow','Get-cChocoExPackageInstall','Get-cChocoExSource')
+    FunctionsToExport = @('Start-cChocoEx','Get-cChocoExRing','Set-cChocoExRing','Update-cChocoEx','Get-cChocoExLog','Get-cChocoExConfig','Get-cChocoExFeature','Get-cChocoExMaintenanceWindow','Get-cChocoExPackageInstall','Get-cChocoExSource','New-cChocoExConfigFile','New-cChocoExFeatureFile','New-cChocoExPackageInstallFile','New-cChocoExSourceFile')
 
     # Which PowerShell aliases are exported from your module? (eg. gco)
     AliasesToExport = @('')

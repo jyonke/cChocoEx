@@ -33,6 +33,7 @@ function Get-cChocoExPackageInstall {
                 $array += [PSCustomObject]@{
                     Name                      = $_.Name
                     Version                   = $_.Version
+                    Source                    = $_.Source
                     MinimumVersion            = $_.MinimumVersion
                     Ensure                    = $_.Ensure
                     AutoUpgrade               = $_.AutoUpgrade
