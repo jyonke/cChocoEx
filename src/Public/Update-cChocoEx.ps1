@@ -4,11 +4,6 @@ Updates the cChocoEx PowerShell Module to the latest version
 
 .DESCRIPTION
 Updates the cChocoEx PowerShell Module to the latest version from the PowerShell Gallery
-
-.LINK
-
-.Example
-Update-cChocoEx
 #>
 
 function Update-cChocoEx {

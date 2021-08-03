@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Creates Chocolatey Features DSC Configuration File for cChocoEx
+.DESCRIPTION
+Creates Chocolatey Features DSC Configuration File for cChocoEx as a PowerShell Data File
+#>
 function New-cChocoExFeatureFile {
     [CmdletBinding()]
     param (

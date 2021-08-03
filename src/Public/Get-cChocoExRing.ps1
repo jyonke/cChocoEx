@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Returns Chocolatey DSC Configuration Deployment Ring Restriction in cChocoEx
+.DESCRIPTION
+Returns Chocolatey DSC Configuration Deployment Ring Restriction in cChocoEx as a String
+#>
 function Get-cChocoExRing {
     [CmdletBinding()]
     param (

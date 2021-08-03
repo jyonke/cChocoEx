@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Creates Chocolatey Packages DSC Configuration File for cChocoEx
+.DESCRIPTION
+Creates Chocolatey Packages DSC Configuration File for cChocoEx as a PowerShell Data File
+#>
 function New-cChocoExPackageInstallFile {
     [CmdletBinding()]
     param (

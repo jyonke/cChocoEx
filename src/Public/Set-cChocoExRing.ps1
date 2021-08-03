@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Sets Chocolatey DSC Configuration Deployment Ring Restriction in cChocoEx
+.DESCRIPTION
+Sets Chocolatey DSC Configuration Deployment Ring Restriction in cChocoEx as a Registry Key
+#>
 function Set-cChocoExRing {
     [CmdletBinding()]
     param (

@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Returns Maintenance Window DSC Configuration in cChocoEx
+.DESCRIPTION
+Returns Maintenance Window DSC Configuration in cChocoEx as a PowerShell Custom Object
+#>
+
 function Get-cChocoExMaintenanceWindow {
     [CmdletBinding()]
     param (

@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Creates Chocolatey Sources DSC Configuration File for cChocoEx
+.DESCRIPTION
+Creates Chocolatey Sources DSC Configuration File for cChocoEx as a PowerShell Data File
+#>
 function New-cChocoExSourceFile {
     [CmdletBinding()]
     param (

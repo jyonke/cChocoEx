@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Returns Chocolatey Features DSC Configuration in cChocoEx
+.DESCRIPTION
+Returns Chocolatey Features DSC Configuration in cChocoEx as a PowerShell Custom Object
+#>
 function Get-cChocoExFeature {
     [CmdletBinding()]
     param (

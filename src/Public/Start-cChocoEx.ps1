@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Bootstraps the cChoco PowerShell DSC Module
+
+.DESCRIPTION
+Bootstraps the cChoco PowerShell DSC Module
+#>
 function Start-cChocoEx {
     [CmdletBinding()]
     param (

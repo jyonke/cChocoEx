@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Returns Chocolatey DSC Logs in cChocoEx
+.DESCRIPTION
+Returns Chocolatey DSC Logs in cChocoEx as a PowerShell Custom Object. Optional parameters for limiting return by count and dates.
+#>
 function Get-cChocoExLog {
     [CmdletBinding()]
     param (

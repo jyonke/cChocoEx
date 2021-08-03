@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Returns Chocolatey Sources DSC Configuration in cChocoEx
+.DESCRIPTION
+Returns Chocolatey Sources DSC Configuration in cChocoEx as a PowerShell Custom Object
+#>
 function Get-cChocoExSource {
     [CmdletBinding()]
     param (

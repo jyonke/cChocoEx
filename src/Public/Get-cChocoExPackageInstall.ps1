@@ -1,3 +1,9 @@
+<#
+.SYNOPSIS
+Returns Chocolatey Package DSC Configuration in cChocoEx
+.DESCRIPTION
+Returns Chocolatey Package DSC Configuration in cChocoEx as a PowerShell Custom Object
+#>
 function Get-cChocoExPackageInstall {
     [CmdletBinding()]
     param (
