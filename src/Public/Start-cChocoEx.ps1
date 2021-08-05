@@ -18,11 +18,11 @@ function Start-cChocoEx {
         # Chocolatey Installation Script URL
         [Parameter()]
         [string]
-        $ChocoInstallScriptUrl = 'https://raw.githubusercontent.com/jyonke/chocolatey/master/Install/install.ps1',
-        # Parameter help description
+        $ChocoInstallScriptUrl =  (Join-Path -Path (Split-Path "$PSScriptRoot" -Parent) -ChildPath 'chocolatey\install.ps1'),
+        # URL to chocolatey nupkg
         [Parameter()]
         [string]
-        $ChocoDownloadUrl = 'https://github.com/jyonke/chocolatey/raw/master/Install/chocolatey.0.10.15.nupkg',
+        $ChocoDownloadUrl = 'https://packages.chocolatey.org/chocolatey.0.10.15.nupkg',
         # URL to cChoco sources configuration file
         [Parameter()]
         [string]
