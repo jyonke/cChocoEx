@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>cChocoEx</id>
-    <version>0.0.2.04</version>
+    <version>0.0.2.05</version>
     <title>cChocoEx</title>
-    <authors>JYONKE</authors>
-    <owners>JYONKE</owners>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>ToDo</description>
-    <summary>ToDo</summary>
+    <authors>jyonke</authors>
+    <description>Adds some additional functionality to the PowerShell DSC module cChoco</description>
     <tags>chocolatey cChoco cChocoEx</tags>
+    <dependencies>
+      <dependency id="cChoco" version="2.5.0.0" />
+    </dependencies>
   </metadata>
 </package>
