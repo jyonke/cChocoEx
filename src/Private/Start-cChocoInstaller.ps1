@@ -18,6 +18,12 @@ function Start-cChocoInstaller {
     $DSC = $null
     $DSC = Test-TargetResource @Configuration
     if (-not($DSC)) {
+        #Wipe Directory if chocolatey is not installed and files are present in installdir path
+        #Requirement for new chocolatey install.ps1
+        $FileTest = Get-ChildItem -Path $Configuration.InstallDir -Recurse -ErrorAction SilentlyContinue
+        if ($FileTest) {
+            $FileTest | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+        }
         $null = Set-TargetResource @Configuration
         $DSC = Test-TargetResource @Configuration
     }

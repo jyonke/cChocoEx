@@ -30,7 +30,12 @@ function Write-Log {
         Time     = (Get-Date -f g)
         Severity = $Severity
         Message  = $Message
-    } 
-    $Object | Export-Csv -Path $Path -Append -NoTypeInformation
+    }
+    try {
+        $Object | Export-Csv -Path $Path -Append -NoTypeInformation
+    }
+    catch {
+        Write-Warning $_.Exception.Message
+    }
     Write-Host "$($Object.Time) - $($Object.Severity) - $($Object.Message)" -ForegroundColor $Color
 }

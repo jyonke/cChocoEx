@@ -18,11 +18,11 @@ function Start-cChocoEx {
         # Chocolatey Installation Script URL
         [Parameter()]
         [string]
-        $ChocoInstallScriptUrl =  (Join-Path -Path (Split-Path "$PSScriptRoot" -Parent) -ChildPath 'chocolatey\install.ps1'),
+        $ChocoInstallScriptUrl = 'https://chocolatey.org/install.ps1',
         # URL to chocolatey nupkg
         [Parameter()]
         [string]
-        $ChocoDownloadUrl = 'https://packages.chocolatey.org/chocolatey.0.10.15.nupkg',
+        $ChocoDownloadUrl,
         # URL to cChoco sources configuration file
         [Parameter()]
         [string]
@@ -67,6 +67,21 @@ function Start-cChocoEx {
         #Enable TLS 1.2
         #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    
+        #Start-DSCConfiguation
+        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        $Global:LogPath = (Join-Path $InstallDir "logs")
+
+
+        #cChocoInstaller
+        $Configuration = @{
+            InstallDir            = $InstallDir
+            ChocoInstallScriptUrl = $ChocoInstallScriptUrl
+        }
+            
+        Start-cChocoInstaller -Configuration $Configuration
 
         $CurrentExecutionPolicy = Get-ExecutionPolicy
         try {
@@ -77,7 +92,6 @@ function Start-cChocoEx {
         }
 
         try {
-            $Global:LogPath = (Join-Path $InstallDir "logs")
             $null = New-Item -ItemType Directory -Path $LogPath -Force -ErrorAction SilentlyContinue
             Write-Log -Severity 'Information' -Message 'cChocoEx Started'
         }
@@ -195,19 +209,6 @@ function Start-cChocoEx {
             }
             Write-Log -Severity 'Information' -Message 'Chocolatey Package File Set.'
         }
-
-        #Start-DSCConfiguation
-        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
-        $Global:MaintenanceWindowEnabled = $True
-        $Global:MaintenanceWindowActive = $True
-
-        #cChocoInstaller
-        $Configuration = @{
-            InstallDir            = $InstallDir
-            ChocoInstallScriptUrl = $ChocoInstallScriptUrl
-        }
-    
-        Start-cChocoInstaller -Configuration $Configuration
 
         #cChocoConfig
         if (Test-Path $ChocoConfigDestination ) {
