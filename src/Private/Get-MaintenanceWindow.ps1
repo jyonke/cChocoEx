@@ -55,6 +55,12 @@ function Get-MaintenanceWindow {
         Write-Verbose "MaintenanceWindowEnabled True - Date is greater than Effective Date Time"
 
     }
+    if ($Global:TSEnv) {
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        Write-Verbose 'Task Sequence Environment True - Overriding Maintenance Window'
+    }
+    
     Write-Verbose "DateTimeofDay: $($Date.TimeOfDay)"
     Write-Verbose "StartTimeTimeOfDay: $($StartTime.TimeOfDay)"
     Write-Verbose "EndTimeTimeOfDay: $($EndTime.TimeOfDay)"

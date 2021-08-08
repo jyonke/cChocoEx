@@ -14,9 +14,9 @@ function Set-cChocoExRing {
     )
     $Path = "HKLM:\Software\Chocolatey\cChoco\"
     if (-not(Test-Path $Path)) {
-        $null = New-Item -ItemType Directory -Path $Path
+        $null = New-Item -ItemType Directory -Path $Path -Force
     }
 
-    Set-ItemProperty -Path "HKLM:\Software\Chocolatey\cChoco\" -Name 'Ring' -Value $Ring -Verbose
+    Set-ItemProperty -Path "HKLM:\Software\Chocolatey\cChoco\" -Name 'Ring' -Value $Ring
 
 }

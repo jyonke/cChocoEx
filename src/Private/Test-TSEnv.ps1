@@ -1,7 +1,6 @@
 function Test-TSEnv {
     try {
-        $TSEnv = New-Object -ComObject Microsoft.SMS.TSEnvironment
-        if ($TSEnv) {
+        if (New-Object -ComObject Microsoft.SMS.TSEnvironment) {
             return $true
         }
         else {

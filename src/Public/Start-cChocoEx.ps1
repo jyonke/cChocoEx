@@ -69,11 +69,18 @@ function Start-cChocoEx {
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     
         #Start-DSCConfiguation
-        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
+        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -All -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         $Global:LogPath = (Join-Path $InstallDir "logs")
+        $Global:TSEnv = Test-TSEnv
 
+        if (-not($ModuleBase)) {
+            Write-Log -Severity 'Error' -Message 'Required Module cChoco Not Found'
+            Break
+        }
+        
+        Write-Log -Severity 'Information' -Message "Task Sequence Environemnt Detected: $TSEnv"
 
         #cChocoInstaller
         $Configuration = @{
@@ -264,12 +271,12 @@ function Start-cChocoEx {
         $null = Set-ExecutionPolicy $CurrentExecutionPolicy -Scope CurrentUser -ErrorAction SilentlyContinue
         RotateLog
 
-        if ($Loop) {
+        if ($Loop -and (-not($TSEnv))) {
             Write-Log -Severity "Information" -Message "Function Looping Enabled"
             Write-Log -Severity "Information" -Message "Looping Delay: $LoopDelay Minutes"
             Write-Log -Severity "Information" -Message "Loop Count: $i"
             Start-Sleep -Seconds ($LoopDelay * 60)
         }
 
-    } until ($Loop -eq $false)
+    } until (($Loop -eq $false) -or ($TSEnv))
 }
