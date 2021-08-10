@@ -16,11 +16,14 @@ function Get-cChocoExFeature {
     begin {
         [array]$array = @()
         $ChocolateyInstall = $env:ChocolateyInstall
+        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
+
         if ($Path) {
             $cChocoExFeatureFile = $Path
         }
         else {
-            $cChocoExFeatureFile = (Get-ChildItem -Path (Join-Path -Path $ChocolateyInstall -ChildPath 'config') -Filter 'features.psd1').FullName
+            $cChocoExFeatureFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'features.psd1').FullName
         }
     }
     

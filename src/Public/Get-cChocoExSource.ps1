@@ -16,11 +16,13 @@ function Get-cChocoExSource {
     begin {
         [array]$array = @()
         $ChocolateyInstall = $env:ChocolateyInstall
+        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
         if ($Path) {
             $cChocoExSourceFile = $Path
         }
         else {
-            $cChocoExSourceFile = (Get-ChildItem -Path (Join-Path -Path $ChocolateyInstall -ChildPath 'config') -Filter 'sources.psd1').FullName
+            $cChocoExSourceFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'sources.psd1').FullName
         }
     }
     

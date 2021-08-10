@@ -17,13 +17,14 @@ function Get-cChocoExPackageInstall {
         [array]$array = @()
         $ChocolateyInstall = $env:ChocolateyInstall
         [array]$Configurations = $null
-        
+        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
 
         if ($Path) {
             $cChocoExPackageFiles = $Path
         }
         else {
-            $cChocoExPackageFiles = Get-ChildItem -Path (Join-Path -Path $ChocolateyInstall -ChildPath 'config') -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
+            $cChocoExPackageFiles = Get-ChildItem -Path $cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
         }
     }
     

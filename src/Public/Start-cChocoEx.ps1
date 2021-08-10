@@ -61,6 +61,8 @@ function Start-cChocoEx {
         $LoopDelay = 60
     )
 
+    
+
     $i = 0
     do {
         $i++
@@ -72,9 +74,19 @@ function Start-cChocoEx {
         $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -All -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
-        $Global:LogPath = (Join-Path $InstallDir "logs")
+        $Global:cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $Global:cChocoExConfigurationFolder = (Join-Path -Path $Global:cChocoExDataFolder -ChildPath 'config')
+        $Global:cChocoExTMPConfigurationFolder = (Join-Path -Path "$env:TEMP\cChocoEx" -ChildPath 'config')
+        $Global:LogPath = (Join-Path -Path $Global:cChocoExDataFolder -ChildPath "logs")
         $Global:TSEnv = Test-TSEnv
 
+        #Ensure cChocoEx Data Folder Structure is Created
+        $null = New-Item -ItemType Directory -Path $cChocoExDataFolder -Force -ErrorAction SilentlyContinue
+        $null = New-Item -ItemType Directory -Path $cChocoExConfigurationFolder -Force -ErrorAction SilentlyContinue
+        $null = New-Item -ItemType Directory -Path $cChocoExTMPConfigurationFolder -Force -ErrorAction SilentlyContinue
+        $null = New-Item -ItemType Directory -Path $LogPath -Force -ErrorAction SilentlyContinue
+
+        #Ensure cChoco Module Is Present and Available
         if (-not($ModuleBase)) {
             Write-Log -Severity 'Error' -Message 'Required Module cChoco Not Found'
             Break
@@ -99,7 +111,6 @@ function Start-cChocoEx {
         }
 
         try {
-            $null = New-Item -ItemType Directory -Path $LogPath -Force -ErrorAction SilentlyContinue
             Write-Log -Severity 'Information' -Message 'cChocoEx Started'
         }
         catch {
@@ -118,12 +129,12 @@ function Start-cChocoEx {
 
         #Settings
         if ($SettingsURI) {
-            $Destination = (Join-Path "$env:SystemRoot\temp" "bootstrap-cchoco.psd1")
+            $Destination = (Join-Path $cChocoExTMPConfigurationFolder "bootstrap-cchoco.psd1")
             switch (Test-PathEx -Path $SettingsURI) {
                 'URL' { Invoke-WebRequest -Uri $SettingsURI -UseBasicParsing -OutFile $Destination }
                 'FileSystem' { Copy-Item -Path $SettingsURI -Destination $Destination -Force }
             }    
-            $SettingsFile = Import-PowerShellDataFile -Path (Join-Path "$env:SystemRoot\temp" "bootstrap-cchoco.psd1")
+            $SettingsFile = Import-PowerShellDataFile -Path $Destination
             $Settings = $SettingsFile | ForEach-Object { $_.Keys | ForEach-Object { $SettingsFile.$_ } } 
     
             #Variables
@@ -147,25 +158,21 @@ function Start-cChocoEx {
         #Set Enviromental Variable for chocolatey url to nupkg
         $env:chocolateyDownloadUrl = $ChocoDownloadUrl
 
-        #Ensure Base Destination Paths Exist
-        $null = New-Item -ItemType Directory -Path (Join-Path $InstallDir "config") -ErrorAction SilentlyContinue
-        $null = New-Item -ItemType Directory -Path (Join-Path "$env:TEMP\chocolatey" 'config') -Force -ErrorAction SilentlyContinue
-
         if ($WipeCache) {
             Write-Log -Severity 'Information' -Message 'WipeCache Enabled. Wiping any previously downloaded psd1 configuration files'
-            Get-ChildItem -Path (Join-Path $InstallDir "config") -Filter *.psd1 | Remove-Item -Recurse -Force
+            Get-ChildItem -Path $cChocoExConfigurationFolder -Filter *.psd1 | Remove-Item -Recurse -Force
         }
         #Preclear any previously downloaded NoCache configuration files
         if ($NoCache) {
             Write-Log -Severity 'Information' -Message 'NoCache Enabled. Wiping any previously downloaded NoCache configuration files from temp'
-            Get-ChildItem -Path (Join-Path "$env:TEMP\chocolatey" 'config') -Filter *.psd1 | Remove-Item -Recurse -Force
+            Get-ChildItem -Path $cChocoExTMPConfigurationFolder -Filter *.psd1 | Remove-Item -Recurse -Force
         }
 
         #Copy Config Config?
-        $Global:ChocoConfigDestination = (Join-Path "$InstallDir\config" "config.psd1")
+        $Global:ChocoConfigDestination = (Join-Path $cChocoExConfigurationFolder "config.psd1")
         if ($ChocoConfig) {
             if ($NoCache) {
-                $Global:ChocoConfigDestination = (Join-Path "$env:TEMP\chocolatey\config" "config.psd1")
+                $Global:ChocoConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "config.psd1")
             }
             switch (Test-PathEx -Path $ChocoConfig) {
                 'URL' { Invoke-WebRequest -Uri $ChocoConfig -UseBasicParsing -OutFile $ChocoConfigDestination }
@@ -175,10 +182,10 @@ function Start-cChocoEx {
         }
 
         #Copy Sources Config
-        $Global:SourcesConfigDestination = (Join-Path "$InstallDir\config" "sources.psd1")
+        $Global:SourcesConfigDestination = (Join-Path $cChocoExConfigurationFolder "sources.psd1")
         if ($SourcesConfig) {
             if ($NoCache) {
-                $Global:SourcesConfigDestination = (Join-Path "$env:TEMP\chocolatey\config" "sources.psd1")
+                $Global:SourcesConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "sources.psd1")
             }
             switch (Test-PathEx -Path $SourcesConfig) {
                 'URL' { Invoke-WebRequest -Uri $SourcesConfig -UseBasicParsing -OutFile $SourcesConfigDestination }
@@ -188,10 +195,10 @@ function Start-cChocoEx {
         }
 
         #Copy Features Config
-        $Global:FeatureConfigDestination = (Join-Path "$InstallDir\config" "features.psd1")
+        $Global:FeatureConfigDestination = (Join-Path $cChocoExConfigurationFolder "features.psd1")
         if ($FeatureConfig) {
             if ($NoCache) {
-                $Global:FeatureConfigDestination = (Join-Path "$env:TEMP\chocolatey\config" "features.psd1")
+                $Global:FeatureConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "features.psd1")
             }
             switch (Test-PathEx -Path $FeatureConfig) {
                 'URL' { Invoke-WebRequest -Uri $FeatureConfig -UseBasicParsing -OutFile $FeatureConfigDestination }
@@ -201,10 +208,10 @@ function Start-cChocoEx {
         }
 
         #Copy Package Config
-        $Global:PackageConfigDestination = "$InstallDir\config"
+        $Global:PackageConfigDestination = $cChocoExConfigurationFolder
         if ($PackageConfig) {
             if ($NoCache) {
-                $Global:PackageConfigDestination = "$env:TEMP\chocolatey\config"
+                $Global:PackageConfigDestination = $cChocoExTMPConfigurationFolder
             }
             $PackageConfig | ForEach-Object {
                 $Path = $_
@@ -266,7 +273,7 @@ function Start-cChocoEx {
         #Preclear any previously downloaded NoCache configuration files
         if ($NoCache) {
             Write-Log -Severity "Information" -Message "Preclear any previously downloaded NoCache configuration files"
-            Get-ChildItem -Path (Join-Path "$env:TEMP\chocolatey" 'config') -Filter *.psd1 | Remove-Item -Recurse -Force
+            Get-ChildItem -Path $cChocoExTMPConfigurationFolder -Filter *.psd1 | Remove-Item -Recurse -Force
         }
         $null = Set-ExecutionPolicy $CurrentExecutionPolicy -Scope CurrentUser -ErrorAction SilentlyContinue
         RotateLog

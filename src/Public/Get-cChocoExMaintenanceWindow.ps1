@@ -17,11 +17,14 @@ function Get-cChocoExMaintenanceWindow {
     begin {
         [array]$array = @()
         $ChocolateyInstall = $env:ChocolateyInstall
+        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
+
         if ($Path) {
             $cChocoExConfigFile = $Path
         }
         else {
-            $cChocoExConfigFile = (Get-ChildItem -Path (Join-Path -Path $ChocolateyInstall -ChildPath 'config') -Filter 'config.psd1').FullName
+            $cChocoExConfigFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'config.psd1').FullName
         }
     }
     

@@ -19,7 +19,9 @@ function Get-cChocoExLog {
     
     try {
         $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExLogFiles = Get-ChildItem -Path (Join-Path -Path $ChocolateyInstall -ChildPath 'logs') -Filter 'cChoco*.log'
+        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
+        $LogPath = (Join-Path -Path $cChocoExDataFolder -ChildPath "logs")
+        $cChocoExLogFiles = Get-ChildItem -Path $LogPath -Filter 'cChoco*.log'
 
         if ($Date) {
             $DateFilter = (Get-Date $Date).Date
