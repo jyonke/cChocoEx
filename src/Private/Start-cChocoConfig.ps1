@@ -71,7 +71,7 @@ function Start-cChocoConfig {
         Write-Log -Severity 'Warning' -Message "No Defined Maintenance Window"
     }
     if ($TSEnv) {
-        Write-Log -Severity 'Information' -Message "TaskSeqence Environment Detected, overriding maintennce window settings"
+        Write-Log -Severity 'Information' -Message "Task Sequence Environment Detected, overriding maintennce window settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
     }
