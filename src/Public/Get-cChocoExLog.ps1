@@ -18,10 +18,13 @@ function Get-cChocoExLog {
     )
     
     try {
-        $ChocolateyInstall = $env:ChocolateyInstall
         $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
         $LogPath = (Join-Path -Path $cChocoExDataFolder -ChildPath "logs")
-        $cChocoExLogFiles = Get-ChildItem -Path $LogPath -Filter 'cChoco*.log'
+        $cChocoExLogFiles = Get-ChildItem -Path $LogPath -Filter 'cChoco*.log' -ErrorAction SilentlyContinue
+
+        if (-not($cChocoExLogFiles)) {
+            Write-Error "No Log Files Found at $LogPath" -ErrorAction Stop
+        }
 
         if ($Date) {
             $DateFilter = (Get-Date $Date).Date
@@ -37,6 +40,5 @@ function Get-cChocoExLog {
     }
     catch {
         $_.Exception.Message
-        Exit
     }
 }
