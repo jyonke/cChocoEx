@@ -12,11 +12,10 @@ function Set-cChocoExRing {
         [string]
         $Ring
     )
-    $Path = "HKLM:\Software\Chocolatey\cChoco\"
+    $Path = "HKLM:\Software\cChocoEx\"
     if (-not(Test-Path $Path)) {
         $null = New-Item -ItemType Directory -Path $Path -Force
     }
 
-    Set-ItemProperty -Path "HKLM:\Software\Chocolatey\cChoco\" -Name 'Ring' -Value $Ring
-
+    Set-ItemProperty -Path $Path -Name 'Ring' -Value $Ring
 }
