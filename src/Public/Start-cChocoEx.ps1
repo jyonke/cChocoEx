@@ -58,7 +58,11 @@ function Start-cChocoEx {
         # Loop Delay in Minutes
         [Parameter()]
         [int]
-        $LoopDelay = 60
+        $LoopDelay = 60,
+        # Legacy Migration Automation
+        [Parameter()]
+        [Switch]
+        $MigrateLegacyConfigurations
     )
 
     
@@ -90,6 +94,10 @@ function Start-cChocoEx {
         if (-not($ModuleBase)) {
             Write-Log -Severity 'Error' -Message 'Required Module cChoco Not Found'
             Break
+        }
+
+        if ($MigrateLegacyConfigurations) {
+            Move-LegacyConfigurations
         }
         
         Write-Log -Severity 'Information' -Message "Task Sequence Environemnt Detected: $TSEnv"

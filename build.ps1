@@ -25,7 +25,7 @@ if ($CurrentVersion -ge $DateVersion) {
     $BuildVersion = ([string]$DateVersion.Major + '.' + [string]$DateVersion.Minor + '.' + [string]$DateVersion.Build + '.' + [string]($CurrentVersion.Revision + 1))
 }
 else {
-    $BuildVersion = ([string]$DateVersion + '.0')
+    $BuildVersion = ([string]$DateVersion + '.1')
 }
 
 try {
