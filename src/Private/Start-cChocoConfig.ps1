@@ -53,7 +53,7 @@ function Start-cChocoConfig {
     $Global:MaintenanceWindowActive = $True
 
     if ($MaintenanceWindowConfig -and (-not($TSEnv))) {
-        $MaintenanceWindowTest = Get-MaintenanceWindow -StartTime $MaintenanceWindowConfig.Start -EndTime $MaintenanceWindowConfig.End -EffectiveDateTime $MaintenanceWindowConfig.EffectiveDateTime -UTC $MaintenanceWindowConfig.UTC -Verbose
+        $MaintenanceWindowTest = Get-MaintenanceWindow -StartTime $MaintenanceWindowConfig.Start -EndTime $MaintenanceWindowConfig.End -EffectiveDateTime $MaintenanceWindowConfig.EffectiveDateTime -UTC $MaintenanceWindowConfig.UTC
         $Global:MaintenanceWindowEnabled = $MaintenanceWindowTest.MaintenanceWindowEnabled
         $Global:MaintenanceWindowActive = $MaintenanceWindowTest.MaintenanceWindowActive
         Write-Host '--cChocoConfig-MaintenanceWindowConfig--' -ForegroundColor DarkCyan
