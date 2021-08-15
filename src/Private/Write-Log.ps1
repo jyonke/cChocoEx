@@ -17,8 +17,10 @@ function Write-Log {
         $New
     )
  
-    $LegacyPath = (Join-Path -Path $env:ChocolateyInstall -ChildPath 'logs')
-    $cChocoExLogFilesLegacy = Get-ChildItem -Path $LegacyPath -Filter 'cChoco*.log' -ErrorAction SilentlyContinue
+    if ($env:ChocolateyInstall) {
+        $LegacyPath = (Join-Path -Path $env:ChocolateyInstall -ChildPath 'logs')
+        $cChocoExLogFilesLegacy = Get-ChildItem -Path $LegacyPath -Filter 'cChoco*.log' -ErrorAction SilentlyContinue    
+    }
 
     #Wipe if New Log needs to be started
     if ($New) {
