@@ -28,10 +28,10 @@ function Get-cChocoExLog {
 
         if ($Date) {
             $DateFilter = (Get-Date $Date).Date
-            $cChocoExLogs = $cChocoExLogFiles | Import-Csv | Where-Object { ( Get-Date $_.'Time').Date -eq $DateFilter }
+            $cChocoExLogs = $cChocoExLogFiles | ForEach-Object { Import-Csv -Path $_.FullName | Where-Object { ( Get-Date $_.'Time').Date -eq $DateFilter } }
         }
         else {
-            $cChocoExLogs = $cChocoExLogFiles | Import-Csv
+            $cChocoExLogs = $cChocoExLogFiles | ForEach-Object {Import-Csv -Path $_.FullName}
         }
         if ($Last) {
             $cChocoExLogs = $cChocoExLogs | Select-Object -Last $Last
