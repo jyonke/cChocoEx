@@ -7,7 +7,6 @@ function Start-cChocoPackageInstall {
     )
     
     Write-Log -Severity "Information" -Message "cChocoPackageInstall:Validating Chocolatey Packages are Setup"
-    $Status = @()
 
     #Evaluate Ring Status
     $Ring = Get-Ring
@@ -49,13 +48,16 @@ function Start-cChocoPackageInstall {
     $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoPackageInstall")
     Import-Module $ModulePath
     
+    $i = 0
+    $Status = @()
     $PriorityConfigurations | ForEach-Object {
         $DSC = $null
         $Configuration = $_
         $Object = [PSCustomObject]@{
             Name                      = $Configuration.Name
-            Version                   = $Configuration.Version
             DSC                       = $null
+            Version                   = $Configuration.Version
+            MinimumVersion            = $Configuration.MinimumVersion
             Ensure                    = $Configuration.Ensure
             Source                    = $Configuration.Source
             AutoUpgrade               = $Configuration.AutoUpgrade
@@ -66,6 +68,20 @@ function Start-cChocoPackageInstall {
             OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
             Warning                   = $null
         }
+
+        #Write Progress to Console
+        if ($Configuration.Version) {
+            $StatusMessage = "$($Configuration.Name) - $($Configuration.Version)"
+        }
+        elseif ($Configuration.MinimumVersion) {
+            $StatusMessage = "$($Configuration.Name) - $($Configuration.MinimumVersion)"
+        }
+        else {
+            $StatusMessage = "$($Configuration.Name)"
+        }
+        Write-Progress -Activity 'cChocoPackageInstall' -Status $StatusMessage -PercentComplete ( ( $i / $PriorityConfigurations.Count ) * 100 )
+        $i++
+        
         #Evaluate VPN Restrictions
         if ($null -ne $Configuration.VPN) {
             if ($Configuration.VPN -eq $false -and $VPNStatus) {
@@ -122,7 +138,7 @@ function Start-cChocoPackageInstall {
             }
         }
         $Configuration.Remove("OverrideMaintenanceWindow")
-    
+
         $DSC = Test-TargetResource @Configuration
         if (-not($DSC)) {
             $null = Set-TargetResource @Configuration
@@ -133,7 +149,8 @@ function Start-cChocoPackageInstall {
     }
     #Remove Module for Write-Host limitations
     Remove-Module "cChocoPackageInstall"
-    
+
+    Write-Progress -Activity 'cChocoPackageInstall' -Completed
     Write-Log -Severity "Information" -Message "Starting cChocoPackageInstall"
     $Status | ForEach-Object {
         Write-Host '----------cChocoPackageInstall----------' -ForegroundColor DarkCyan
