@@ -20,14 +20,19 @@ function Get-cChocoExRing {
             Set-cChocoExRing -Ring $LegacyRing
         }
         #Wipe Legacy Path
-        $null = Get-Item $LegacyPath | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+        $null = Get-Item $LegacyPath -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
     }
     try {
-        $Ring = (Get-ItemProperty -Path $Path -Name 'Ring').Ring
-        if ($Ring -notmatch 'Preview|Canary|Pilot|Fast|Slow|Broad') {
+        $Ring = (Get-ItemProperty -Path $Path -Name 'Ring' -ErrorAction SilentlyContinue).Ring
+        if ($Ring -notmatch 'Preview|Canary|Pilot|Fast|Slow|Broad' -and $null -ne $Ring) {
             Write-Warning "$Ring is an Invalid Ring Value, Defaulting to Broad Ring"
             $Ring = 'Broad'
             Set-cChocoExRing -Ring $Ring
+        }
+        if ($null -eq $Ring) {
+            Write-Warning 'No Value Defined, Default Deployment Ring.'
+            $Ring = 'Broad'
+            Set-cChocoExRing -Ring $Ring    
         }
     }
     catch {
