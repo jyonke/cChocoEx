@@ -46,7 +46,6 @@ function Get-cChocoExSource {
         }
         else {
             Write-Warning 'No cChocoEx Sources file found'
-            Exit
         }
     }
     

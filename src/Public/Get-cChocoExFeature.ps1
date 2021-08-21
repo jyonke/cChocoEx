@@ -41,7 +41,6 @@ function Get-cChocoExFeature {
         }
         else {
             Write-Warning 'No cChocoEx Features file found'
-            Exit
         }
     }
     

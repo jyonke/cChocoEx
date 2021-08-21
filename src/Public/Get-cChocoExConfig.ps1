@@ -42,7 +42,6 @@ function Get-cChocoExConfig {
         }
         else {
             Write-Warning 'No cChocoEx Configuration file found'
-            Exit
         }
     }
     

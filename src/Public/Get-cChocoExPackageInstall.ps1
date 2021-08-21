@@ -54,7 +54,6 @@ function Get-cChocoExPackageInstall {
         }
         else {
             Write-Warning 'No cChocoEx Package files found'
-            Exit
         }
     }
     

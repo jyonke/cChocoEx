@@ -45,7 +45,6 @@ function Get-cChocoExMaintenanceWindow {
         }
         else {
             Write-Warning 'No cChocoEx Configuration file found'
-            Exit
         }
     }
     
