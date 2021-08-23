@@ -87,7 +87,7 @@ function New-cChocoExConfigFile {
         EffectiveDateTime = '$EffectiveDateTime'
         Start             = '$Start'
         End               = '$End'
-        UTC               = '$UTC'
+        UTC               = `$$UTC
     }`n
 "@
             }
