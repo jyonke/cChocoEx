@@ -10,8 +10,8 @@ function Start-cChocoConfig {
     Write-Log -Severity 'Information' -Message "cChocoConfig:Validating Chocolatey Configurations are Setup"
     $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoConfig")
     Import-Module $ModulePath
-    $Configurations = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } } | Where-Object { $_.Name -ne 'MaintenanceWindow' }
-    $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } } | Where-Object { $_.Name -eq 'MaintenanceWindow' }
+    $Configurations = $ConfigImport | ForEach-Object { $_.Keys | Where-Object { $_ -ne 'MaintenanceWindow' }| ForEach-Object { $ConfigImport.$_ } } 
+    $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Keys  | Where-Object { $_ -eq 'MaintenanceWindow' } | ForEach-Object { $ConfigImport.$_ } }
 
     $Status = @()
     $Configurations | ForEach-Object {
