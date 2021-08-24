@@ -9,7 +9,7 @@ function Start-cChocoPackageInstall {
     Write-Log -Severity "Information" -Message "cChocoPackageInstall:Validating Chocolatey Packages are Setup"
 
     #Evaluate Ring Status
-    $Ring = Get-Ring
+    $Ring = Get-cChocoExRing
     Write-Log -Severity 'Information' -Message "Local Machine Deployment Ring: $Ring"
     
     #Evaluate VPN Status
@@ -24,6 +24,7 @@ function Start-cChocoPackageInstall {
         $Configurations | Where-Object { $Duplicates.Name -eq $_.Name } | ForEach-Object {
             Write-Log -Severity 'Warning' -Message "Name: $($_.Name)"
             Write-Log -Severity 'Warning' -Message "Version $($_.Version)"
+            Write-Log -Severity 'Warning' -Message "MinimumVersion $($_.MinimumVersion)"
             Write-Log -Severity 'Warning' -Message "DSC: $($_.DSC)"
             Write-Log -Severity 'Warning' -Message "Source: $($_.Source)"
             Write-Log -Severity 'Warning' -Message "Ensure: $($_.Ensure)"
