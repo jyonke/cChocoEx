@@ -155,8 +155,9 @@ function Start-cChocoPackageInstall {
     $Status | ForEach-Object {
         Write-Host '----------cChocoPackageInstall----------' -ForegroundColor DarkCyan
         Write-Log -Severity 'Information' -Message "Name: $($_.Name)"
-        Write-Log -Severity 'Information' -Message "Version $($_.Version)"
         Write-Log -Severity 'Information' -Message "DSC: $($_.DSC)"
+        Write-Log -Severity 'Information' -Message "Version $($_.Version)"
+        Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
         Write-Log -Severity 'Information' -Message "Source: $($_.Source)"
         Write-Log -Severity 'Information' -Message "Ensure: $($_.Ensure)"
         Write-Log -Severity 'Information' -Message "AutoUpgrade: $($_.AutoUpgrade)"
