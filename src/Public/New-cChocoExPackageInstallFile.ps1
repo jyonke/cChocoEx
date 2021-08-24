@@ -115,7 +115,7 @@ function New-cChocoExPackageInstallFile {
                     $ExportString += "`t`tChocoParams`t= `'$($HashTable.ChocoParams)`'`n"
                 }
                 if ($HashTable.('OverrideMaintenanceWindow ($True/$False)')) {
-                    $ExportString += "`t`tOverrideMaintenanceWindow`t`t= `'$($HashTable.('OverrideMaintenanceWindow ($True/$False)'))`'`n"
+                    $ExportString += "`t`tOverrideMaintenanceWindow`t`t= $($HashTable.('OverrideMaintenanceWindow ($True/$False)'))`n"
                 }
                 if ($HashTable.Ring) {
                     $ExportString += "`t`tRing`t`t= `'$($HashTable.Ring)`'`n"
