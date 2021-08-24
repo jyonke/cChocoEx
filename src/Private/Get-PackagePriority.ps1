@@ -7,7 +7,7 @@ function Get-PackagePriority {
     )
 
     #Evaluate Ring Status
-    $Ring = Get-Ring
+    $Ring = Get-cChocoExRing
     [int]$SystemRingValue = Get-RingValue -Name $Ring
     
     #Filter Package Sets with the same name and select an apprpriate package based on SystemRingValue
