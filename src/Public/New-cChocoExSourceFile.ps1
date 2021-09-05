@@ -58,7 +58,7 @@ function New-cChocoExSourceFile {
                 #Options
                 $HashTable += $host.ui.Prompt($null, $null, $Optchoices)
                 if ($HashTable.Priority) {
-                    $ExportString += "`t`tPriority`t= `'$($HashTable.Priority)`'`n"
+                    $ExportString += "`t`tPriority`t= $($HashTable.Priority)`n"
                 }
                 if ($HashTable.Source) {
                     $ExportString += "`t`tSource`t`t= `'$($HashTable.Source)`'`n"
