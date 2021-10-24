@@ -12,9 +12,9 @@ function Start-cChocoSource {
     Write-Log -Severity "Information" -Message "cChocoSource:Validating Chocolatey Sources are Setup"
     $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoSource")
     Import-Module $ModulePath
-
-    $Configurations = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } }
+    $Configurations = $ConfigImport | ForEach-Object { $_.Values }
     $Status = @()
+    
     $Configurations | ForEach-Object {
         $DSC = $null
         $Configuration = $_

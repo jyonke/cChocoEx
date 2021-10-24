@@ -31,7 +31,7 @@ function Get-cChocoExMaintenanceWindow {
     process {
         if ($cChocoExConfigFile) {
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile
-            $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } } | Where-Object { $_.Name -eq 'MaintenanceWindow' }
+            $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
                     
             $MaintenanceWindowConfig | ForEach-Object {
                 $array += [PSCustomObject]@{

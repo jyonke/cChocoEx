@@ -18,6 +18,12 @@ function Update-cChocoExBootstrap {
         $Uri
     )
 
+    #Ensure Running as Administrator
+    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
+        Break
+    }
+        
     try {
         $wc = [System.Net.WebClient]::new()
         $FileHash = (Get-FileHash -Path "$env:ProgramData\cChocoEx\bootstrap.ps1" -ErrorAction SilentlyContinue).Hash

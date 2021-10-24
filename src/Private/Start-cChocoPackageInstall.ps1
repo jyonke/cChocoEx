@@ -80,7 +80,7 @@ function Start-cChocoPackageInstall {
         else {
             $StatusMessage = "$($Configuration.Name)"
         }
-        Write-Progress -Activity 'cChocoPackageInstall' -Status $StatusMessage -PercentComplete ( ( $i / $PriorityConfigurations.Count ) * 100 )
+        Write-Progress -Activity "cChocoPackageInstall - $i/$($PriorityConfigurations.Count)" -Status $StatusMessage -PercentComplete ( ( $i / $PriorityConfigurations.Count ) * 100 )
         $i++
         
         #Evaluate VPN Restrictions

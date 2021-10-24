@@ -65,7 +65,11 @@ function Start-cChocoEx {
         $MigrateLegacyConfigurations
     )
 
-    
+    #Ensure Running as Administrator
+    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
+        Break
+    }    
 
     $i = 0
     do {
@@ -75,7 +79,7 @@ function Start-cChocoEx {
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     
         #Start-DSCConfiguation
-        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -All -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
+        $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         $Global:cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')

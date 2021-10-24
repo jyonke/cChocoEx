@@ -30,7 +30,7 @@ function Get-cChocoExFeature {
     process {
         if ($cChocoExFeatureFile) {
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExFeatureFile
-            $Configurations = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } }
+            $Configurations = $ConfigImport | ForEach-Object { $_.Values }
                     
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{

@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-Returns Chocolatey Configuration DSC Configuration in cChocoEx
+Returns Chocolatey Configuration DSC Configuration Status in cChocoEx
 .DESCRIPTION
-Returns Chocolatey Configuration DSC Configuration in cChocoEx as a PowerShell Custom Object
+Returns Chocolatey Configuration DSC Configuration Status in cChocoEx as a PowerShell Custom Object
 #>
-function Get-cChocoExConfig {
+function Test-cChocoExConfig {
     [CmdletBinding()]
     param (
         # Path
@@ -14,10 +14,13 @@ function Get-cChocoExConfig {
     )
     
     begin {
-        [array]$array = @()
+        [array]$Status = @()
         $ChocolateyInstall = $env:ChocolateyInstall
         $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
         $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
+        $ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
+        $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoConfig")
+        Import-Module $ModulePath    
 
         if ($Path) {
             $cChocoExConfigFile = $Path
@@ -31,21 +34,32 @@ function Get-cChocoExConfig {
         if ($cChocoExConfigFile) {
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile
             $Configurations = $ConfigImport | ForEach-Object { $_.Values | Where-Object { $_.ConfigName -ne 'MaintenanceWindow' -and $_.Name -ne 'MaintenanceWindow' } } 
-                    
+ 
             $Configurations | ForEach-Object {
-                $array += [PSCustomObject]@{
-                    ConfigName = $_.ConfigName
-                    Value      = $_.Value
-                    Ensure     = $_.Ensure
+                $DSC = $null
+                $Configuration = $_
+                $Object = [PSCustomObject]@{
+                    ConfigName = $Configuration.ConfigName
+                    DSC        = $null
+                    Ensure     = $Configuration.Ensure
+                    Value      = $Configuration.Value
                 }
+                
+                $DSC = Test-TargetResource @Configuration
+                $Object.DSC = $DSC
+                $Status += $Object
             }
         }
         else {
             Write-Warning 'No cChocoEx Configuration file found'
         }
+        #Remove Module for Write-Host limitations
+        Remove-Module "cChocoConfig"
+
     }
     
     end {
-        $array
+        $Status
     }
+    
 }

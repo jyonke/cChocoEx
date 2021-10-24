@@ -21,7 +21,7 @@ function Get-cChocoExPackageInstall {
         $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
 
         if ($Path) {
-            $cChocoExPackageFiles = $Path
+            $cChocoExPackageFiles = Get-Item -Path $Path
         }
         else {
             $cChocoExPackageFiles = Get-ChildItem -Path $cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
@@ -33,7 +33,7 @@ function Get-cChocoExPackageInstall {
             $cChocoExPackageFiles | ForEach-Object {
                 $ConfigImport = $null
                 $ConfigImport = Import-PowerShellDataFile $_.FullName 
-                $Configurations += $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } }
+                $Configurations += $ConfigImport | ForEach-Object { $_.Values }
             }        
                     
             $Configurations | ForEach-Object {

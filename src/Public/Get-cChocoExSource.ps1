@@ -29,7 +29,7 @@ function Get-cChocoExSource {
     process {
         if ($cChocoExSourceFile) {
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExSourceFile
-            $Configurations = $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } }
+            $Configurations = $ConfigImport | ForEach-Object { $_.Values }
                     
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{

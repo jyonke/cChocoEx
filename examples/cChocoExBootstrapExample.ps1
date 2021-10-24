@@ -14,10 +14,10 @@ $BootstrapUri = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/exampl
 #Start-cChocoEx Paramater Splat
 $cChocoExParamters = @{
     ChocoConfig           = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExConfigExample.psd1'
-    ChocoDownloadUrl      = 'https://github.com/jyonke/chocolatey/raw/master/Install/chocolatey.0.11.1.nupkg'
-    ChocoInstallScriptUrl = 'https://raw.githubusercontent.com/jyonke/chocolatey/master/Install/install.ps1'
+    ChocoDownloadUrl      = 'https://packages.chocolatey.org/chocolatey.0.11.2.nupkg'
+    ChocoInstallScriptUrl = 'https://community.chocolatey.org/install.ps1'
     FeatureConfig         = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExFeatureExample.psd1'
-    #InstallDir                  = ''
+    #InstallDir           = ''
     Loop                  = $true
     LoopDelay             = 45
     #MigrateLegacyConfigurations = $null
