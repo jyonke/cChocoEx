@@ -34,8 +34,14 @@ function Get-cChocoExMaintenanceWindow {
             $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
                     
             $MaintenanceWindowConfig | ForEach-Object {
+                if ($_.Name) {
+                    $ConfigName = $_.Name
+                }
+                else {
+                    $ConfigName = $_.ConfigName
+                }
                 $array += [PSCustomObject]@{
-                    ConfigName        = $_.Name
+                    ConfigName        = $ConfigName
                     UTC               = $_.UTC
                     EffectiveDateTime = $_.EffectiveDateTime
                     Start             = $_.Start

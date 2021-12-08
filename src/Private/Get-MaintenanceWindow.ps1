@@ -60,6 +60,12 @@ function Get-MaintenanceWindow {
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Task Sequence Environment True - Overriding Maintenance Window'
     }
+
+    if ($Global:OverrideMaintenanceWindow) {
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        Write-Verbose 'Global OverrideMaintenanceWindow Flag Enabled - Overriding Maintenance Window'
+    }
     
     Write-Verbose "DateTimeofDay: $($Date.TimeOfDay)"
     Write-Verbose "StartTimeTimeOfDay: $($StartTime.TimeOfDay)"

@@ -9,25 +9,12 @@ $NugetRepositoryURI = 'https://www.powershellgallery.com/api/v2'
 $NuGetPackageProviderURI = 'https://onegetcdn.azureedge.net/providers/Microsoft.PackageManagement.NuGetProvider-2.8.5.208.dll'
 
 #Optional URI to this script source to self update
-$BootstrapUri = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExBootstrapExample.ps1'
+#$BootstrapUri = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/src/scripts/bootstrap.min.ps1'
 
 #Start-cChocoEx Paramater Splat
 $cChocoExParamters = @{
-    ChocoConfig           = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExConfigExample.psd1'
-    ChocoDownloadUrl      = 'https://packages.chocolatey.org/chocolatey.0.11.3.nupkg'
-    ChocoInstallScriptUrl = 'https://community.chocolatey.org/install.ps1'
-    FeatureConfig         = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExFeatureExample.psd1'
-    #InstallDir           = ''
-    Loop                  = $true
-    LoopDelay             = 45
-    #MigrateLegacyConfigurations = $null
-    #NoCache                     = $null
-    PackageConfig         = @('https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExPackagesExample.psd1')
-    #RandomDelay                 = $null
-    #SettingsURI                 = ''
-    SourcesConfig         = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExSourcesExample.psd1'
-    #WipeCache                   = $null
-    EnableNotifications   = $true
+    Loop                = $true
+    LoopDelay           = 60
 }
 
 ##########################################

@@ -58,7 +58,7 @@ function Start-cChocoConfig {
         $Global:MaintenanceWindowActive = $MaintenanceWindowTest.MaintenanceWindowActive
         Write-Host '--cChocoConfig-MaintenanceWindowConfig--' -ForegroundColor DarkCyan
         Write-Log -Severity 'Information' -Message "cChocoConfig-MaintenanceWindowConfig"
-        Write-Log -Severity 'Information' -Message "Name: $($MaintenanceWindowConfig.Name)"
+        Write-Log -Severity 'Information' -Message "ConfigName: $($MaintenanceWindowConfig.ConfigName)"
         Write-Log -Severity 'Information' -Message "EffectiveDateTime: $($MaintenanceWindowConfig.EffectiveDateTime)"
         Write-Log -Severity 'Information' -Message "Start: $($MaintenanceWindowConfig.Start)"
         Write-Log -Severity 'Information' -Message "End: $($MaintenanceWindowConfig.End)"

@@ -43,6 +43,7 @@ function New-cChocoExPackageInstallFile {
             'OverrideMaintenanceWindow ($True/$False)'
             'VPN ($True/$False)'
             'Ring'
+            'Priority'
         )
 
         #Ensure choco is installed
@@ -122,6 +123,9 @@ function New-cChocoExPackageInstallFile {
                 }
                 if ($HashTable.('VPN ($True/$False)')) {
                     $ExportString += "`t`tVPN`t`t= $($HashTable.('VPN ($True/$False)'))`n"
+                }
+                if ($HashTable.('Priority')) {
+                    $ExportString += "`t`tPriority`t`t= $($HashTable.('Priority'))`n"
                 }
             }
             $ExportString += "`t}`n"

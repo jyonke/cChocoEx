@@ -1,5 +1,6 @@
 .DS_Store
 todo.txt
-*.nupkg
 *.key
 nuget.exe
+/builds/*
+/test/*

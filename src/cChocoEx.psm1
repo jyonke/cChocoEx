@@ -3,7 +3,7 @@ $PrivateFunctions = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -Recurse 
 
 foreach ($Import in @($PublicFunctions + $PrivateFunctions)) {
     $Import
-    Try { . $Import.FullName -Verbose}
+    Try { . $Import.FullName -Verbose }
     Catch { Write-Error -Message "Failed to import function $($Import.FullName): $_" }
 }
 

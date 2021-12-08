@@ -37,8 +37,9 @@ function Test-cChocoExPackageInstall {
                 $ConfigImport = Import-PowerShellDataFile $_.FullName 
                 $Configurations += $ConfigImport | ForEach-Object { $_.Values }
             }        
+            $PriorityConfigurations = Get-PackagePriority -Configurations $Configurations
                     
-            $Configurations | ForEach-Object {
+            $PriorityConfigurations | ForEach-Object {
                 $DSC = $null
                 $Configuration = $_
                 $Object = [PSCustomObject]@{
@@ -53,11 +54,13 @@ function Test-cChocoExPackageInstall {
                     Params                    = $Configuration.Params
                     ChocoParams               = $Configuration.ChocoParams
                     Ring                      = $Configuration.Ring
+                    Priority                  = $Configuration.Priority
                     OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
                 }
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Priority")
     
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC

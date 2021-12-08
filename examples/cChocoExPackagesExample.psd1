@@ -17,16 +17,19 @@
         Name        = "adobereader"
         Ensure      = 'Present'
         AutoUpgrade = $True
+        Priority    = 10
     }
     "7zip.install"                       = @{
         Name        = "7zip.install"
         Ensure      = 'Present'
         AutoUpgrade = $True
+        Priority    = 0
     }
     "notepadplusplus.install"            = @{
         Name        = "notepadplusplus.install"
         Ensure      = 'Present'
         AutoUpgrade = $True
+        Priority    = 0
     }
     "vlc-broad"                          = @{
         Name                      = "vlc"
@@ -79,14 +82,14 @@
         AutoUpgrade = $True
         VPN         = $False
     }
-    'firefox-x64'                        = @{
-        Name    = 'firefox-x64'
+    'firefox'                            = @{
+        Name    = 'firefox'
         Version = "87.0"
         Ensure  = 'Present'
         Ring    = 'broad'
     }
-    'firefox-x64-latest'                 = @{
-        Name        = 'firefox-x64'
+    'firefox-latest'                     = @{
+        Name        = 'firefox'
         Ensure      = 'Present'
         AutoUpgrade = $True
         Ring        = 'Pilot'

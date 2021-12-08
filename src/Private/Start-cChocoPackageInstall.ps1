@@ -5,7 +5,8 @@ function Start-cChocoPackageInstall {
         [array]
         $Configurations
     )
-    
+
+    $ActiveToast = $false
     Write-Log -Severity "Information" -Message "cChocoPackageInstall:Validating Chocolatey Packages are Setup"
 
     #Evaluate Ring Status
@@ -17,7 +18,7 @@ function Start-cChocoPackageInstall {
 
     #Validate No Duplicate Packages Defined with no Ring Details
     $DuplicateSearch = (Compare-Object -ReferenceObject $Configurations.Name -DifferenceObject ($Configurations.Name | Select-Object -Unique) | Where-Object { $_.SideIndicator -eq '<=' }).InputObject
-    $Duplicates = $Configurations | Where-Object { $DuplicateSearch -eq $_.Name } | Where-Object { $_.Ring -eq $null }
+    $Duplicates = $Configurations | Where-Object { $DuplicateSearch -eq $_.Name } | Where-Object { $null -eq $_.Ring }
     if ($Duplicates) {
         Write-Log -Severity 'Warning' -Message "Duplicate cChocoPackageInstall"
         Write-Log -Severity 'Warning' -Message "Duplicate Package Found removing from active processesing"
@@ -33,6 +34,7 @@ function Start-cChocoPackageInstall {
             Write-Log -Severity 'Warning' -Message "Params: $($_.Params)"
             Write-Log -Severity 'Warning' -Message "ChocoParams: $($_.ChocoParams)"
             Write-Log -Severity 'Warning' -Message "Ring: $($_.Ring)"
+            Write-Log -Severity 'Warning' -Message "Priority: $($_.Priority)"
             Write-Log -Severity 'Warning' -Message "OverrideMaintenanceWindow: $($_.OverrideMaintenanceWindow)"
             Write-Log -Severity 'Warning' -Message "Duplicate Package Defined"
         }
@@ -66,6 +68,7 @@ function Start-cChocoPackageInstall {
             Params                    = $Configuration.Params
             ChocoParams               = $Configuration.ChocoParams
             Ring                      = $Configuration.Ring
+            Priority                  = $Configuration.Priority
             OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
             Warning                   = $null
         }
@@ -89,6 +92,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Priority")
                 $Object.Warning = "Configuration restricted when VPN is connected"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -99,6 +103,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Priority")
                 $Object.Warning = "Configuration restricted when VPN is not established"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -118,6 +123,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("VPN")
+                $Configuration.Remove("Priority")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object        
@@ -126,22 +132,34 @@ function Start-cChocoPackageInstall {
             $Configuration.Remove("Ring")
         }
         #Evaluate Maintenance Window Restrictions
-        if ($Configuration.OverrideMaintenanceWindow -ne $true) {
+        if (($Configuration.OverrideMaintenanceWindow -ne $true) -and ($Global:OverrideMaintenanceWindow -ne $true)) {
             if (-not($Global:MaintenanceWindowEnabled -and $Global:MaintenanceWindowActive)) {
                 $Object.Warning = "Configuration restricted to Maintenance Window"
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("VPN")
+                $Configuration.Remove("Priority")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
-                $Status += $Object        
+                $Status += $Object   
+                #Create Pending Update Notice
+                if (($Global:EnableNotifications) -and (-not($DSC))) {
+                    $UpdateToast = $true
+                }
+
                 return
             }
         }
         $Configuration.Remove("OverrideMaintenanceWindow")
+        $Configuration.Remove("Priority")
 
         $DSC = Test-TargetResource @Configuration
         if (-not($DSC)) {
+            #Create Active Update Notice
+            if ((-not($ActiveToast)) -and $Global:EnableNotifications) {
+                New-PackageInstallNotification
+                $ActiveToast = $true
+            }
             $null = Set-TargetResource @Configuration
             $DSC = Test-TargetResource @Configuration
         }
@@ -166,10 +184,29 @@ function Start-cChocoPackageInstall {
         Write-Log -Severity 'Information' -Message "Params: $($_.Params)"
         Write-Log -Severity 'Information' -Message "ChocoParams: $($_.ChocoParams)"
         Write-Log -Severity 'Information' -Message "Ring: $($_.Ring)"
+        Write-Log -Severity 'Information' -Message "Priority: $($_.Priority)"
         Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($_.OverrideMaintenanceWindow)"
         if ($_.Warning) {
             Write-Log -Severity Warning -Message "$($_.Warning)"
         }
     }
     Write-Host '----------cChocoPackageInstall----------' -ForegroundColor DarkCyan
+    
+    #Complete Active Toast Notification
+    $PendingReboot = Test-PendingReboot -ErrorAction SilentlyContinue
+
+    if ($Global:EnableNotifications -and $ActiveToast) {
+        if ($PendingReboot) {
+            Update-PackageInstallNotification -PendingReboot
+        }
+        else {
+            Update-PackageInstallNotification
+        }
+    } 
+    
+    #Create Pending Update Toast
+    if ($Global:EnableNotifications -and $UpdateToast) {
+        $GetcChocoExMaintenanceWindow = Get-cChocoExMaintenanceWindow
+        New-PendingUpdateNotification -Start $GetcChocoExMaintenanceWindow.Start -End $GetcChocoExMaintenanceWindow.End -UTC $GetcChocoExMaintenanceWindow.UTC
+    }
 }

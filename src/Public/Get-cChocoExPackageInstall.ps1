@@ -49,6 +49,7 @@ function Get-cChocoExPackageInstall {
                     OverrideMaintenanceWindow = $_.OverrideMaintenanceWindow
                     VPN                       = $_.VPN
                     Ring                      = $_.Ring
+                    Priority                  = $_.Priority
                 }
             }
         }
