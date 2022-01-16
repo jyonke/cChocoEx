@@ -77,7 +77,7 @@ function Start-cChocoEx {
     if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
-    }    
+    }   
 
     #Enable TLS 1.2
     #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
@@ -92,6 +92,8 @@ function Start-cChocoEx {
 
     #Ensure cChocoEx Data Folder Structure is Created
     Set-cChocoExFolders
+    
+    Write-Log -Severity 'Information' -Message "Starting cChocoEx"
     
     #Register cChocoEx Task
     Register-cChocoExTask
@@ -122,7 +124,21 @@ function Start-cChocoEx {
     else {
         $Global:OverrideMaintenanceWindow = $False
     }
-        
+
+    #Ensure Notification Prerequisites are Installed and Imported
+    if ($Global:EnableNotifications) {
+        $OSMajorVersion = (Get-CimInstance -ClassName Win32_OperatingSystem -Property Version).Version.Split('.')[0]
+        if ([int]$OSMajorVersion -lt 10) {
+            Write-Log -Severity 'Warning' -Message 'Notifications Require Windows 10 or Server 2016 and Greater'
+            $Global:EnableNotifications = $false
+        }
+        else {
+            Install-BurntToast
+            Install-RunAsUser    
+        }
+    }
+    
+    #Log Task Sequence Detection
     Write-Log -Severity 'Information' -Message "Task Sequence Environemnt Detected: $TSEnv"
 
     #cChocoInstaller
@@ -161,10 +177,20 @@ function Start-cChocoEx {
     #Settings
     if ($SettingsURI) {
         $Destination = (Join-Path $cChocoExTMPConfigurationFolder "bootstrap-cchoco.psd1")
-        switch (Test-PathEx -Path $SettingsURI) {
-            'URL' { Invoke-WebRequest -Uri $SettingsURI -UseBasicParsing -OutFile $Destination }
-            'FileSystem' { Copy-Item -Path $SettingsURI -Destination $Destination -Force }
-        }    
+
+        try {
+            Write-Log -Severity 'Information' -Message "Downloading SettingsURI File"
+            Write-Log -Severity 'Information' -Message "Source: $SettingsURI"
+            Write-Log -Severity 'Information' -Message "Destination: $Destination"
+
+            switch (Test-PathEx -Path $SettingsURI) {
+                'URL' { Invoke-WebRequest -Uri $SettingsURI -UseBasicParsing -OutFile $Destination }
+                'FileSystem' { Copy-Item -Path $SettingsURI -Destination $Destination -Force }
+            }        
+        }
+        catch {
+            Write-Log -Severity 'Warning' -Message $_.Exception.Message
+        }
         $SettingsFile = Import-PowerShellDataFile -Path $Destination
         $Settings = $SettingsFile | ForEach-Object { $_.Keys | ForEach-Object { $SettingsFile.$_ } } 
     
@@ -205,11 +231,21 @@ function Start-cChocoEx {
         if ($NoCache) {
             $Global:ChocoConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "config.psd1")
         }
-        switch (Test-PathEx -Path $ChocoConfig) {
-            'URL' { Invoke-WebRequest -Uri $ChocoConfig -UseBasicParsing -OutFile $ChocoConfigDestination }
-            'FileSystem' { Copy-Item -Path $ChocoConfig -Destination $ChocoConfigDestination -Force }
+
+        try {
+            Write-Log -Severity 'Information' -Message "Downloading Choco Config File"
+            Write-Log -Severity 'Information' -Message "Source: $ChocoConfig"
+            Write-Log -Severity 'Information' -Message "Destination: $ChocoConfigDestination"
+
+            switch (Test-PathEx -Path $ChocoConfig) {
+                'URL' { Invoke-WebRequest -Uri $ChocoConfig -UseBasicParsing -OutFile $ChocoConfigDestination }
+                'FileSystem' { Copy-Item -Path $ChocoConfig -Destination $ChocoConfigDestination -Force }
+            } 
+            Write-Log -Severity 'Information' -Message 'Chocolatey Config File Set.'   
         }
-        Write-Log -Severity 'Information' -Message 'Chocolatey Config File Set.'
+        catch {
+            Write-Log -Severity 'Warning' -Message $_.Exception.Message
+        }
     }
 
     #Copy Sources Config
@@ -218,11 +254,21 @@ function Start-cChocoEx {
         if ($NoCache) {
             $Global:SourcesConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "sources.psd1")
         }
-        switch (Test-PathEx -Path $SourcesConfig) {
-            'URL' { Invoke-WebRequest -Uri $SourcesConfig -UseBasicParsing -OutFile $SourcesConfigDestination }
-            'FileSystem' { Copy-Item -Path $SourcesConfig -Destination $SourcesConfigDestination -Force }
+
+        try {
+            Write-Log -Severity 'Information' -Message "Downloading Source Config File"
+            Write-Log -Severity 'Information' -Message "Source: $SourcesConfig"
+            Write-Log -Severity 'Information' -Message "Destination: $SourcesConfigDestination"
+
+            switch (Test-PathEx -Path $SourcesConfig) {
+                'URL' { Invoke-WebRequest -Uri $SourcesConfig -UseBasicParsing -OutFile $SourcesConfigDestination }
+                'FileSystem' { Copy-Item -Path $SourcesConfig -Destination $SourcesConfigDestination -Force }
+            }
+            Write-Log -Severity 'Information' -Message 'Chocolatey Sources File Set.'
         }
-        Write-Log -Severity 'Information' -Message 'Chocolatey Sources File Set.'
+        catch {
+            Write-Log -Severity 'Warning' -Message $_.Exception.Message
+        }
     }
 
     #Copy Features Config
@@ -231,11 +277,20 @@ function Start-cChocoEx {
         if ($NoCache) {
             $Global:FeatureConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "features.psd1")
         }
-        switch (Test-PathEx -Path $FeatureConfig) {
-            'URL' { Invoke-WebRequest -Uri $FeatureConfig -UseBasicParsing -OutFile $FeatureConfigDestination }
-            'FileSystem' { Copy-Item -Path $FeatureConfig -Destination $FeatureConfigDestination -Force }
+        try {
+            Write-Log -Severity 'Information' -Message "Downloading Feature Config File"
+            Write-Log -Severity 'Information' -Message "Source: $FeatureConfig"
+            Write-Log -Severity 'Information' -Message "Destination: $FeatureConfigDestination"
+
+            switch (Test-PathEx -Path $FeatureConfig) {
+                'URL' { Invoke-WebRequest -Uri $FeatureConfig -UseBasicParsing -OutFile $FeatureConfigDestination }
+                'FileSystem' { Copy-Item -Path $FeatureConfig -Destination $FeatureConfigDestination -Force }
+            }
+            Write-Log -Severity 'Information' -Message 'Chocolatey Feature File Set.'
         }
-        Write-Log -Severity 'Information' -Message 'Chocolatey Feature File Set.'
+        catch {
+            Write-Log -Severity 'Warning' -Message $_.Exception.Message
+        }
     }
 
     #Copy Package Config
@@ -247,12 +302,22 @@ function Start-cChocoEx {
         $PackageConfig | ForEach-Object {
             $Path = $_
             $Destination = (Join-Path $PackageConfigDestination ($_ | Split-Path -Leaf))
-            switch (Test-PathEx -Path $_) {
-                'URL' { Invoke-WebRequest -Uri $Path -UseBasicParsing -OutFile $Destination }
-                'FileSystem' { Copy-Item -Path $Path -Destination $Destination -Force }
+
+            try {
+                Write-Log -Severity 'Information' -Message "Downloading Package Config File"
+                Write-Log -Severity 'Information' -Message "Source: $Path"
+                Write-Log -Severity 'Information' -Message "Destination: $Destination"
+
+                switch (Test-PathEx -Path $_) {
+                    'URL' { Invoke-WebRequest -Uri $Path -UseBasicParsing -OutFile $Destination }
+                    'FileSystem' { Copy-Item -Path $Path -Destination $Destination -Force }
+                }
+                Write-Log -Severity 'Information' -Message 'Chocolatey Package File Set.'
+            }
+            catch {
+                Write-Log -Severity 'Warning' -Message $_.Exception.Message
             }
         }
-        Write-Log -Severity 'Information' -Message 'Chocolatey Package File Set.'
     }
 
     #cChocoConfig
@@ -316,5 +381,4 @@ function Start-cChocoEx {
 
     $null = Set-ExecutionPolicy $CurrentExecutionPolicy -Scope CurrentUser -ErrorAction SilentlyContinue
     RotateLog
-
 }

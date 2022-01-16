@@ -2,6 +2,10 @@ function Move-LegacyConfigurations {
     param (
 
     )
+    
+    #Ensure Folder Structure is Setup
+    Set-cChocoExFolders
+
     $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
     $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
     $cChocoExConfigurationFolderLegacy = (Join-Path -p $env:ChocolateyInstall -ChildPath 'config')

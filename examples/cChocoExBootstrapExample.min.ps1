@@ -8,13 +8,11 @@ $null = Start-Transcript -Path (Join-Path -Path $Env:TEMP -ChildPath 'cChocoExBo
 
 #Required cChocoEx Version
 $Name = 'cChocoEx'
-$MinimumVersion = '22.1.16.3'
+$MinimumVersion = '22.1.16.5'
+$LoopDelay = 90
 
-#Start-cChocoEx Paramater Splat
-$cChocoExParamters = @{
-    Loop      = $true
-    LoopDelay = 90
-}
+#Optional URI to this script source to self update
+$BootstrapUri = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExBootstrapExample.ps1'
 
 ##########################################
 
@@ -23,33 +21,9 @@ Write-Host 'Checking NuGet Package Provider' -ForegroundColor Cyan
 $NuGetPackageProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
 if (-not($NugetPackageProvider)) {
     Write-Host 'Installing NuGet Package Provider' -ForegroundColor Cyan
-    #Manual Deployment if URI defined
-    if ($NuGetPackageProviderURI) {
-        $Version = ($NuGetPackageProviderURI -Split '-' | Select-Object -Last 1) -replace '.dll', ''
-        $OutputDirectory = (Join-Path -Path "$env:ProgramFiles\PackageManagement\ProviderAssemblies\nuget\" -ChildPath $Version)    
-        $Null = New-Item -ItemType Directory -Path $OutputDirectory -ErrorAction SilentlyContinue
-        Invoke-WebRequest -Uri $NuGetPackageProviderURI -UseBasicParsing -OutFile (Join-Path -Path $OutputDirectory -ChildPath 'Microsoft.PackageManagement.NuGetProvider.dll')
-    }
-    else {
-        $null = Find-PackageProvider -Name 'Nuget' -ForceBootstrap -IncludeDependencies
-    }
+    $null = Find-PackageProvider -Name 'Nuget' -ForceBootstrap -IncludeDependencies
 }
 Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue | Select-Object Name, Version, ProviderPath | Format-List
-
-#Register Custom PSRepository
-if ($NugetRepositoryURI) {
-    #PSRepository Splat
-    $RepositoryData = @{
-        Name                      = $NuGetRepositoryName
-        SourceLocation            = $NugetRepositoryURI
-        InstallationPolicy        = 'Trusted'
-        PackageManagementProvider = 'nuget'
-        ErrorAction               = 'SilentlyContinue'
-        Verbose                   = $true
-    }
-    Write-Host 'Register PowerShell Repository' -ForegroundColor Cyan
-    Register-PSRepository @RepositoryData
-}
 
 #Install/Update/Import cChocoEx
 if (-Not(Get-Module -Name $Name -ListAvailable | Where-Object { [version]$_.Version -ge [version]$MinimumVersion })) {
@@ -66,8 +40,9 @@ if ($BootstrapUri) {
     Update-cChocoExBootstrap -Uri $BootstrapUri
 }
 
-#Start cChocoEx
-Start-cChocoEx @cChocoExParamters 
+#Register cChocoEx
+Write-Host 'Register-cChocoExBootStrapTask' -ForegroundColor Cyan
+Register-cChocoExBootStrapTask -LoopDelay $LoopDelay
 
 #Stop Logging
 $null = Stop-Transcript

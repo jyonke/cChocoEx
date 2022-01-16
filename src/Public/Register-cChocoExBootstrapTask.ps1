@@ -22,6 +22,9 @@ function Register-cChocoExBootStrapTask {
     begin {
         #Gather Variables
         Set-GlobalVariables
+        #Setup Folders
+        Set-cChocoExFolders
+
         $TaskName = 'cChocoExBootstrapTask'
         $TaskPath = '\cChocoEx\'
         $UserID = "NT AUTHORITY\SYSTEM"

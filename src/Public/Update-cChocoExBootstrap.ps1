@@ -23,33 +23,42 @@ function Update-cChocoExBootstrap {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
     }
-        
+
+    #Gather Variables
+    Set-GlobalVariables
+    #Setup Folders
+    Set-cChocoExFolders
+
+    Write-Log -Severity 'Information' -Message "Checking for Bootstrap Updates"
+
+    $Path = Join-Path -Path $Global:cChocoExDataFolder -ChildPath 'bootstrap.ps1'
+    $Updated = $false
     try {
         $wc = [System.Net.WebClient]::new()
-        $FileHash = (Get-FileHash -Path "$env:ProgramData\cChocoEx\bootstrap.ps1" -ErrorAction SilentlyContinue).Hash
+        $FileHash = (Get-FileHash -Path $Path -ErrorAction SilentlyContinue).Hash
         $RemoteHash = (Get-FileHash -InputStream ($wc.OpenRead($Uri)) -ErrorAction SilentlyContinue).Hash  
     }
     catch {
         $Updated = $false
         $ErrorMessage = $_.Exception.Message
+        Write-Log -Severity 'Warning' -Message $ErrorMessage
     }
+    
     if ($FileHash -ne $RemoteHash) {
         try {
-            Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile "$env:ProgramData\cChocoEx\bootstrap.ps1"
+            Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $Path
             $Updated = $true
         }
         catch {
             $Updated = $false
             $ErrorMessage = $_.Exception.Message
+            Write-Log -Severity 'Warning' -Message $ErrorMessage
         }
     }
-    [PSCustomObject]@{
-        Path       = "$env:ProgramData\cChocoEx\bootstrap.ps1"
-        Uri        = $Uri
-        FileHash   = $Filehash
-        RemoteHash = $RemoteHash
-        Updated    = $Updated
-        Error      = $ErrorMessage
 
-    }
+    Write-Log -Severity 'Information' -Message "Local Path: $Path"
+    Write-Log -Severity 'Information' -Message "Uri: $Uri"
+    Write-Log -Severity 'Information' -Message "File Hash: $FileHash"
+    Write-Log -Severity 'Information' -Message "Remote Hash: $RemoteHash"
+    Write-Log -Severity 'Information' -Message "Updated: $Updated"
 }

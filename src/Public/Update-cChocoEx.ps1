@@ -18,19 +18,19 @@ function Update-cChocoEx {
         
     try {
         Write-Warning "Uninstall-Module -Name cChocoEx -AllVersions -Force"
-        Uninstall-Module -Name cChocoEx -AllVersions -Force
+        Uninstall-Module -Name 'cChocoEx' -AllVersions -Force
     }
     catch {}
 
     try {
-        Write-Warning "Install-Module -Name cChocoEx -Force"
-        Install-Module -Name cChocoEx -Force
+        Write-Warning "Find-Module cChocoEx | Sort-Object -Property Version -Descending | Install-Module -Force"
+        Find-Module 'cChocoEx' | Sort-Object -Property 'Version' -Descending | Install-Module -Force
     }
     catch {}
 
     try {
         Write-Warning "Import-Module -Name cChocoEx -Force"
-        Import-Module -Name cChocoEx -Force
+        Import-Module -Name 'cChocoEx' -Force
     }
     catch {}
 }
