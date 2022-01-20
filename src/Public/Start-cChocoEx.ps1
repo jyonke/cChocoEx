@@ -146,7 +146,12 @@ function Start-cChocoEx {
         InstallDir            = $InstallDir
         ChocoInstallScriptUrl = $ChocoInstallScriptUrl
     }
-            
+
+    #Set Enviromental Variable for chocolatey url to nupkg
+    if ($ChocoDownloadUrl) {
+        $env:chocolateyDownloadUrl = $ChocoDownloadUrl
+    }
+   
     Start-cChocoInstaller -Configuration $Configuration
 
     $CurrentExecutionPolicy = Get-ExecutionPolicy
@@ -211,9 +216,6 @@ function Start-cChocoEx {
     Write-Log -Severity 'Information' -Message "PackageConfig: $PackageConfig"
     Write-Log -Severity 'Information' -Message "ChocoConfig: $ChocoConfig"
     Write-Log -Severity 'Information' -Message "FeatureConfig: $FeatureConfig"
-
-    #Set Enviromental Variable for chocolatey url to nupkg
-    $env:chocolateyDownloadUrl = $ChocoDownloadUrl
 
     if ($WipeCache) {
         Write-Log -Severity 'Information' -Message 'WipeCache Enabled. Wiping any previously downloaded psd1 configuration files'
