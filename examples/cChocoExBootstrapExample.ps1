@@ -37,7 +37,7 @@ $cChocoExParamters = @{
 
 #Check and Ensure NuGet Provider is Setup
 Write-Host 'Checking NuGet Package Provider' -ForegroundColor Cyan
-$NuGetPackageProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
+$NuGetPackageProvider = Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue
 if (-not($NugetPackageProvider)) {
     Write-Host 'Installing NuGet Package Provider' -ForegroundColor Cyan
     #Manual Deployment if URI defined
@@ -51,7 +51,7 @@ if (-not($NugetPackageProvider)) {
         $null = Find-PackageProvider -Name 'Nuget' -ForceBootstrap -IncludeDependencies
     }
 }
-Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue | Select-Object Name, Version, ProviderPath | Format-List
+Get-PackageProvider -Name NuGet -ListAvailable -ErrorAction SilentlyContinue | Select-Object Name, Version, ProviderPath | Format-List
 
 #Register Custom PSRepository
 if ($NugetRepositoryURI) {
