@@ -78,34 +78,61 @@ function Start-cChocoEx {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
     }   
-
+    
     #Enable TLS 1.2
     #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
     #Set Global Variables
     Set-GlobalVariables
-    $Global:MaintenanceWindowEnabled = $True
-    $Global:MaintenanceWindowActive = $True
-    $Global:TSEnv = Test-TSEnv
+    #$Global:MaintenanceWindowEnabled = $True
+    #$Global:MaintenanceWindowActive = $True
+    #$Global:TSEnv = Test-TSEnv
     $Global:EnableNotifications = $EnableNotifications
 
+    #Ensure EventLog Sources are Setup
+    #Register-EventSource
+
+    #Exclude Machines Set to Exclude Ring
+    if ((Get-cChocoExRing) -eq 'Exclude') {  
+        Write-Log -Severity 'Information' -Message 'This machine is set to the Exclude Ring. cChocoEx Stopped'
+        Break
+    }
+
+    #Validate Current Execution Policy
+    $CurrentExecutionPolicy = Get-ExecutionPolicy
+    try {
+        $null = Set-ExecutionPolicy Bypass -Scope CurrentUser
+    }
+    catch {
+        Write-Log -Severity 'Warning' -Message "Error Changing Execution Policy"
+    }
+
+    #Log Start
+    try {
+        Write-Log -Severity 'Information' -Message 'cChocoEx Started'
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4000 -EntryType Information -Message 'cChocoEx Started'
+    }
+    catch {
+        Write-Warning "Error Starting Log, wiping and retrying"
+        Write-Log -Severity 'Information' -Message 'cChoco Bootstrap Started' -New
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4000 -EntryType Information -Message 'cChocoEx Started'
+    }
+
     #Ensure cChocoEx Data Folder Structure is Created
-    Set-cChocoExFolders
-    
-    Write-Log -Severity 'Information' -Message "Starting cChocoEx"
+    #Set-cChocoExFolders
     
     #Register cChocoEx Task
     Register-cChocoExTask
 
     #Ensure Registry Is Setup
-    Set-RegistryConfiguration
+    #Set-RegistryConfiguration
 
     #Ensure cChocoEx Tasks are Running
     Start-cChocoExTask
 
     #Update Media Folder
-    $null = Copy-Item -Path (Join-path -Path ($PSScriptRoot | Split-Path) -ChildPath 'Media\*') -Destination $cChocoExMediaFolder -Recurse -Force
+    $null = Copy-Item -Path (Join-Path -Path ($PSScriptRoot | Split-Path) -ChildPath 'Media\*') -Destination $cChocoExMediaFolder -Recurse -Force
 
     #Ensure cChoco Module Is Present and Available
     if (-not($ModuleBase)) {
@@ -113,10 +140,12 @@ function Start-cChocoEx {
         Break
     }
 
+    #Migrate Legacy Configuration Files
     if ($MigrateLegacyConfigurations) {
         Move-LegacyConfigurations
     }
 
+    #Evaluate Mainteance Window Override
     if ($OverrideMaintenanceWindow) {
         $Global:OverrideMaintenanceWindow = $True
         Write-Log -Severity 'Information' -Message 'Global OverrideMaintenanceWindow Enabled'
@@ -138,10 +167,9 @@ function Start-cChocoEx {
         }
     }
     
-    #Log Task Sequence Detection
-    Write-Log -Severity 'Information' -Message "Task Sequence Environemnt Detected: $TSEnv"
-
+    ################
     #cChocoInstaller
+    ################
     $Configuration = @{
         InstallDir            = $InstallDir
         ChocoInstallScriptUrl = $ChocoInstallScriptUrl
@@ -151,26 +179,16 @@ function Start-cChocoEx {
     if ($ChocoDownloadUrl) {
         $env:chocolateyDownloadUrl = $ChocoDownloadUrl
     }
-   
     Start-cChocoInstaller -Configuration $Configuration
 
-    $CurrentExecutionPolicy = Get-ExecutionPolicy
-    try {
-        $null = Set-ExecutionPolicy Bypass -Scope CurrentUser
+    #Ensure Chocolatey Config is Valid
+    #https://github.com/chocolatey/choco/issues/1047
+    if (-not(Test-ChocolateyConfig)) {
+        $Reset = Reset-ChocolateyConfig
+        Write-Log -Severity 'Information' -Message $Reset.Config
+        Write-Log -Severity 'Information' -Message "Chocolatey Config Reset: $($Reset.Reset)"
     }
-    catch {
-        Write-Log -Severity 'Warning' -Message "Error Changing Execution Policy"
-    }
-
-    try {
-        Write-Log -Severity 'Information' -Message 'cChocoEx Started'
-    }
-    catch {
-        Write-Warning "Error Starting Log, wiping and retrying"
-        Write-Log -Severity 'Information' -Message 'cChoco Bootstrap Started' -New
-
-    }
-
+    
     #Evaluate Random Delay Switch
     if ($RandomDelay) {
         $RandomSeconds = Get-Random -Minimum 0 -Maximum 1800
@@ -375,12 +393,13 @@ function Start-cChocoEx {
     }
 
     #Register cChocoEx BootStrap Task if Enabled
-    if ($Loop -and (-not($TSEnv))) {
+    if ($Loop) {
         Write-Log -Severity "Information" -Message "Function Looping Enabled"
         Write-Log -Severity "Information" -Message "Looping Delay: $LoopDelay Minutes"
         Register-cChocoExBootStrapTask -LoopDelay $LoopDelay
     }
 
     $null = Set-ExecutionPolicy $CurrentExecutionPolicy -Scope CurrentUser -ErrorAction SilentlyContinue
+    Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4001 -EntryType Information -Message 'cChocoEx Finished'
     RotateLog
 }

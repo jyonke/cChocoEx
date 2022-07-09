@@ -6,7 +6,12 @@ Returns Chocolatey Install DSC Configuration Status in cChocoEx as a PowerShell 
 #>
 function Test-cChocoExInstaller {
     [CmdletBinding()]
-    param ()
+    param (
+        # Return True or False for all tests
+        [Parameter()]
+        [switch]
+        $Quiet
+    )
     
     begin {
         [array]$Status = @()
@@ -18,13 +23,13 @@ function Test-cChocoExInstaller {
     
     process {
         $Configuration = @{
-            InstallDir            = $env:ChocolateyInstall
+            InstallDir = $env:ChocolateyInstall
         }
 
         $Object = [PSCustomObject]@{
-            Name                  = 'chocolatey'
-            DSC                   = $null
-            InstallDir            = $Configuration.InstallDir
+            Name       = 'chocolatey'
+            DSC        = $null
+            InstallDir = $Configuration.InstallDir
         }
         $DSC = $null
         $DSC = Test-TargetResource @Configuration
@@ -37,7 +42,17 @@ function Test-cChocoExInstaller {
     }
     
     end {
-        $Status
+        if ($Quiet) {
+            if ($Status | Where-Object { $_.DSC -eq $False }) {
+                return $False
+            }
+            else {
+                return $True
+            }
+        }
+        else {
+            return $Status
+        }
     }
     
 }

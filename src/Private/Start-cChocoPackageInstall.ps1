@@ -14,7 +14,7 @@ function Start-cChocoPackageInstall {
     Write-Log -Severity 'Information' -Message "Local Machine Deployment Ring: $Ring"
     
     #Evaluate VPN Status
-    $VPNStatus = Get-VPNStatus
+    $VPNStatus = Get-VPN -Active
 
     #Validate No Duplicate Packages Defined with no Ring Details
     $DuplicateSearch = (Compare-Object -ReferenceObject $Configurations.Name -DifferenceObject ($Configurations.Name | Select-Object -Unique) | Where-Object { $_.SideIndicator -eq '<=' }).InputObject

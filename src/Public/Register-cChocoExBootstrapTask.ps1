@@ -25,6 +25,24 @@ function Register-cChocoExBootStrapTask {
         #Setup Folders
         Set-cChocoExFolders
 
+        #Restrictions
+        if (Test-TSEnv) {
+            Write-Log -Severity "Information" -Message "Task Sequence Environment Detected, Registration of Bootstrap Task Restricted"
+            break
+        }
+        if (Test-IsWinPe) {
+            Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of Bootstrap Task Restricted"
+            break
+        }
+        if (Test-IsWinOs.OOBE) {
+            Write-Log -Severity "Information" -Message "WinOS OOBE Environment Detected, Registration of Bootstrap Task Restricted"
+            break
+        }
+        if (Test-IsWinSE) {
+            Write-Log -Severity "Information" -Message "WinSE Environment Detected, Registration of Bootstrap Task Restricted"
+            break
+        }
+
         $TaskName = 'cChocoExBootstrapTask'
         $TaskPath = '\cChocoEx\'
         $UserID = "NT AUTHORITY\SYSTEM"
@@ -32,7 +50,7 @@ function Register-cChocoExBootStrapTask {
         $Description = "This task is part of the loop functionality in cChocoEx. It runs $FilePath at startup and upon a defined interval"
 
         $ScheduledTaskSettingsSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances 'IgnoreNew'
-        $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserID $UserID -LogonType ServiceAccount -RunLevel Highest
+        $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserId $UserID -LogonType ServiceAccount -RunLevel Highest
         $TaskTrigger01 = New-ScheduledTaskTrigger -AtStartup
         $TaskTrigger02 = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes($LoopDelay)) -RepetitionInterval (New-TimeSpan -Minutes $LoopDelay)
         $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""

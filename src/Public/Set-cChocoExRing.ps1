@@ -8,7 +8,7 @@ function Set-cChocoExRing {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
-        [ValidateSet("Preview", "Canary", "Pilot", "Fast", "Slow", "Broad")]
+        [ValidateSet("Preview", "Canary", "Pilot", "Fast", "Slow", "Broad", "Exclude")]
         [string]
         $Ring
     )

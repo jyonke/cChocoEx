@@ -8,3 +8,12 @@ foreach ($Import in @($PublicFunctions + $PrivateFunctions)) {
 }
 
 Export-ModuleMember -Function $PublicFunctions.BaseName
+
+#Ensure cChocoEx Data Folder Structure is Created
+Set-cChocoExFolders
+
+#Ensure Registry Is Setup
+Set-RegistryConfiguration
+
+#Ensure EventLog Sources are Setup
+Register-EventSource

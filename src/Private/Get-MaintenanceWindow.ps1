@@ -55,7 +55,9 @@ function Get-MaintenanceWindow {
         Write-Verbose "MaintenanceWindowEnabled True - Date is greater than Effective Date Time"
 
     }
-    if ($Global:TSEnv) {
+
+    #Enviroment Overrides
+    if (Test-TSEnv -eq $True) {
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Task Sequence Environment True - Overriding Maintenance Window'
@@ -66,13 +68,44 @@ function Get-MaintenanceWindow {
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Global OverrideMaintenanceWindow Flag Enabled - Overriding Maintenance Window'
     }
+
+    if (Test-IsWinOS.OOBE -eq $True) {
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        Write-Verbose 'Windows OS OOBE Environment True - Overriding Maintenance Window'
+    }
     
+    if (Test-IsWinPE -eq $True) {
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        Write-Verbose 'Windows PE Environment True - Overriding Maintenance Window'
+    }
+    
+    if (-not(Get-LoggedInUser)) {
+        $Global:MaintenanceWindowEnabled = $True
+        $Global:MaintenanceWindowActive = $True
+        Write-Verbose 'No User Logged on - Overriding Maintenance Window'
+    }
     Write-Verbose "DateTimeofDay: $($Date.TimeOfDay)"
     Write-Verbose "StartTimeTimeOfDay: $($StartTime.TimeOfDay)"
     Write-Verbose "EndTimeTimeOfDay: $($EndTime.TimeOfDay)"
     Write-Verbose "EffectiveDateTime: $EffectiveDateTime"
     Write-Verbose "MaintenanceWindowEnabled: $Global:MaintenanceWindowEnabled"
     Write-Verbose "MaintenanceWindowActive: $Global:MaintenanceWindowActive"
+
+    if ($Global:MaintenanceWindowEnabled) {
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4010 -EntryType Information -Message 'MaintenanceWindowEnabled: True'
+    }
+    else {
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4011 -EntryType Information -Message 'MaintenanceWindowEnabled: False'
+    }
+
+    if ($Global:MaintenanceWindowActive) {
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4012 -EntryType Information -Message 'MaintenanceWindowActive: True'
+    }
+    else {
+        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4013 -EntryType Information -Message 'MaintenanceWindowActive: False'
+    }
 
     return [PSCustomObject]@{
         MaintenanceWindowEnabled = $Global:MaintenanceWindowEnabled

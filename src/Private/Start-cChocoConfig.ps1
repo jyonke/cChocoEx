@@ -5,7 +5,6 @@ function Start-cChocoConfig {
         [hashtable]
         $ConfigImport
     )
-    $TSEnv = Test-TSEnv
 
     Write-Log -Severity 'Information' -Message "cChocoConfig:Validating Chocolatey Configurations are Setup"
     $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoConfig")
@@ -52,7 +51,33 @@ function Start-cChocoConfig {
     $Global:MaintenanceWindowEnabled = $True
     $Global:MaintenanceWindowActive = $True
 
-    if ($MaintenanceWindowConfig -and (-not($TSEnv))) {
+    #Restrictions
+    if (Test-TSEnv) {
+        Write-Log -Severity 'Information' -Message "Task Sequence Environment Detected, Overriding Maintennce Window Settings"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+        break
+    }
+    if (Test-IsWinPe) {
+        Write-Log -Severity 'Information' -Message "WinPE Environment Detected, Overriding Maintennce Window Settings"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+        break
+    }
+    if (Test-IsWinOs.OOBE) {
+        Write-Log -Severity 'Information' -Message "WinOS OOBE Environment Detected, Overriding Maintennce Window Settings"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+        break
+    }
+    if (Test-IsWinSE) {
+        Write-Log -Severity 'Information' -Message "WinSE OOBE Environment Detected, Overriding Maintennce Window Settings"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+        break
+    }
+
+    if ($MaintenanceWindowConfig) {
         $MaintenanceWindowTest = Get-MaintenanceWindow -StartTime $MaintenanceWindowConfig.Start -EndTime $MaintenanceWindowConfig.End -EffectiveDateTime $MaintenanceWindowConfig.EffectiveDateTime -UTC $MaintenanceWindowConfig.UTC
         $Global:MaintenanceWindowEnabled = $MaintenanceWindowTest.MaintenanceWindowEnabled
         $Global:MaintenanceWindowActive = $MaintenanceWindowTest.MaintenanceWindowActive
@@ -69,10 +94,5 @@ function Start-cChocoConfig {
     }
     else {
         Write-Log -Severity 'Warning' -Message "No Defined Maintenance Window"
-    }
-    if ($TSEnv) {
-        Write-Log -Severity 'Information' -Message "Task Sequence Environment Detected, overriding maintennce window settings"
-        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
-        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
     }
 }

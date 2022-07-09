@@ -10,7 +10,11 @@ function Test-cChocoExConfig {
         # Path
         [Parameter()]
         [string]
-        $Path
+        $Path,
+        # Return True or False for all tests
+        [Parameter()]
+        [switch]
+        $Quiet
     )
     
     begin {
@@ -59,7 +63,16 @@ function Test-cChocoExConfig {
     }
     
     end {
-        $Status
+        if ($Quiet) {
+            if ($Status | Where-Object { $_.DSC -eq $False }) {
+                return $False
+            }
+            else {
+                return $True
+            }
+        }
+        else {
+            return $Status
+        }
     }
-    
 }

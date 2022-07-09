@@ -8,6 +8,7 @@ $NuspecFile = (Get-ChildItem -Path $PSScriptRoot -Recurse -Filter cChocoEx.nuspe
 $ModuleManifestFile = (Get-ChildItem -Path $PSScriptRoot -Recurse -Filter 'cChocoEx.psd1').FullName
 $BuildDirectory = "$PSScriptRoot\builds"
 $APIKey = Get-Content -Path "$PSScriptRoot\api.key"
+$Branch = git rev-parse --abbrev-ref HEAD
 
 Write-Host "    NUSPEC FILE: $NuspecFile" -ForegroundColor Cyan
 Write-Host "BUILD DIRECTORY: $BuildDirectory" -ForegroundColor Cyan
@@ -33,7 +34,7 @@ try {
     Update-ModuleManifest -Path $ModuleManifestFile -ModuleVersion $BuildVersion
 
     #Update Version in Nuspec
-    [xml]$xml = Get-Content -path $NuSpecFile -Raw
+    [xml]$xml = Get-Content -Path $NuSpecFile -Raw
     $xml.package.metadata.version = $BuildVersion
     #$xml.SelectSingleNode('/nuspec:package/nuspec:metadata/nuspec:description', $ns).InnerText = Get-Content -Raw (Join-Path $Directory 'ReadMe.md')
     $xml.Save($NuSpecFile)
@@ -60,7 +61,7 @@ catch {
 
 #Push
 try {
-    $NupkgFile = (Get-ChildItem -Path $BuildDirectory -Filter *.nupkg | Where-Object {$_.Name -Match $BuildVersion}).FullName
+    $NupkgFile = (Get-ChildItem -Path $BuildDirectory -Filter *.nupkg | Where-Object { $_.Name -Match $BuildVersion }).FullName
     #Argumenbts
     $ArgumentList = @(
         'push'

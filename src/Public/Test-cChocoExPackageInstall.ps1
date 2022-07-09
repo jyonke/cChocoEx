@@ -10,7 +10,11 @@ function Test-cChocoExPackageInstall {
         # Path
         [Parameter()]
         [string]
-        $Path
+        $Path,
+        # Return True or False for all tests
+        [Parameter()]
+        [switch]
+        $Quiet
     )
     
     begin {
@@ -20,7 +24,7 @@ function Test-cChocoExPackageInstall {
         $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
         $ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
         $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoPackageInstall")
-        Import-Module $ModulePath    
+        Import-Module $ModulePath  
 
         if ($Path) {
             $cChocoExPackageFiles = Get-Item -Path $Path
@@ -45,6 +49,8 @@ function Test-cChocoExPackageInstall {
                 $Object = [PSCustomObject]@{
                     Name                      = $Configuration.Name
                     DSC                       = $null
+                    InstallVersion            = $null
+                    InstallDate               = $null
                     Version                   = $Configuration.Version
                     MinimumVersion            = $Configuration.MinimumVersion
                     Ensure                    = $Configuration.Ensure
@@ -76,7 +82,34 @@ function Test-cChocoExPackageInstall {
     }
     
     end {
-        $Status
+        if ($Quiet) {
+            if ($Status | Where-Object { $_.DSC -eq $False }) {
+                return $False
+            }
+            else {
+                return $True
+            }
+        }
+        else {
+            $ChocoInstalled = Import-Clixml -Path (Join-Path $env:ChocolateyInstall 'cache\ChocoInstalled.xml') -ErrorAction SilentlyContinue
+            if ($ChocoInstalled) {
+                $Status | ForEach-Object {
+                    $item = $_
+                    $InstallVersion = $ChocoInstalled | Where-Object { $_.Name -eq $Item.Name } | Select-Object -ExpandProperty Version
+                    if ($InstallVersion) {
+                        $item.InstallVersion = $InstallVersion
+                    }
+                    $InstallDate = Get-Item -Path (Join-Path $env:ChocolateyInstall "lib\$($item.Name)") -Filter *.nuspec | Select-Object -ExpandProperty CreationTime
+                    if ($InstallDate) {
+                        $item.InstallDate = $InstallDate
+                    }
+                }
+                return $Status
+            }
+            else {
+                return $Status
+            }
+        }
     }
     
 }

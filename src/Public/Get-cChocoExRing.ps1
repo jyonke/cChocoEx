@@ -14,7 +14,7 @@ function Get-cChocoExRing {
     if (Test-Path -Path $LegacyPath) {
         Write-Warning "Legacy Registry Path Found, Migrating to $Path"
         $LegacyRing = (Get-ItemProperty -Path $LegacyPath -Name 'Ring' -ErrorAction SilentlyContinue).Ring
-        if ($LegacyRing -and ($LegacyRing -match 'Preview|Canary|Pilot|Fast|Slow|Broad')) {
+        if ($LegacyRing -and ($LegacyRing -match 'Preview|Canary|Pilot|Fast|Slow|Broad|Exclude')) {
             Write-Warning 'Legacy Ring Found Migrating'
             Write-Warning $LegacyRing
             Set-cChocoExRing -Ring $LegacyRing
@@ -24,7 +24,7 @@ function Get-cChocoExRing {
     }
     try {
         $Ring = (Get-ItemProperty -Path $Path -Name 'Ring' -ErrorAction SilentlyContinue).Ring
-        if ($Ring -notmatch 'Preview|Canary|Pilot|Fast|Slow|Broad' -and $null -ne $Ring) {
+        if ($Ring -notmatch 'Preview|Canary|Pilot|Fast|Slow|Broad|Exclude' -and $null -ne $Ring) {
             Write-Warning "$Ring is an Invalid Ring Value, Defaulting to Broad Ring"
             $Ring = 'Broad'
             Set-cChocoExRing -Ring $Ring

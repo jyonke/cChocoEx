@@ -7,7 +7,7 @@ function Start-cChocoSource {
     )
 
     #Evaluate VPN Status
-    $VPNStatus = Get-VPNStatus
+    $VPNStatus = Get-VPN
 
     Write-Log -Severity "Information" -Message "cChocoSource:Validating Chocolatey Sources are Setup"
     $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoSource")
@@ -34,13 +34,13 @@ function Start-cChocoSource {
         if ($null -ne $Configuration.VPN) {
             if ($Configuration.VPN -eq $false -and $VPNStatus) {
                 $Configuration.Remove("VPN")
-                $Object.Warning = "Configuration restricted when VPN is connected"
+                $Object.Warning = "Configuration restricted when a VPN adapter is found"
                 $Configuration.Ensure = 'Absent'
                 $Object.Ensure = 'Absent'
             }
             if ($Configuration.VPN -eq $true -and -not($VPNStatus)) {
                 $Configuration.Remove("VPN")
-                $Object.Warning = "Configuration restricted when VPN is not established"
+                $Object.Warning = "Configuration restricted when VPN adapter is not found"
                 $Configuration.Ensure = 'Absent'
                 $Object.Ensure = 'Absent'
             }
