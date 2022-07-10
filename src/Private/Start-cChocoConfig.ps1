@@ -56,25 +56,25 @@ function Start-cChocoConfig {
         Write-Log -Severity 'Information' -Message "Task Sequence Environment Detected, Overriding Maintennce Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
-        break
+        return
     }
     if (Test-IsWinPe) {
         Write-Log -Severity 'Information' -Message "WinPE Environment Detected, Overriding Maintennce Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
-        break
+        return
     }
     if (Test-IsWinOs.OOBE) {
         Write-Log -Severity 'Information' -Message "WinOS OOBE Environment Detected, Overriding Maintennce Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
-        break
+        return
     }
     if (Test-IsWinSE) {
         Write-Log -Severity 'Information' -Message "WinSE OOBE Environment Detected, Overriding Maintennce Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
-        break
+        return
     }
 
     if ($MaintenanceWindowConfig) {

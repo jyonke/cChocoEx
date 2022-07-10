@@ -20,8 +20,6 @@ function Register-cChocoExBootStrapJob {
     )
     
     begin {
-        #Gather Variables
-        Set-GlobalVariables
         $Name = 'cChocoExBootstrapJob'
         $FilePath = "$env:ProgramData\cChocoEx\bootstrap.ps1"
         $ScheduledJobOption = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery -MultipleInstancePolicy 'StopExisting' -RequireNetwork
@@ -81,7 +79,7 @@ function Register-cChocoExBootStrapJob {
             $TaskPath = "\Microsoft\Windows\PowerShell\ScheduledJobs"
 
             $null = Register-ScheduledJob @ScheduledJobParams
-            $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserID $UserID -LogonType ServiceAccount -RunLevel Highest
+            $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserId $UserID -LogonType ServiceAccount -RunLevel Highest
             $null = Set-ScheduledTask -TaskPath $TaskPath -TaskName $Name -Principal $ScheduledTaskPrincipal
             Write-Log -Severity 'Information' -Message "Registering Scheduled Job $Name - Success"
         }

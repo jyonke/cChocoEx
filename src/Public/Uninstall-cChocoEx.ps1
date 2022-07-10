@@ -55,8 +55,6 @@ function Uninstall-cChocoEx {
     
     #Wipe Data
     if ($Wipe) {
-        #Gather Variables
-        Set-GlobalVariables
         try {
             Remove-Item -Path $Global:cChocoExDataFolder -Recurse -Force
         }

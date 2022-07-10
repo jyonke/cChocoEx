@@ -83,15 +83,10 @@ function Start-cChocoEx {
     #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
-    #Set Global Variables
-    Set-GlobalVariables
     #$Global:MaintenanceWindowEnabled = $True
     #$Global:MaintenanceWindowActive = $True
     #$Global:TSEnv = Test-TSEnv
     $Global:EnableNotifications = $EnableNotifications
-
-    #Ensure EventLog Sources are Setup
-    #Register-EventSource
 
     #Exclude Machines Set to Exclude Ring
     if ((Get-cChocoExRing) -eq 'Exclude') {  
@@ -118,17 +113,9 @@ function Start-cChocoEx {
         Write-Log -Severity 'Information' -Message 'cChoco Bootstrap Started' -New
         Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4000 -EntryType Information -Message 'cChocoEx Started'
     }
-
-    #Ensure cChocoEx Data Folder Structure is Created
-    #Set-cChocoExFolders
     
-    #Register cChocoEx Task
+    #Register and Start cChocoEx Task
     Register-cChocoExTask
-
-    #Ensure Registry Is Setup
-    #Set-RegistryConfiguration
-
-    #Ensure cChocoEx Tasks are Running
     Start-cChocoExTask
 
     #Update Media Folder

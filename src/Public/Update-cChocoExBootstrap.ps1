@@ -24,11 +24,6 @@ function Update-cChocoExBootstrap {
         Break
     }
 
-    #Gather Variables
-    Set-GlobalVariables
-    #Setup Folders
-    Set-cChocoExFolders
-
     Write-Log -Severity 'Information' -Message "Checking for Bootstrap Updates"
 
     $Path = Join-Path -Path $Global:cChocoExDataFolder -ChildPath 'bootstrap.ps1'

@@ -99,7 +99,7 @@ function Test-cChocoExPackageInstall {
                     if ($InstallVersion) {
                         $item.InstallVersion = $InstallVersion
                     }
-                    $InstallDate = Get-Item -Path (Join-Path $env:ChocolateyInstall "lib\$($item.Name)") -Filter *.nuspec | Select-Object -ExpandProperty CreationTime
+                    $InstallDate = Get-Item -Path (Join-Path $env:ChocolateyInstall "lib\$($item.Name)") -Filter *.nuspec -ErrorAction SilentlyContinue | Select-Object -ExpandProperty CreationTime
                     if ($InstallDate) {
                         $item.InstallDate = $InstallDate
                     }
