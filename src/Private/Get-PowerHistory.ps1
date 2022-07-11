@@ -1,15 +1,24 @@
 function Get-PowerHistory {
     [CmdletBinding()]
     param (
-        # Max Event
         [Parameter()]
         [int]
-        $MaxEvents = 25
+        $Days
     )
     
     begin {
         #Gather Event Log Data
-        $WinEvents = Get-WinEvent -FilterHashtable @{logname = 'System'; id = 1074, 6005, 6006, 6008, 6013 } -MaxEvents $MaxEvents
+        $FilterHashTable = @{
+            logname = 'System'
+            id      = 1074, 6005, 6006, 6008
+        }
+        if ($Days) {
+            $DaysInv = $Days * -1
+            $StartTime = (Get-Date).AddDays($DaysInv)
+            $FilterHashTable.StartTime = $StartTime
+    
+        }
+        $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable
         $TextInfo = (Get-Culture).TextInfo
 
     }
@@ -18,40 +27,23 @@ function Get-PowerHistory {
         foreach ($Event in $WinEvents) {
             switch ($Event.Id) {
                 1074 {
-                    [PSCustomObject]@{
-                        TimeStamp    = $Event.TimeCreated
-                        UserName     = $Event.Properties.value[6]
-                        ShutdownType = $TextInfo.ToTitleCase($Event.Properties.value[4])
-                    }
+                    $Event.Message = $TextInfo.ToTitleCase($Event.Properties.value[4])
                 }
                 6005 {
-                    [PSCustomObject]@{
-                        TimeStamp    = $Event.TimeCreated
-                        UserName     = $null
-                        ShutdownType = 'Power On'
-                    }
+                    $Event.Message = 'Power On'
                 }
                 6006 {
-                    [PSCustomObject]@{
-                        TimeStamp    = $Event.TimeCreated
-                        UserName     = $null
-                        ShutdownType = 'Power Off'
-                    }
+                    $Event.Message = 'Power Off'
                 }
                 6008 {
-                    [PSCustomObject]@{
-                        TimeStamp    = $Event.TimeCreated
-                        UserName     = $null
-                        ShutdownType = 'Unexpected Shutdown'
-                    }
+                    $Event.Message = 'Unexpected Shutdown'
                 }
-                6013 {}
                 Default {}
             }
         }
     }
     
     end {
-        
+        return $WinEvents
     }
 }

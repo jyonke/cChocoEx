@@ -12,7 +12,7 @@
 RootModule = 'cChocoEx.psm1'
 
 # Version number of this module.
-ModuleVersion = '22.7.10.2'
+ModuleVersion = '22.7.10.5'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

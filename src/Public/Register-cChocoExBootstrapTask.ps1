@@ -18,24 +18,6 @@ function Register-cChocoExBootStrapTask {
         [int]
         $LoopDelay
     )
-        
-    #Restrictions
-    if (Test-TSEnv) {
-        Write-Log -Severity "Information" -Message "Task Sequence Environment Detected, Registration of Bootstrap Task Restricted"
-        return
-    }
-    if (Test-IsWinPe) {
-        Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of Bootstrap Task Restricted"
-        return
-    }
-    if (Test-IsWinOs.OOBE) {
-        Write-Log -Severity "Information" -Message "WinOS OOBE Environment Detected, Registration of Bootstrap Task Restricted"
-        return
-    }
-    if (Test-IsWinSE) {
-        Write-Log -Severity "Information" -Message "WinSE Environment Detected, Registration of Bootstrap Task Restricted"
-        return
-    }
 
     $TaskName = 'cChocoExBootstrapTask'
     $TaskPath = '\cChocoEx\'
@@ -48,6 +30,24 @@ function Register-cChocoExBootStrapTask {
     $TaskTrigger01 = New-ScheduledTaskTrigger -AtStartup
     $TaskTrigger02 = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes($LoopDelay)) -RepetitionInterval (New-TimeSpan -Minutes $LoopDelay)
     $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""
+        
+    #Restrictions
+    if (Test-TSEnv) {
+        Write-Log -Severity "Information" -Message "Task Sequence Environment Detected, Registration of $TaskName Restricted"
+        return
+    }
+    if (Test-IsWinPe) {
+        Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of $TaskName Restricted"
+        return
+    }
+    if (Test-IsWinOs.OOBE) {
+        Write-Log -Severity "Information" -Message "WinOS OOBE Environment Detected, Registration of $TaskName Restricted"
+        return
+    }
+    if (Test-IsWinSE) {
+        Write-Log -Severity "Information" -Message "WinSE Environment Detected, Registration of $TaskName Restricted"
+        return
+    }
 
     #ScheduledTaskSplat
     $ScheduledTaskParams = @{

@@ -116,7 +116,6 @@ function Start-cChocoEx {
     
     #Register and Start cChocoEx Task
     Register-cChocoExTask
-    Start-cChocoExTask
 
     #Update Media Folder
     $null = Copy-Item -Path (Join-Path -Path ($PSScriptRoot | Split-Path) -ChildPath 'Media\*') -Destination $cChocoExMediaFolder -Recurse -Force
