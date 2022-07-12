@@ -6,7 +6,7 @@ function Start-cChocoInstaller {
         $Configuration
     )
     Write-Log -Severity 'Information' -Message "cChocoInstaller:Validating Chocolatey is installed"
-    $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoInstaller")
+    $ModulePath = (Join-Path $ModuleBase "cChocoInstaller")
     Import-Module $ModulePath
 
     $Object = [PSCustomObject]@{

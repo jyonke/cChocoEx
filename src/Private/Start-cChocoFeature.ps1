@@ -6,7 +6,7 @@ function Start-cChocoFeature {
         $ConfigImport
     )
     Write-Log -Severity 'Information' -Message "cChocoConfig:Validating Chocolatey Configurations are Setup"
-    $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoFeature")
+    $ModulePath = (Join-Path $ModuleBase "cChocoFeature")
     Import-Module $ModulePath
     $Configurations = $ConfigImport | ForEach-Object { $_.Values }
     $Status = @()

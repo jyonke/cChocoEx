@@ -16,8 +16,7 @@ function Test-cChocoExInstaller {
     begin {
         [array]$Status = @()
         $ChocolateyInstall = $env:ChocolateyInstall
-        $ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
-        $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoInstaller")
+        $ModulePath = (Join-Path $ModuleBase "cChocoInstaller")
         Import-Module $ModulePath    
     }
     

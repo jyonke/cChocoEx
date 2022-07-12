@@ -48,7 +48,7 @@ function Start-cChocoPackageInstall {
     Write-Log -Severity 'Information' -Message "Getting Valid Deployment Ring Packages"
     $PriorityConfigurations = Get-PackagePriority -Configurations $Configurations
     
-    $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoPackageInstall")
+    $ModulePath = (Join-Path $ModuleBase "cChocoPackageInstall")
     Import-Module $ModulePath
     
     $i = 0

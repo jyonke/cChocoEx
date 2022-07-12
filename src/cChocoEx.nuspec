@@ -2,15 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>cChocoEx</id>
-    <version>22.7.10.5</version>
+    <version>22.7.11.6</version>
     <title>cChocoEx</title>
     <authors>Jonathan Yonke</authors>
     <projectUrl>https://github.com/jyonke/cChocoEx</projectUrl>
     <license type="expression">Apache-2.0</license>
     <description>Adds some additional functionality to the PowerShell DSC module cChoco</description>
     <tags>chocolatey cChoco cChocoEx</tags>
-    <dependencies>
-      <dependency id="cChoco" version="2.5.0.0" />
-    </dependencies>
   </metadata>
 </package>

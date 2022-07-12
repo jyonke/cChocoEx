@@ -1,7 +1,7 @@
 function Set-GlobalVariables {
     [CmdletBinding()]
     param ()
-    $Global:ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
+    $Global:ModuleBase = Join-Path -Path ($PSScriptRoot | Split-Path -Parent) -ChildPath 'DSCResources'
     $Global:cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
     $Global:cChocoExConfigurationFolder = (Join-Path -Path $Global:cChocoExDataFolder -ChildPath 'config')
     $Global:cChocoExTMPConfigurationFolder = (Join-Path -Path "$env:TEMP\cChocoEx" -ChildPath 'config')

@@ -10,7 +10,7 @@ function Start-cChocoSource {
     $VPNStatus = Get-VPN
 
     Write-Log -Severity "Information" -Message "cChocoSource:Validating Chocolatey Sources are Setup"
-    $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoSource")
+    $ModulePath = (Join-Path $ModuleBase "cChocoSource")
     Import-Module $ModulePath
     $Configurations = $ConfigImport | ForEach-Object { $_.Values }
     $Status = @()

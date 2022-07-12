@@ -22,8 +22,7 @@ function Test-cChocoExConfig {
         $ChocolateyInstall = $env:ChocolateyInstall
         $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
         $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-        $ModuleBase = (Get-Module -Name 'cChoco' -ListAvailable -ErrorAction Stop | Sort-Object -Property Version | Select-Object -Last 1).ModuleBase
-        $ModulePath = (Join-Path "$ModuleBase\DSCResources" "cChocoConfig")
+        $ModulePath = (Join-Path $ModuleBase "cChocoConfig")
         Import-Module $ModulePath    
 
         if ($Path) {
