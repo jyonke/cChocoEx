@@ -16,23 +16,19 @@ function Get-cChocoExMaintenanceWindow {
     
     begin {
         [array]$array = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-
         if ($Path) {
             $cChocoExConfigFile = $Path
         }
         else {
-            $cChocoExConfigFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'config.psd1').FullName
+            $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1')
         }
     }
     
     process {
         if ($cChocoExConfigFile) {
-            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Stop
             $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
-                    
+                  
             $MaintenanceWindowConfig | ForEach-Object {
                 if ($_.Name) {
                     $ConfigName = $_.Name

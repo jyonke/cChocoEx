@@ -57,7 +57,7 @@ function Get-MaintenanceWindow {
     }
 
     #Enviroment Overrides
-    if (Test-TSEnv -eq $True) {
+    if ((Test-TSEnv) -eq $True) {
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Task Sequence Environment True - Overriding Maintenance Window'
@@ -69,13 +69,13 @@ function Get-MaintenanceWindow {
         Write-Verbose 'Global OverrideMaintenanceWindow Flag Enabled - Overriding Maintenance Window'
     }
 
-    if (Test-IsWinOS.OOBE -eq $True) {
+    if ((Test-IsWinOS.OOBE) -eq $True) {
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Windows OS OOBE Environment True - Overriding Maintenance Window'
     }
     
-    if (Test-IsWinPE -eq $True) {
+    if ((Test-IsWinPE) -eq $True) {
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True
         Write-Verbose 'Windows PE Environment True - Overriding Maintenance Window'

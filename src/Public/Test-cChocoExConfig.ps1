@@ -19,17 +19,14 @@ function Test-cChocoExConfig {
     
     begin {
         [array]$Status = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-        $ModulePath = (Join-Path $ModuleBase "cChocoConfig")
+        $ModulePath = (Join-Path $Global:ModuleBase "cChocoConfig")
         Import-Module $ModulePath    
 
         if ($Path) {
             $cChocoExConfigFile = $Path
         }
         else {
-            $cChocoExConfigFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'config.psd1').FullName
+            $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1')
         }
     }
     

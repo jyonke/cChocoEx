@@ -15,26 +15,51 @@ function Get-cChocoExPackageInstall {
     
     begin {
         [array]$array = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
         [array]$Configurations = $null
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
 
         if ($Path) {
             $cChocoExPackageFiles = Get-Item -Path $Path
         }
         else {
-            $cChocoExPackageFiles = Get-ChildItem -Path $cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
+            if (-Not(Test-Path $Global:cChocoExConfigurationFolder)) {
+                throw "$Global:cChocoExConfigurationFolder Not Found"
+            }
+            $cChocoExPackageFiles = Get-ChildItem -Path $Global:cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
         }
     }
     
     process {
         if ($cChocoExPackageFiles) {
             $cChocoExPackageFiles | ForEach-Object {
+                $cChocoExPackageFile = $_.FullName 
                 $ConfigImport = $null
-                $ConfigImport = Import-PowerShellDataFile $_.FullName 
+                $ConfigImport = Import-PowerShellDataFile $_.FullName -ErrorAction Stop
                 $Configurations += $ConfigImport | ForEach-Object { $_.Values }
-            }        
+
+                #Validate Keys
+                $ValidHashTable = @{
+                    Name                      = $null
+                    Version                   = $null
+                    Source                    = $null
+                    MinimumVersion            = $null
+                    Ensure                    = $null
+                    AutoUpgrade               = $null
+                    Params                    = $null
+                    ChocoParams               = $null
+                    OverrideMaintenanceWindow = $null
+                    VPN                       = $null
+                    Ring                      = $null
+                    Priority                  = $null
+                }
+            
+                $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
+                    if ($_ -notin $ValidHashTable.Keys) {
+                        throw "Invalid Configuration Key ($_) Found In File: $cChocoExPackageFile"
+                    }
+                }
+            }     
+            
+            
                     
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{

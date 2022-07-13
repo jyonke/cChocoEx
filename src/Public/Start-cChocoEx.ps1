@@ -74,7 +74,7 @@ function Start-cChocoEx {
     )
 
     #Ensure Running as Administrator
-    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    if (-Not (Test-IsAdmin)) {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
     }   
@@ -83,16 +83,7 @@ function Start-cChocoEx {
     #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
-    #$Global:MaintenanceWindowEnabled = $True
-    #$Global:MaintenanceWindowActive = $True
-    #$Global:TSEnv = Test-TSEnv
     $Global:EnableNotifications = $EnableNotifications
-
-    #Exclude Machines Set to Exclude Ring
-    if ((Get-cChocoExRing) -eq 'Exclude') {  
-        Write-Log -Severity 'Information' -Message 'This machine is set to the Exclude Ring. cChocoEx Stopped'
-        Break
-    }
 
     #Validate Current Execution Policy
     $CurrentExecutionPolicy = Get-ExecutionPolicy
@@ -101,6 +92,31 @@ function Start-cChocoEx {
     }
     catch {
         Write-Log -Severity 'Warning' -Message "Error Changing Execution Policy"
+    }
+
+    #Exclude Machines Set to Exclude Ring
+    if ((Get-cChocoExRing) -eq 'Exclude') {  
+        Write-Log -Severity 'Information' -Message 'This machine is set to the Exclude Ring. cChocoEx Stopped'
+        Break
+    }
+
+    #Ensure choco.exe is not active
+    $i = 0
+    do {
+        $IsChocoActive = Test-IsChocoActive
+        if ($i -eq 1) {
+            Write-Log -Severity 'Information' -Message 'Choco.exe is active, waiting up to 300 seconds'
+        }
+        if ($i -gt 0) {
+            Start-Sleep -Seconds 1        
+        }
+        $i++
+    } until (
+        ($IsChocoActive -eq $False) -or ($i -gt 300)
+    )
+    if (Test-IsChocoActive) {
+        Write-Log -Severity 'Information' -Message 'Choco.exe is active, cChocoEx Stopped'
+        Break
     }
 
     #Log Start
@@ -153,9 +169,9 @@ function Start-cChocoEx {
         }
     }
     
-    ################
-    #cChocoInstaller
-    ################
+    #####################################
+    #   cChocoInstaller          
+    #####################################
     $Configuration = @{
         InstallDir            = $InstallDir
         ChocoInstallScriptUrl = $ChocoInstallScriptUrl
@@ -326,7 +342,9 @@ function Start-cChocoEx {
         }
     }
 
-    #cChocoConfig
+    #####################################
+    #   cChocoConfig          
+    #####################################
     if (Test-Path $ChocoConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $ChocoConfigDestination
@@ -335,8 +353,9 @@ function Start-cChocoEx {
     else {
         Write-Log -Severity 'Information'  -Message "File not found, configuration will not be modified"
     }
-
-    #cChocoFeature
+    #####################################
+    #   cChocoFeature          
+    #####################################
     if (Test-Path $FeatureConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $FeatureConfigDestination
@@ -345,8 +364,9 @@ function Start-cChocoEx {
     else {
         Write-Log -Severity 'Information' -Message "File not found, features will not be modified"
     }
-
-    #cChocoSource
+    #####################################
+    #   cChocoSource          
+    #####################################
     if (Test-Path $SourcesConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $SourcesConfigDestination
@@ -355,8 +375,9 @@ function Start-cChocoEx {
     else {
         Write-Log -Severity 'Information' -Message "File not found, sources will not be modified"
     }
-
-    #cChocoPackageInstall
+    #####################################
+    #   cChocoPackageInstall          
+    #####################################
     [array]$Configurations = $null
     Get-ChildItem -Path $PackageConfigDestination -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } | ForEach-Object {
         $ConfigImport = $null

@@ -19,17 +19,17 @@ function Test-cChocoExPackageInstall {
     
     begin {
         [array]$Status = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-        $ModulePath = (Join-Path $ModuleBase "cChocoPackageInstall")
+        $ModulePath = (Join-Path $Global:ModuleBase "cChocoPackageInstall")
         Import-Module $ModulePath  
 
         if ($Path) {
-            $cChocoExPackageFiles = Get-Item -Path $Path
+            $cChocoExPackageFiles = Get-Item -Path $Path -ErrorAction Stop
         }
         else {
-            $cChocoExPackageFiles = Get-ChildItem -Path $cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
+            if (-Not(Test-Path $Global:cChocoExConfigurationFolder)) {
+                throw "$Global:cChocoExConfigurationFolder Not Found"
+            }
+            $cChocoExPackageFiles = Get-ChildItem -Path $Global:cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
         }
     }
     

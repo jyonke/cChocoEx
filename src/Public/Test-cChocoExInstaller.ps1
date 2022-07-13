@@ -16,7 +16,7 @@ function Test-cChocoExInstaller {
     begin {
         [array]$Status = @()
         $ChocolateyInstall = $env:ChocolateyInstall
-        $ModulePath = (Join-Path $ModuleBase "cChocoInstaller")
+        $ModulePath = (Join-Path $Global:ModuleBase "cChocoInstaller")
         Import-Module $ModulePath    
     }
     

@@ -2,7 +2,7 @@ function Set-RegistryConfiguration {
     $Path = "HKLM:\Software\cChocoEx\"
 
     #Ensure Running as Administrator
-    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    if (-Not (Test-IsAdmin)) {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
     }
@@ -33,11 +33,11 @@ function Set-RegistryConfiguration {
     if (!$ProtocolHandler) {
         #Create Handler for Update
         $null = New-Item 'HKCR:\cChocoExUpdate' -Force
-        $null = Set-Itemproperty 'HKCR:\cChocoExUpdate' -Name '(DEFAULT)' -Value 'url:cChocoExUpdate' -Force
-        $null = Set-Itemproperty 'HKCR:\cChocoExUpdate' -Name 'URL Protocol' -Value '' -Force
-        $null = New-Itemproperty -Path 'HKCR:\cChocoExUpdate' -PropertyType 'DWord' -Name 'EditFlags' -Value 2162688
+        $null = Set-ItemProperty 'HKCR:\cChocoExUpdate' -Name '(DEFAULT)' -Value 'url:cChocoExUpdate' -Force
+        $null = Set-ItemProperty 'HKCR:\cChocoExUpdate' -Name 'URL Protocol' -Value '' -Force
+        $null = New-ItemProperty -Path 'HKCR:\cChocoExUpdate' -PropertyType 'DWord' -Name 'EditFlags' -Value 2162688
         $null = New-Item 'HKCR:\cChocoExUpdate\Shell\Open\command' -Force
-        $null = Set-Itemproperty 'HKCR:\cChocoExUpdate\Shell\Open\command' -Name '(DEFAULT)' -Value 'C:\Windows\System32\reg.exe add HKLM\Software\cChocoEx /v OverRideMaintenanceWindow /t REG_DWORD /d 1 /f' -Force
+        $null = Set-ItemProperty 'HKCR:\cChocoExUpdate\Shell\Open\command' -Name '(DEFAULT)' -Value 'C:\Windows\System32\reg.exe add HKLM\Software\cChocoEx /v OverRideMaintenanceWindow /t REG_DWORD /d 1 /f' -Force
     }
 
     #Checking if ToastReboot:// protocol handler is present
@@ -47,10 +47,10 @@ function Set-RegistryConfiguration {
     if (!$ProtocolHandler) {
         #Create Handler for Reboot
         $null = New-Item 'HKCR:\ToastReboot' -Force
-        $null = Set-Itemproperty 'HKCR:\ToastReboot' -Name '(DEFAULT)' -Value 'url:ToastReboot' -Force
-        $null = Set-Itemproperty 'HKCR:\ToastReboot' -Name 'URL Protocol' -Value '' -Force
-        $null = New-Itemproperty -Path 'HKCR:\ToastReboot' -PropertyType 'DWord' -Name 'EditFlags' -Value 2162688
+        $null = Set-ItemProperty 'HKCR:\ToastReboot' -Name '(DEFAULT)' -Value 'url:ToastReboot' -Force
+        $null = Set-ItemProperty 'HKCR:\ToastReboot' -Name 'URL Protocol' -Value '' -Force
+        $null = New-ItemProperty -Path 'HKCR:\ToastReboot' -PropertyType 'DWord' -Name 'EditFlags' -Value 2162688
         $null = New-Item 'HKCR:\ToastReboot\Shell\Open\command' -Force
-        $null = Set-Itemproperty 'HKCR:\ToastReboot\Shell\Open\command' -Name '(DEFAULT)' -Value 'C:\Windows\System32\shutdown.exe -r -t 00' -Force
+        $null = Set-ItemProperty 'HKCR:\ToastReboot\Shell\Open\command' -Name '(DEFAULT)' -Value 'C:\Windows\System32\shutdown.exe -r -t 00' -Force
     }
 }

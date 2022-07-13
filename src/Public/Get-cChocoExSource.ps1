@@ -15,22 +15,37 @@ function Get-cChocoExSource {
     
     begin {
         [array]$array = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
         if ($Path) {
             $cChocoExSourceFile = $Path
         }
         else {
-            $cChocoExSourceFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'sources.psd1').FullName
+            $cChocoExSourceFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'sources.psd1')
         }
     }
     
     process {
         if ($cChocoExSourceFile) {
-            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExSourceFile
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExSourceFile -ErrorAction Stop
             $Configurations = $ConfigImport | ForEach-Object { $_.Values }
                     
+            #Validate Keys
+            $ValidHashTable = @{
+                Name     = $null
+                Ensure   = $null
+                Priority = $null
+                Source   = $null
+                User     = $null
+                Password = $null
+                KeyFile  = $null
+                VPN      = $null
+            }
+            
+            $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
+                if ($_ -notin $ValidHashTable.Keys) {
+                    throw "Invalid Configuration Key ($_) Found In File: $cChocoExSourceFile"
+                }
+            }
+
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
                     Name     = $_.Name

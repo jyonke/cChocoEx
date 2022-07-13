@@ -15,23 +15,30 @@ function Get-cChocoExFeature {
     
     begin {
         [array]$array = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-
         if ($Path) {
             $cChocoExFeatureFile = $Path
         }
         else {
-            $cChocoExFeatureFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'features.psd1').FullName
+            $cChocoExFeatureFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'features.psd1')
         }
     }
     
     process {
         if ($cChocoExFeatureFile) {
-            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExFeatureFile
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExFeatureFile -ErrorAction Stop
             $Configurations = $ConfigImport | ForEach-Object { $_.Values }
-                    
+            
+            #Validate Keys
+            $ValidHashTable = @{
+                FeatureName = $null
+                Ensure      = $null
+            }
+            
+            $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
+                if ($_ -notin $ValidHashTable.Keys) {
+                    throw "Invalid Configuration Key ($_) Found In File: $cChocoExFeatureFile"
+                }
+            }
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
                     FeatureName = $_.FeatureName

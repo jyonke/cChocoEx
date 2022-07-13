@@ -15,23 +15,32 @@ function Get-cChocoExConfig {
     
     begin {
         [array]$array = @()
-        $ChocolateyInstall = $env:ChocolateyInstall
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $cChocoExConfigurationFolder = (Join-Path -Path $cChocoExDataFolder -ChildPath 'config')
-
         if ($Path) {
             $cChocoExConfigFile = $Path
         }
         else {
-            $cChocoExConfigFile = (Get-ChildItem -Path $cChocoExConfigurationFolder -Filter 'config.psd1').FullName
+            $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1')
         }
     }
     
     process {
         if ($cChocoExConfigFile) {
-            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Stop
             $Configurations = $ConfigImport | ForEach-Object { $_.Values | Where-Object { $_.ConfigName -ne 'MaintenanceWindow' -and $_.Name -ne 'MaintenanceWindow' } } 
-                    
+            
+            #Validate Keys
+            $ValidHashTable = @{
+                ConfigName = $null
+                Ensure     = $null
+                Value      = $null
+            }
+            
+            $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
+                if ($_ -notin $ValidHashTable.Keys) {
+                    throw "Invalid Configuration Key ($_) Found In File: $cChocoExConfigFile"
+                }
+            }
+            
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
                     ConfigName = $_.ConfigName
