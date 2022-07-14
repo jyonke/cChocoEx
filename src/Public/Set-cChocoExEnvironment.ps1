@@ -4,6 +4,7 @@ function Set-cChocoExEnvironment {
     )
     #Ensure cChocoEx Variables are Created
     Set-GlobalVariables
+    Set-EnvironmentalVariables
 
     if ((Test-IsAdmin) -eq $true) {
         #Ensure cChocoEx Data Folder Structure is Created

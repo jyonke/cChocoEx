@@ -83,7 +83,13 @@ function Start-cChocoEx {
     #https://docs.microsoft.com/en-us/dotnet/api/system.net.securityprotocoltype?view=net-5.0
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 
+    #Set Notifications Variable
     $Global:EnableNotifications = $EnableNotifications
+
+    #Default Maintenance Windows Active and Enabled
+    $Global:MaintenanceWindowEnabled = $true 
+    $Global:MaintenanceWindowActive = $true
+
 
     #Validate Current Execution Policy
     $CurrentExecutionPolicy = Get-ExecutionPolicy
