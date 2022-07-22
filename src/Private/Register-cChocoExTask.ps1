@@ -17,19 +17,19 @@ function Register-cChocoExTask {
     $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""
     
     #Restrictions
-    if (Test-TSEnv) {
+    if ((Test-TSEnv) -eq $true) {
         Write-Log -Severity "Information" -Message "Task Sequence Environment Detected, Registration of $TaskName Restricted"
         return
     }
-    if (Test-IsWinPe) {
+    if ((Test-IsWinPe) -eq $true) {
         Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of $TaskName Restricted"
         return
     }
-    if (Test-IsWinOs.OOBE) {
+    if ((Test-IsWinOs.OOBE) -eq $true) {
         Write-Log -Severity "Information" -Message "WinOS OOBE Environment Detected, Registration of $TaskName Restricted"
         return
     }
-    if (Test-IsWinSE) {
+    if ((Test-IsWinSE) -eq $true) {
         Write-Log -Severity "Information" -Message "WinSE Environment Detected, Registration of $TaskName Restricted"
         return
     }

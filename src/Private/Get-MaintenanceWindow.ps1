@@ -56,7 +56,7 @@ function Get-MaintenanceWindow {
 
     }
 
-    #Enviroment Overrides
+    #Environment Overrides
     if ((Test-TSEnv) -eq $True) {
         $Global:MaintenanceWindowEnabled = $True
         $Global:MaintenanceWindowActive = $True

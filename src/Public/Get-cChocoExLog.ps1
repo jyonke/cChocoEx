@@ -7,6 +7,10 @@ Returns Chocolatey DSC Logs in cChocoEx as a PowerShell Custom Object. Optional 
 function Get-cChocoExLog {
     [CmdletBinding()]
     param (
+        # Path to cChocoEx Log File
+        [Parameter()]
+        [string]
+        $Path,
         #Limit Number of items to return
         [Parameter()]
         [int]
@@ -18,12 +22,13 @@ function Get-cChocoExLog {
     )
     
     try {
-        $cChocoExDataFolder = (Join-Path -Path $env:ProgramData -ChildPath 'cChocoEx')
-        $LogPath = (Join-Path -Path $cChocoExDataFolder -ChildPath "logs")
-        $cChocoExLogFiles = Get-ChildItem -Path $LogPath -Filter 'cChoco*.log' -ErrorAction SilentlyContinue
+        if (-Not($Path)) {
+            $Path = $Global:LogPath
+        }
+        $cChocoExLogFiles = Get-ChildItem -Path $Path -Filter 'cChoco*.log' -ErrorAction SilentlyContinue
 
         if (-not($cChocoExLogFiles)) {
-            Write-Error "No Log Files Found at $LogPath" -ErrorAction Stop
+            Write-Error "No Log Files Found at $Path" -ErrorAction Stop
         }
 
         if ($Date) {
@@ -31,7 +36,7 @@ function Get-cChocoExLog {
             $cChocoExLogs = $cChocoExLogFiles | ForEach-Object { Import-Csv -Path $_.FullName | Where-Object { ( Get-Date $_.'Time').Date -eq $DateFilter } }
         }
         else {
-            $cChocoExLogs = $cChocoExLogFiles | ForEach-Object {Import-Csv -Path $_.FullName}
+            $cChocoExLogs = $cChocoExLogFiles | ForEach-Object { Import-Csv -Path $_.FullName }
         }
         if ($Last) {
             $cChocoExLogs = $cChocoExLogs | Select-Object -Last $Last

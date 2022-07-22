@@ -11,7 +11,7 @@ function Update-cChocoEx {
     Param ()
 
     #Ensure Running as Administrator
-    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    if ((Test-IsAdmin) -eq $false) {
         Write-Warning "This function requires elevated access, please reopen PowerShell as an Administrator"
         Break
     }
