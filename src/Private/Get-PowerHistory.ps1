@@ -10,7 +10,7 @@ function Get-PowerHistory {
         #Gather Event Log Data
         $FilterHashTable = @{
             logname = 'System'
-            id      = 1074, 6005, 6006, 6008
+            id      = 1074, 6005, 6006, 6008 
         }
         if ($Days) {
             $DaysInv = $Days * -1
@@ -18,9 +18,13 @@ function Get-PowerHistory {
             $FilterHashTable.StartTime = $StartTime
     
         }
-        $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable
-        $TextInfo = (Get-Culture).TextInfo
-
+        try {
+            $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction 'SilentlyContinue'
+            $TextInfo = (Get-Culture).TextInfo    
+        }
+        catch {
+            Write-Warning $_.Exception.Message        
+        }
     }
     
     process {

@@ -93,20 +93,6 @@ function Get-MaintenanceWindow {
     Write-Verbose "MaintenanceWindowEnabled: $Global:MaintenanceWindowEnabled"
     Write-Verbose "MaintenanceWindowActive: $Global:MaintenanceWindowActive"
 
-    if ($Global:MaintenanceWindowEnabled) {
-        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4010 -EntryType Information -Message 'MaintenanceWindowEnabled: True'
-    }
-    else {
-        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4011 -EntryType Information -Message 'MaintenanceWindowEnabled: False'
-    }
-
-    if ($Global:MaintenanceWindowActive) {
-        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4012 -EntryType Information -Message 'MaintenanceWindowActive: True'
-    }
-    else {
-        Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4013 -EntryType Information -Message 'MaintenanceWindowActive: False'
-    }
-
     return [PSCustomObject]@{
         MaintenanceWindowEnabled = $Global:MaintenanceWindowEnabled
         MaintenanceWindowActive  = $Global:MaintenanceWindowActive

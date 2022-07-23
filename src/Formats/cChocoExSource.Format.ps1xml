@@ -1,5 +1,5 @@
 <!--
-Format type data generated 07/22/2022 23:36:40 by CCHOCOEX-DEV\user
+Format type data generated 07/23/2022 09:46:42 by CCHOCOEX-DEV\user
 
 This file was created using the New-PSFormatXML command that is part
 of the PSScriptTools module.
@@ -9,7 +9,7 @@ https://github.com/jdhitsolutions/PSScriptTools
 <Configuration>
   <ViewDefinitions>
     <View>
-      <!--Created 07/22/2022 23:36:40 by CCHOCOEX-DEV\user-->
+      <!--Created 07/23/2022 09:46:42 by CCHOCOEX-DEV\user-->
       <Name>default</Name>
       <ViewSelectedBy>
         <TypeName>cChocoExSource</TypeName>
@@ -24,13 +24,13 @@ https://github.com/jdhitsolutions/PSScriptTools
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Ensure</Label>
-            <Width>10</Width>
+            <Label>DSC</Label>
+            <Width>7</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Priority</Label>
-            <Width>11</Width>
+            <Label>Ensure</Label>
+            <Width>10</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -39,13 +39,13 @@ https://github.com/jdhitsolutions/PSScriptTools
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>User</Label>
-            <Width>9</Width>
+            <Label>Priority</Label>
+            <Width>11</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Password</Label>
-            <Width>195</Width>
+            <Label>User</Label>
+            <Width>9</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -70,19 +70,19 @@ https://github.com/jdhitsolutions/PSScriptTools
                 <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Ensure</PropertyName>
+                <PropertyName>DSC</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Priority</PropertyName>
+                <PropertyName>Ensure</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Source</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>User</PropertyName>
+                <PropertyName>Priority</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Password</PropertyName>
+                <PropertyName>User</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>KeyFile</PropertyName>

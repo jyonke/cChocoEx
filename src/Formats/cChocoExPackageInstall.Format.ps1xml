@@ -1,5 +1,5 @@
 <!--
-Format type data generated 07/22/2022 23:21:32 by CCHOCOEX-DEV\user
+Format type data generated 07/23/2022 09:47:44 by CCHOCOEX-DEV\user
 
 This file was created using the New-PSFormatXML command that is part
 of the PSScriptTools module.
@@ -9,7 +9,7 @@ https://github.com/jdhitsolutions/PSScriptTools
 <Configuration>
   <ViewDefinitions>
     <View>
-      <!--Created 07/22/2022 23:21:32 by CCHOCOEX-DEV\user-->
+      <!--Created 07/23/2022 09:47:44 by CCHOCOEX-DEV\user-->
       <Name>default</Name>
       <ViewSelectedBy>
         <TypeName>cChocoExPackageInstall</TypeName>
@@ -20,22 +20,12 @@ https://github.com/jdhitsolutions/PSScriptTools
         <TableHeaders>
           <TableColumnHeader>
             <Label>Name</Label>
-            <Width>15</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Version</Label>
-            <Width>10</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Source</Label>
             <Width>9</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>MinimumVersion</Label>
-            <Width>17</Width>
+            <Label>DSC</Label>
+            <Width>6</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -44,8 +34,38 @@ https://github.com/jdhitsolutions/PSScriptTools
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>InstallVersion</Label>
+            <Width>17</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>InstallDate</Label>
+            <Width>14</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Version</Label>
+            <Width>10</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MinimumVersion</Label>
+            <Width>17</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
+            <Width>9</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>AutoUpgrade</Label>
             <Width>14</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VPN</Label>
+            <Width>6</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -59,16 +79,6 @@ https://github.com/jdhitsolutions/PSScriptTools
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>OverrideMaintenanceWindow</Label>
-            <Width>28</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>VPN</Label>
-            <Width>6</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>Ring</Label>
             <Width>7</Width>
             <Alignment>left</Alignment>
@@ -76,6 +86,11 @@ https://github.com/jdhitsolutions/PSScriptTools
           <TableColumnHeader>
             <Label>Priority</Label>
             <Width>11</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>OverrideMaintenanceWindow</Label>
+            <Width>28</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -90,19 +105,31 @@ https://github.com/jdhitsolutions/PSScriptTools
                 <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Version</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Source</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>MinimumVersion</PropertyName>
+                <PropertyName>DSC</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Ensure</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>InstallVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>InstallDate</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Version</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>MinimumVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Source</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>AutoUpgrade</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>VPN</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Params</PropertyName>
@@ -111,16 +138,13 @@ https://github.com/jdhitsolutions/PSScriptTools
                 <PropertyName>ChocoParams</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>OverrideMaintenanceWindow</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>VPN</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
                 <PropertyName>Ring</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Priority</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>OverrideMaintenanceWindow</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

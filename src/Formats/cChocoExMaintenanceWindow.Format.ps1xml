@@ -1,5 +1,5 @@
 <!--
-Format type data generated 07/22/2022 23:35:36 by CCHOCOEX-DEV\user
+Format type data generated 07/23/2022 10:59:27 by CCHOCOEX-DEV\user
 
 This file was created using the New-PSFormatXML command that is part
 of the PSScriptTools module.
@@ -9,67 +9,63 @@ https://github.com/jdhitsolutions/PSScriptTools
 <Configuration>
   <ViewDefinitions>
     <View>
-      <!--Created 07/22/2022 23:35:36 by CCHOCOEX-DEV\user-->
+      <!--Created 07/23/2022 10:59:27 by CCHOCOEX-DEV\user-->
       <Name>default</Name>
       <ViewSelectedBy>
         <TypeName>cChocoExMaintenanceWindow</TypeName>
       </ViewSelectedBy>
-      <TableControl>
-        <!--Delete the AutoSize node if you want to use the defined widths.-->
-        <AutoSize />
-        <TableHeaders>
-          <TableColumnHeader>
-            <Label>ConfigName</Label>
-            <Width>20</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>UTC</Label>
-            <Width>6</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>EffectiveDateTime</Label>
-            <Width>20</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Start</Label>
-            <Width>8</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>End</Label>
-            <Width>8</Width>
-            <Alignment>left</Alignment>
-          </TableColumnHeader>
-        </TableHeaders>
-        <TableRowEntries>
-          <TableRowEntry>
-            <TableColumnItems>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
               <!--
             By default the entries use property names, but you can replace them with scriptblocks.
             <ScriptBlock>$_.foo /1mb -as [int]</ScriptBlock>
 -->
-              <TableColumnItem>
+              <ListItem>
+                <Label>ConfigName</Label>
                 <PropertyName>ConfigName</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
+              </ListItem>
+              <ListItem>
+                <Label>MaintenanceWindowEnabled</Label>
+                <PropertyName>MaintenanceWindowEnabled</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>MaintenanceWindowActive</Label>
+                <PropertyName>MaintenanceWindowActive</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>UTC</Label>
                 <PropertyName>UTC</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
+              </ListItem>
+              <ListItem>
+                <Label>EffectiveDateTime</Label>
                 <PropertyName>EffectiveDateTime</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
+              </ListItem>
+              <ListItem>
+                <Label>Start</Label>
                 <PropertyName>Start</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
+              </ListItem>
+              <ListItem>
+                <Label>End</Label>
                 <PropertyName>End</PropertyName>
-              </TableColumnItem>
-            </TableColumnItems>
-          </TableRowEntry>
-        </TableRowEntries>
-      </TableControl>
+              </ListItem>
+              <ListItem>
+                <Label>CurrentDate</Label>
+                <PropertyName>CurrentDate</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>CurrentDateUTC</Label>
+                <PropertyName>CurrentDateUTC</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>CurrentTZ</Label>
+                <PropertyName>CurrentTZ</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
     </View>
   </ViewDefinitions>
 </Configuration>

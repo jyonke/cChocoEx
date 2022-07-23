@@ -91,6 +91,21 @@ function Start-cChocoConfig {
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
         Write-Host '--cChocoConfig-MaintenanceWindowConfig--' -ForegroundColor DarkCyan
+
+        #Write to Event Log
+        if ($Global:MaintenanceWindowEnabled) {
+            Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4010 -EntryType Information -Message 'MaintenanceWindowEnabled: True'
+        }
+        else {
+            Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4011 -EntryType Information -Message 'MaintenanceWindowEnabled: False'
+        }
+    
+        if ($Global:MaintenanceWindowActive) {
+            Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4012 -EntryType Information -Message 'MaintenanceWindowActive: True'
+        }
+        else {
+            Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4013 -EntryType Information -Message 'MaintenanceWindowActive: False'
+        }
     }
     else {
         Write-Log -Severity 'Warning' -Message "No Defined Maintenance Window"

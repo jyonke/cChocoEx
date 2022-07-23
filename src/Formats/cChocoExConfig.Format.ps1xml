@@ -1,5 +1,5 @@
 <!--
-Format type data generated 07/22/2022 23:34:59 by CCHOCOEX-DEV\user
+Format type data generated 07/23/2022 09:47:32 by CCHOCOEX-DEV\user
 
 This file was created using the New-PSFormatXML command that is part
 of the PSScriptTools module.
@@ -9,7 +9,7 @@ https://github.com/jdhitsolutions/PSScriptTools
 <Configuration>
   <ViewDefinitions>
     <View>
-      <!--Created 07/22/2022 23:34:59 by CCHOCOEX-DEV\user-->
+      <!--Created 07/23/2022 09:47:32 by CCHOCOEX-DEV\user-->
       <Name>default</Name>
       <ViewSelectedBy>
         <TypeName>cChocoExConfig</TypeName>
@@ -24,13 +24,18 @@ https://github.com/jdhitsolutions/PSScriptTools
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Value</Label>
-            <Width>8</Width>
+            <Label>DSC</Label>
+            <Width>7</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Ensure</Label>
             <Width>9</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Value</Label>
+            <Width>8</Width>
             <Alignment>left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -45,10 +50,13 @@ https://github.com/jdhitsolutions/PSScriptTools
                 <PropertyName>ConfigName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Value</PropertyName>
+                <PropertyName>DSC</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Ensure</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Value</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
