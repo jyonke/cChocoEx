@@ -63,6 +63,7 @@ function Get-cChocoExPackageInstall {
                     
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
+                    PSTypeName                = 'cChocoExPackageInstall'
                     Name                      = $_.Name
                     Version                   = $_.Version
                     Source                    = $_.Source

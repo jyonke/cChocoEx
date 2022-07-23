@@ -41,6 +41,7 @@ function Get-cChocoExFeature {
             }
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
+                    PSTypeName  = 'cChocoExFeature'
                     FeatureName = $_.FeatureName
                     Ensure      = $_.Ensure
                 }

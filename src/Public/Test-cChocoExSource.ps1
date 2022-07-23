@@ -39,15 +39,16 @@ function Test-cChocoExSource {
                 $DSC = $null
                 $Configuration = $_
                 $Object = [PSCustomObject]@{
-                    Name     = $Configuration.Name
-                    Priority = $Configuration.Priority
-                    DSC      = $null
-                    Source   = $Configuration.Source
-                    Ensure   = $Configuration.Ensure
-                    User     = $Configuration.User
-                    KeyFile  = $Configuration.KeyFile
-                    VPN      = $Configuration.VPN
-                    Warning  = $null
+                    PSTypeName = 'cChocoExSource'
+                    Name       = $Configuration.Name
+                    Priority   = $Configuration.Priority
+                    DSC        = $null
+                    Source     = $Configuration.Source
+                    Ensure     = $Configuration.Ensure
+                    User       = $Configuration.User
+                    KeyFile    = $Configuration.KeyFile
+                    VPN        = $Configuration.VPN
+                    Warning    = $null
                 }
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("User")

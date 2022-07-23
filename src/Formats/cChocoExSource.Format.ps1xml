@@ -1,0 +1,99 @@
+<!--
+Format type data generated 07/22/2022 23:36:40 by CCHOCOEX-DEV\user
+
+This file was created using the New-PSFormatXML command that is part
+of the PSScriptTools module.
+
+https://github.com/jdhitsolutions/PSScriptTools
+-->
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <!--Created 07/22/2022 23:36:40 by CCHOCOEX-DEV\user-->
+      <Name>default</Name>
+      <ViewSelectedBy>
+        <TypeName>cChocoExSource</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <!--Delete the AutoSize node if you want to use the defined widths.-->
+        <AutoSize />
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Width>18</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Ensure</Label>
+            <Width>10</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Priority</Label>
+            <Width>11</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
+            <Width>59</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>User</Label>
+            <Width>9</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Password</Label>
+            <Width>195</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>KeyFile</Label>
+            <Width>32</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VPN</Label>
+            <Width>6</Width>
+            <Alignment>left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <!--
+            By default the entries use property names, but you can replace them with scriptblocks.
+            <ScriptBlock>$_.foo /1mb -as [int]</ScriptBlock>
+-->
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Ensure</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Priority</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Source</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>User</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Password</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>KeyFile</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>VPN</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>

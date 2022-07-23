@@ -43,6 +43,7 @@ function Get-cChocoExConfig {
             
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
+                    PSTypeName = 'cChocoExConfig'
                     ConfigName = $_.ConfigName
                     Value      = $_.Value
                     Ensure     = $_.Ensure

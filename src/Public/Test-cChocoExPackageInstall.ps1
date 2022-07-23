@@ -46,6 +46,7 @@ function Test-cChocoExPackageInstall {
                 $DSC = $null
                 $Configuration = $_
                 $Object = [PSCustomObject]@{
+                    PSTypeName                = 'cChocoExPackageInstall'
                     Name                      = $Configuration.Name
                     DSC                       = $null
                     InstallVersion            = $null

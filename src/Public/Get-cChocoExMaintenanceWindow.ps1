@@ -37,6 +37,7 @@ function Get-cChocoExMaintenanceWindow {
                     $ConfigName = $_.ConfigName
                 }
                 $array += [PSCustomObject]@{
+                    PSTypeName        = 'cChocoExConfig'
                     ConfigName        = $ConfigName
                     UTC               = $_.UTC
                     EffectiveDateTime = $_.EffectiveDateTime

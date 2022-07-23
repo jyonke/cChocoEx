@@ -48,14 +48,15 @@ function Get-cChocoExSource {
 
             $Configurations | ForEach-Object {
                 $array += [PSCustomObject]@{
-                    Name     = $_.Name
-                    Ensure   = $_.Ensure
-                    Priority = $_.Priority
-                    Source   = $_.Source
-                    User     = $_.User
-                    Password = $_.Password
-                    KeyFile  = $_.KeyFile
-                    VPN      = $_.VPN
+                    PSTypeName = 'cChocoExSource'
+                    Name       = $_.Name
+                    Ensure     = $_.Ensure
+                    Priority   = $_.Priority
+                    Source     = $_.Source
+                    User       = $_.User
+                    Password   = $_.Password
+                    KeyFile    = $_.KeyFile
+                    VPN        = $_.VPN
                 }
             }
         }

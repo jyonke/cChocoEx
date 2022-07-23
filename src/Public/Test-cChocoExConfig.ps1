@@ -39,6 +39,7 @@ function Test-cChocoExConfig {
                 $DSC = $null
                 $Configuration = $_
                 $Object = [PSCustomObject]@{
+                    PSTypeName = 'cChocoExConfig'
                     ConfigName = $Configuration.ConfigName
                     DSC        = $null
                     Ensure     = $Configuration.Ensure
