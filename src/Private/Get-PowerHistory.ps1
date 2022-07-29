@@ -10,7 +10,7 @@ function Get-PowerHistory {
         #Gather Event Log Data
         $FilterHashTable = @{
             logname = 'System'
-            id      = 1074, 6005, 6006, 6008 
+            id      = 1074, 6005, 6006, 6008, 42
         }
         if ($Days) {
             $DaysInv = $Days * -1
@@ -41,6 +41,9 @@ function Get-PowerHistory {
                 }
                 6008 {
                     $Event.Message = 'Unexpected Shutdown'
+                }
+                42 {
+                    $Event.Message = 'Sleep'
                 }
                 Default {}
             }

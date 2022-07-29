@@ -40,9 +40,19 @@ function Test-cChocoExPackageInstall {
                 $ConfigImport = Import-PowerShellDataFile $_.FullName 
                 $Configurations += $ConfigImport | ForEach-Object { $_.Values }
             }        
-            $PriorityConfigurations = Get-PackagePriority -Configurations $Configurations
-                    
-            $PriorityConfigurations | ForEach-Object {
+            #$PriorityConfigurations = Get-PackagePriority -Configurations $Configurations
+
+            #Filter Out Non Applicable Packages
+            $Configurations = Filter-PackageRing -Configurations $Configurations
+            $Configurations = Filter-PackageVPN -Configurations $Configurations
+            $Configurations = $Configurations | Where-Object { $_.Name }
+            
+            if (($Configurations | Measure-Object).Count -lt 1) {
+                Write-Warning 'No elegible packages found to test'
+                return
+            }
+                   
+            $Configurations | ForEach-Object {
                 $DSC = $null
                 $Configuration = $_
                 $Object = [PSCustomObject]@{

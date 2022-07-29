@@ -46,7 +46,7 @@ Describe 'Get-cChocoExConfig Tests' {
         (Get-cChocoExConfig -Path $Path | Select-Object -ExpandProperty ConfigName) | Should -Not -BeNullOrEmpty
     }
     It 'Verify Value' {
-        (Get-cChocoExConfig -Path $Path | Select-Object -Index 1).Value | Should -Be 30
+        (Get-cChocoExConfig -Path $Path | Where-Object { $_.ConfigName -eq "webRequestTimeoutSeconds" }).Value | Should -Be 30
     }
     It 'Verify Return Type' {
         (Get-cChocoExConfig -Path $Path) | Should -BeOfType PSCustomObject
