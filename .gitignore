@@ -4,3 +4,4 @@ todo.txt
 nuget.exe
 /builds/*
 /test/*
+env_vars.ps1

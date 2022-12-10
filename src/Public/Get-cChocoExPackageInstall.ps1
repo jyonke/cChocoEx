@@ -62,6 +62,10 @@ function Get-cChocoExPackageInstall {
             
                     
             $Configurations | ForEach-Object {
+                #Default Ring to Broad if none defined
+                if (-Not($_.Ring)) {
+                    $_.Ring = 'Broad'
+                }
                 $array += [PSCustomObject]@{
                     PSTypeName                = 'cChocoExPackageInstall'
                     Name                      = $_.Name
@@ -85,6 +89,6 @@ function Get-cChocoExPackageInstall {
     }
     
     end {
-        $array
+        $array | Sort-Object Name
     }
 }

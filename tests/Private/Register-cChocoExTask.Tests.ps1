@@ -14,6 +14,10 @@ InModuleScope 'cChocoEx' {
             Mock Test-TSEnv { Return $true }
             Register-cChocoExTask | Should -BeNullOrEmpty
         }
+        It 'Tests Test-AutopilotESP' {
+            Mock Test-AutopilotESP { Return $true }
+            Register-cChocoExTask | Should -BeNullOrEmpty
+        }
         It 'Tests Test-IsWinPE' {
             Mock Test-IsWinPE { Return $true }
             Register-cChocoExTask | Should -BeNullOrEmpty

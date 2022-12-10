@@ -67,6 +67,7 @@ InModuleScope 'cChocoEx' {
             Mock Get-LoggedInUser { return $true }
             Mock Test-IsWinOS.OOBE { Return $false }
             Mock Test-TSEnv { Return $false }
+            Mock Test-AutopilotESP { Return $false }
             Mock Test-IsWinPE { Return $true }
         }
         It 'Test WinPE Environment MaintenanceWindowEnabled' {
@@ -91,6 +92,32 @@ InModuleScope 'cChocoEx' {
             Mock Get-LoggedInUser { return $true }
             Mock Test-IsWinOS.OOBE { Return $false }
             Mock Test-TSEnv { Return $true }
+            Mock Test-AutopilotESP { Return $false }
+            Mock Test-IsWinPE { Return $false }
+        }
+        It 'Test Task Sequence Environment MaintenanceWindowEnabled' {
+            (Get-MaintenanceWindow @Params).MaintenanceWindowEnabled | Should -Be $true 
+        }
+        It 'Test Task Sequence Environment MaintenanceWindowActive' {
+            (Get-MaintenanceWindow @Params).MaintenanceWindowActive | Should -Be $true 
+        }
+    }
+    Describe 'Test Autopilot ESP Environment Scenarios' {
+        BeforeEach {
+            $Global:MaintenanceWindowActive = $null
+            $Global:MaintenanceWindowEnabled = $null
+            $Params = @{
+                UTC               = $true
+                StartTime         = '00:00'
+                EndTime           = '06:00'
+                EffectiveDateTime = '01/01/2021'
+            }
+            $MockDate = (Get-Date -Date "08:00:00Z").ToUniversalTime()
+            Mock Get-Date { Return ( $MockDate ) }
+            Mock Get-LoggedInUser { return $true }
+            Mock Test-IsWinOS.OOBE { Return $false }
+            Mock Test-TSEnv { Return $false }
+            Mock Test-AutopilotESP { Return $true }
             Mock Test-IsWinPE { Return $false }
         }
         It 'Test Task Sequence Environment MaintenanceWindowEnabled' {
@@ -115,6 +142,7 @@ InModuleScope 'cChocoEx' {
             Mock Get-LoggedInUser { Return $true }
             Mock Test-IsWinOS.OOBE { Return $true }
             Mock Test-TSEnv { Return $false }
+            Mock Test-AutopilotESP { Return $false }
             Mock Test-IsWinPE { Return $false }
         }
         It 'Test WinOS OOBE Environment MaintenanceWindowEnabled' {
@@ -140,6 +168,7 @@ InModuleScope 'cChocoEx' {
             Mock Get-LoggedInUser { Return $true }
             Mock Test-IsWinOS.OOBE { Return $false }
             Mock Test-TSEnv { Return $false }
+            Mock Test-AutopilotESP { Return $false }
             Mock Test-IsWinPE { Return $false }
         }
         AfterEach {

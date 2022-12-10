@@ -46,7 +46,7 @@ function Start-cChocoConfig {
     Write-Host '--------------cChocoConfig--------------' -ForegroundColor DarkCyan
 
     #cChocoConfig-MaintenanceWindowConfig
-    Write-Log -Severity 'Information'  -Message "cChocoConfig-MaintenanceWindowConfig:Validating Chocolatey Maintenance Window is Setup"
+    Write-Log -Severity 'Information' -Message "cChocoConfig-MaintenanceWindowConfig:Validating Chocolatey Maintenance Window is Setup"
 
     $Global:MaintenanceWindowEnabled = $True
     $Global:MaintenanceWindowActive = $True
@@ -54,6 +54,12 @@ function Start-cChocoConfig {
     #Restrictions
     if (Test-TSEnv) {
         Write-Log -Severity 'Information' -Message "Task Sequence Environment Detected, Overriding Maintenance Window Settings"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+        return
+    }
+    if (Test-AutopilotESP) {
+        Write-Log -Severity 'Information' -Message "Autopilot Enrollment Status Page Environment Detected, Overriding Maintenance Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
         return

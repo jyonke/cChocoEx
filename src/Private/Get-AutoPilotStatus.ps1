@@ -1,4 +1,4 @@
-function Get-AutoPilotStatus {
+function Get-AutopilotStatus {
     [CmdletBinding()]
     param (
         
