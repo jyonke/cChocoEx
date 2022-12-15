@@ -72,7 +72,7 @@ function Update-cChocoExPackageInstallFile {
         # Priority
         [Parameter(ParameterSetName = 'Present')]
         [Parameter()]
-        [int]
+        [System.Nullable[int]]
         $Priority,
         # Remove
         [Parameter(ParameterSetName = 'Remove')]
