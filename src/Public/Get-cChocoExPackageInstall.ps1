@@ -5,61 +5,103 @@ Returns Chocolatey Package DSC Configuration in cChocoEx
 Returns Chocolatey Package DSC Configuration in cChocoEx as a PowerShell Custom Object
 #>
 function Get-cChocoExPackageInstall {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (
-        # Path
-        [Parameter()]
+        [Alias('FullName', 'Path')]
+        [Parameter(ValueFromPipelineByPropertyName = $true, Position = 0)]
+        [string[]]
+        $cChocoExPackageFile = (Get-ChildItem -Path $Global:cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } | Select-Object -ExpandProperty FullName),
+        # Name
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
+        [Parameter(ParameterSetName = 'Remove')]
         [string]
-        $Path
+        $Name,
+        # Ring
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
+        [Parameter(ParameterSetName = 'Remove')]
+        [ValidateSet("Preview", "Canary", "Pilot", "Fast", "Slow", "Broad", "Exclude")]
+        [string]
+        $Ring,
+        # Ensure
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
+        [ValidateSet('Present', 'Absent')]
+        [string]
+        $Ensure,
+        # Source
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $Source,
+        # MinimumVersion
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $MinimumVersion,
+        # Version
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $Version,
+        # OverrideMaintenanceWindow
+        [Parameter(ParameterSetName = 'Present')]
+        [Nullable[boolean]]
+        $OverrideMaintenanceWindow = $null,
+        # AutoUpgrade
+        [Parameter(ParameterSetName = 'Present')]
+        [Nullable[boolean]]
+        $AutoUpgrade = $null,
+        # VPN
+        [Parameter(ParameterSetName = 'Present')]
+        [Nullable[boolean]]
+        $VPN = $null,
+        # Params
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $Params,
+        # ChocoParams
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $ChocoParams,
+        # Priority
+        [Parameter(ParameterSetName = 'Present')]
+        [System.Nullable[int]]
+        $Priority
     )
     
     begin {
         [array]$array = @()
-        [array]$Configurations = $null
-
-        if ($Path) {
-            $cChocoExPackageFiles = Get-Item -Path $Path
-        }
-        else {
-            if (-Not(Test-Path $Global:cChocoExConfigurationFolder)) {
-                throw "$Global:cChocoExConfigurationFolder Not Found"
-            }
-            $cChocoExPackageFiles = Get-ChildItem -Path $Global:cChocoExConfigurationFolder -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } 
-        }
     }
     
     process {
-        if ($cChocoExPackageFiles) {
-            $cChocoExPackageFiles | ForEach-Object {
-                $cChocoExPackageFile = $_.FullName 
-                $ConfigImport = $null
-                $ConfigImport = Import-PowerShellDataFile $_.FullName -ErrorAction Stop
-                $Configurations += $ConfigImport | ForEach-Object { $_.Values }
+        if (Test-Path $cChocoExPackageFile) {
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExPackageFile -ErrorAction Continue
+            $Configurations = $ConfigImport | ForEach-Object { $_.Values }
+            $FullName = Get-Item $cChocoExPackageFile | Select-Object -ExpandProperty FullName
+            Write-Verbose "Processing:$FullName"
 
-                #Validate Keys
-                $ValidHashTable = @{
-                    Name                      = $null
-                    Version                   = $null
-                    Source                    = $null
-                    MinimumVersion            = $null
-                    Ensure                    = $null
-                    AutoUpgrade               = $null
-                    Params                    = $null
-                    ChocoParams               = $null
-                    OverrideMaintenanceWindow = $null
-                    VPN                       = $null
-                    Ring                      = $null
-                    Priority                  = $null
+            #Validate Keys
+            $ValidHashTable = @{
+                Name                      = $null
+                Version                   = $null
+                Source                    = $null
+                MinimumVersion            = $null
+                Ensure                    = $null
+                AutoUpgrade               = $null
+                Params                    = $null
+                ChocoParams               = $null
+                OverrideMaintenanceWindow = $null
+                VPN                       = $null
+                Ring                      = $null
+                Priority                  = $null
+            }
+            
+            $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
+                if ($_ -notin $ValidHashTable.Keys) {
+                    Write-Error "Invalid Configuration Key ($_) Found In File: $cChocoExPackageFile"
+                    Return
                 }
-            
-                $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
-                    if ($_ -notin $ValidHashTable.Keys) {
-                        throw "Invalid Configuration Key ($_) Found In File: $cChocoExPackageFile"
-                    }
-                }
-            }     
-            
-            
+            }
+                
                     
             $Configurations | ForEach-Object {
                 #Default Ring to Broad if none defined
@@ -80,6 +122,7 @@ function Get-cChocoExPackageInstall {
                     VPN                       = $_.VPN
                     Ring                      = $_.Ring
                     Priority                  = $_.Priority
+                    Path                      = $FullName
                 }
             }
         }
@@ -89,6 +132,44 @@ function Get-cChocoExPackageInstall {
     }
     
     end {
-        $array | Sort-Object Name
+        #Filter objects
+        if ($Name) {
+            $array = $array | Where-Object { $_.Name -eq $Name }
+        }
+        if ($Ensure) {
+            $array = $array | Where-Object { $_.Ensure -eq $Ensure }
+        }
+        if ($Priority -ne $null) {
+            $array = $array | Where-Object { [int]$_.Priority -eq [int]$Priority }
+        }
+        if ($Version) {
+            $array = $array | Where-Object { $_.Version -eq $Version }
+        }
+        if ($Source) {
+            $array = $array | Where-Object { $_.Source -eq $Source }
+        }
+        if ($MinimumVersion) {
+            $array = $array | Where-Object { $_.MinimumVersion -eq $MinimumVersion }
+        }
+        if ($AutoUpgrade -ne $Null) {
+            $array = $array | Where-Object { [string]$_.AutoUpgrade -eq [string]$AutoUpgrade }
+        }
+        if ($Params) {
+            $array = $array | Where-Object { $_.Params -eq $Params }
+        }
+        if ($ChocoParams) {
+            $array = $array | Where-Object { $_.ChocoParams -eq $ChocoParams }
+        }
+        if ($Ring) {
+            $array = $array | Where-Object { $_.Ring -eq $Ring }
+        }
+        if ($VPN -ne $Null) {
+            $array = $array | Where-Object { [string]$_.VPN -eq [string]$VPN }
+        }
+        if ($OverrideMaintenanceWindow -ne $Null) {
+            $array = $array | Where-Object { [string]$_.OverrideMaintenanceWindow -eq [string]$OverrideMaintenanceWindow }
+        }
+        
+        return ($array | Sort-Object -Property Name)
     }
 }

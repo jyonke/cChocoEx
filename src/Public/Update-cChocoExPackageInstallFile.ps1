@@ -13,21 +13,20 @@ function Update-cChocoExPackageInstallFile {
         [Parameter(ParameterSetName = 'Present')]
         [Parameter(ParameterSetName = 'Absent')]
         [Parameter(ParameterSetName = 'Remove')]
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [string]
         $Name,
         # Ring
         [Parameter(ParameterSetName = 'Present')]
         [Parameter(ParameterSetName = 'Absent')]
         [Parameter(ParameterSetName = 'Remove')]
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [ValidateSet("Preview", "Canary", "Pilot", "Fast", "Slow", "Broad", "Exclude")]
         [string]
         $Ring,
         # Ensure
         [Parameter(ParameterSetName = 'Present')]
         [Parameter(ParameterSetName = 'Absent')]
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [string]
         $Ensure = 'Present',
@@ -41,37 +40,30 @@ function Update-cChocoExPackageInstallFile {
         $MinimumVersion,
         # Version
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [string]
         $Version,
         # OverrideMaintenanceWindow
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [Nullable[boolean]]
         $OverrideMaintenanceWindow = $null,
         # AutoUpgrade
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [Nullable[boolean]]
         $AutoUpgrade = $null,
         # VPN
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [Nullable[boolean]]
         $VPN = $null,
         # Params
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [string]
         $Params,
         # ChocoParams
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [string]
         $ChocoParams,
         # Priority
         [Parameter(ParameterSetName = 'Present')]
-        [Parameter()]
         [System.Nullable[int]]
         $Priority,
         # Remove
@@ -89,7 +81,7 @@ function Update-cChocoExPackageInstallFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExPackageInstall -Path $FullName
+            $Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message

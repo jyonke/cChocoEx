@@ -5,29 +5,41 @@ Returns Chocolatey Configuration DSC Configuration in cChocoEx
 Returns Chocolatey Configuration DSC Configuration in cChocoEx as a PowerShell Custom Object
 #>
 function Get-cChocoExConfig {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (
         # Path
-        [Parameter()]
+        [Alias('FullName', 'Path')]
+        [Parameter(ValueFromPipelineByPropertyName = $true, Position = 0)]
+        [string[]]
+        $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1'),
+        # ConfigName
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
         [string]
-        $Path
+        $ConfigName,
+        # Ensure
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
+        [ValidateSet('Present', 'Absent')]
+        [string]
+        $Ensure,
+        # Value
+        [Parameter(ParameterSetName = 'Present')]
+        [string]
+        $Value
     )
     
     begin {
         [array]$array = @()
-        if ($Path) {
-            $cChocoExConfigFile = $Path
-        }
-        else {
-            $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1')
-        }
     }
     
     process {
-        if ($cChocoExConfigFile) {
-            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Stop
+        if (Test-Path $cChocoExConfigFile) {
+            $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Continue
             $Configurations = $ConfigImport | ForEach-Object { $_.Values | Where-Object { $_.ConfigName -ne 'MaintenanceWindow' -and $_.Name -ne 'MaintenanceWindow' } } 
-            
+            $FullName = Get-Item $cChocoExConfigFile | Select-Object -ExpandProperty FullName
+            Write-Verbose "Processing:$FullName"
+
             #Validate Keys
             $ValidHashTable = @{
                 ConfigName = $null
@@ -37,16 +49,18 @@ function Get-cChocoExConfig {
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
                 if ($_ -notin $ValidHashTable.Keys) {
-                    throw "Invalid Configuration Key ($_) Found In File: $cChocoExConfigFile"
+                    Write-Error "Invalid Configuration Key ($_) Found In File: $cChocoExConfigFile"
+                    return
                 }
             }
             
-            $Configurations | ForEach-Object {
-                $array += [PSCustomObject]@{
-                    PSTypeName = 'cChocoExConfig'
+            $array += $Configurations | ForEach-Object {
+                [PSCustomObject]@{
+                    #PSTypeName = 'cChocoExConfig'
                     ConfigName = $_.ConfigName
                     Value      = $_.Value
                     Ensure     = $_.Ensure
+                    Path       = $FullName
                 }
             }
         }
@@ -56,6 +70,16 @@ function Get-cChocoExConfig {
     }
     
     end {
-        $array
+        #Filter out objects
+        if ($ConfigName) {
+            $array = $array | Where-Object { $_.ConfigName -eq $ConfigName }
+        }
+        if ($Ensure) {
+            $array = $array | Where-Object { $_.Ensure -eq $Ensure }
+        }
+        if ($Value) {
+            $array = $array | Where-Object { $_.Value -eq $Value }
+        }
+        return $array
     }
 }

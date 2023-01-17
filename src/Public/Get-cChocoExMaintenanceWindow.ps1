@@ -9,29 +9,42 @@ function Get-cChocoExMaintenanceWindow {
     [CmdletBinding()]
     param (
         # Path
+        [Alias('FullName', 'Path')]
+        [Parameter(ValueFromPipelineByPropertyName = $true, Position = 0)]
+        [string[]]
+        $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1'),
+        # EffectiveDateTime
         [Parameter()]
         [string]
-        $Path
+        $EffectiveDateTime,
+        # Start Time
+        [Parameter()]
+        [string]
+        $Start,
+        # End Time
+        [Parameter()]
+        [string]
+        $End,
+        # UTC
+        [Parameter()]
+        [Nullable[boolean]]
+        $UTC = $null
     )
     
     begin {
         [array]$array = @()
-        if ($Path) {
-            $cChocoExConfigFile = $Path
-        }
-        else {
-            $cChocoExConfigFile = (Join-Path -Path $Global:cChocoExConfigurationFolder -ChildPath 'config.psd1')
-        }
     }
     
     process {
-        if ($cChocoExConfigFile) {
+        if (Test-Path $cChocoExConfigFile) {
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Stop
             $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
             $Date = Get-Date
             $CurrentDate = $Date.ToString('MM-dd-yyyy HH:mm')
             $CurrentDateUTC = ($Date.ToUniversalTime()).ToString('MM-dd-yyyy HH:mm')
             $CurrentTZ = Get-TimeZone | Select-Object -ExpandProperty Id
+            $FullName = Get-Item $cChocoExConfigFile | Select-Object -ExpandProperty FullName
+            Write-Verbose "Processing:$FullName"
 
             $MaintenanceWindowConfig | ForEach-Object {
                 if ($_.Name) {
@@ -51,6 +64,7 @@ function Get-cChocoExMaintenanceWindow {
                     CurrentDate       = $CurrentDate
                     CurrentDateUTC    = $CurrentDateUTC
                     CurrentTZ         = $CurrentTZ
+                    Path              = $FullName
                 }
             }
         }
@@ -60,6 +74,19 @@ function Get-cChocoExMaintenanceWindow {
     }
     
     end {
-        $array
+        #Filter out objects
+        if ($UTC -ne $null) {
+            $array = $array | Where-Object { [string]$_.UTC -eq [string]$UTC }
+        }
+        if ($End) {
+            $array = $array | Where-Object { $_.End -eq $End }
+        }
+        if ($Start) {
+            $array = $array | Where-Object { $_.Start -eq $Start }
+        }
+        if ($EffectiveDateTime) {
+            $array = $array | Where-Object { $_.EffectiveDateTime -eq $EffectiveDateTime }
+        }
+        return $array
     }
 }

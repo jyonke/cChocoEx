@@ -7,7 +7,7 @@ function Update-cChocoExConfigFile {
         [string[]]
         $Path,
         # ConfigName
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [string]
         $ConfigName,
         # Ensure
@@ -27,7 +27,7 @@ function Update-cChocoExConfigFile {
     )
     
     begin {
-        
+        $Path = $Path | Sort-Object -Unique
     }
     
     process {
@@ -35,8 +35,8 @@ function Update-cChocoExConfigFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $DataR = Get-cChocoExMaintenanceWindow -Path $FullName | Select-Object -Property 'ConfigName', 'UTC', 'EffectiveDateTime', 'Start', 'End'
-            $Data = Get-cChocoExConfig -Path $FullName
+            $DataR = Get-cChocoExMaintenanceWindow -Path $FullName | Select-Object -Property 'ConfigName', 'UTC', 'EffectiveDateTime', 'Start', 'End' 
+            $Data = Get-cChocoExConfig -Path $FullName | Select-Object -ExcludeProperty 'Path'
         }
         catch {
             Write-Error $_.Exception.Message

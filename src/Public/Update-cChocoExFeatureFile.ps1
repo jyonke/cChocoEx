@@ -7,7 +7,7 @@ function Update-cChocoExFeatureFile {
         [string[]]
         $Path,
         # FeatureName
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [string]
         $FeatureName,
         # Ensure
@@ -31,7 +31,7 @@ function Update-cChocoExFeatureFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExFeature -Path $FullName
+            $Data = Get-cChocoExFeature -Path $FullName | Select-Object -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message

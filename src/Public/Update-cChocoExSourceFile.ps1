@@ -1,4 +1,5 @@
 function Update-cChocoExSourceFile {
+    [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (
         # Path
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
@@ -6,15 +7,15 @@ function Update-cChocoExSourceFile {
         [string[]]
         $Path,
         # Name
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [string]
         $Name,
         # Ensure
-        [Parameter(Mandatory = $true, ParameterSetName = 'Present')]
-        [Parameter(Mandatory = $true, ParameterSetName = 'Absent')]
+        [Parameter(ParameterSetName = 'Present')]
+        [Parameter(ParameterSetName = 'Absent')]
         [ValidateSet('Present', 'Absent')]
         [string]
-        $Ensure,
+        $Ensure = 'Present',
         # Source
         [Parameter(Mandatory = $true, ParameterSetName = 'Present')]
         [string]
@@ -54,7 +55,7 @@ function Update-cChocoExSourceFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExSource -Path $FullName
+            $Data = Get-cChocoExSource -Path $FullName | Select-Object -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message
