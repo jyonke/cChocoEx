@@ -21,7 +21,7 @@ function Get-ChocoLogs {
         $LogLevel,
         # Message Search String
         [Parameter()]
-        [string]
+        [regex]
         $SearchString,
         # Minimum Date Filter, defaults to 7 days
         [Parameter()]
@@ -46,6 +46,10 @@ function Get-ChocoLogs {
         if ($Logs.count -lt 1) {
             Write-Warning "No Log content found in files located at $Path"
             return
+        }
+        if ($Last -ne $null) {
+            #Overprovission and reduce at the end as a hacky speedup
+            $Logs = $Logs | Select-Object -Last ($Last * 3)
         }
     }
     
