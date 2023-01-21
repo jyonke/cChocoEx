@@ -46,8 +46,18 @@ if (-Not($Publish)) {
     }
 
     try {
+        #Gather function Names
+        #https://www.codykonior.com/2018/02/20/populating-powershell-module-functionstoexport-automatically/
+        $FunctionsToExport = Get-ChildItem -Path (Join-Path $PSScriptRoot 'src\Public\') -Recurse | Where-Object { $_.Name -match "^[^\.]+-[^\.]+\.ps1$" } -PipelineVariable file | ForEach-Object {
+            $ast = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref] $null, [ref] $null)
+            if ($ast.EndBlock.Statements.Name) {
+                $ast.EndBlock.Statements.Name
+            }
+        }
+        $FormatsToProcess = Get-ChildItem -Path (Join-Path $PSScriptRoot 'src\Formats\') -Recurse -Filter *.ps1xml | Select-Object -ExpandProperty Name  | ForEach-Object { ".\Formats\$_" }
+
         #Update Module Manifest
-        Update-ModuleManifest -Path $ModuleManifestFile -ModuleVersion $BuildVersion
+        Update-ModuleManifest -Path $ModuleManifestFile -ModuleVersion $BuildVersion -FunctionsToExport $FunctionsToExport -FormatsToProcess $FormatsToProcess
 
         #Update Version in Nuspec
         [xml]$xml = Get-Content -Path $NuSpecFile -Raw
@@ -58,6 +68,7 @@ if (-Not($Publish)) {
     }
     catch {
         throw $_.Exception.Message
+        return
     }
 
     #Publish

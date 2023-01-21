@@ -16,13 +16,22 @@ function Start-cChocoPackageInstall {
     #Evaluate VPN Status
     $VPNStatus = Get-VPN -Active
 
-    #Validate No Duplicate Packages Defined with no Ring Details
-    $DuplicateSearch = (Compare-Object -ReferenceObject $Configurations.Name -DifferenceObject ($Configurations.Name | Select-Object -Unique) | Where-Object { $_.SideIndicator -eq '<=' }).InputObject
-    $Duplicates = $Configurations | Where-Object { $DuplicateSearch -eq $_.Name } | Where-Object { $null -eq $_.Ring }
-    if ($Duplicates) {
+    #Validate No Duplicate Package/Rings
+    $PSCustomObject = $Configurations | ForEach-Object {
+        if (-Not($_.Ring)) {
+            $_.Ring -eq 'Broad'
+        }
+        [PSCustomObject]@{
+            Name = $_.Name
+            Ring = $_.Ring
+        }
+    }
+    $Duplicates = $PSCustomObject | Group-Object -Property Name, Ring | Where-Object { $_.Count -gt 1 } 
+    
+    if ($Duplicates.Count -gt 0) {
         Write-Log -Severity 'Warning' -Message "Duplicate cChocoPackageInstall"
         Write-Log -Severity 'Warning' -Message "Duplicate Package Found removing from active processesing"
-        $Configurations | Where-Object { $Duplicates.Name -eq $_.Name } | ForEach-Object {
+        $Configurations | Where-Object { $Duplicates.Group.Name -eq $_.Name } | ForEach-Object {
             Write-Log -Severity 'Warning' -Message "Name: $($_.Name)"
             Write-Log -Severity 'Warning' -Message "Version $($_.Version)"
             Write-Log -Severity 'Warning' -Message "MinimumVersion $($_.MinimumVersion)"
@@ -40,7 +49,7 @@ function Start-cChocoPackageInstall {
         }
         #Filter Out Duplicates and Clear all package configuration files for next time processing
         Write-Log -Severity 'Warning' -Message "Filter Out Duplicates and Clear all package configuration files for next time processing"
-        $Configurations = $Configurations | Where-Object { $Duplicates.Name -notcontains $_.Name }
+        $Configurations = $Configurations | Where-Object { $Duplicates.Group.Name -notcontains $_.Name }
         Get-ChildItem -Path $PackageConfigDestination -Filter *.psd1 | Where-Object { $_.Name -notmatch "sources.psd1|config.psd1|features.psd1" } | Remove-Item -Force -ErrorAction SilentlyContinue
     }
 

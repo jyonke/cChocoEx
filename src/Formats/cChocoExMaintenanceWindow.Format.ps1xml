@@ -62,6 +62,10 @@ https://github.com/jdhitsolutions/PSScriptTools
                 <Label>CurrentTZ</Label>
                 <PropertyName>CurrentTZ</PropertyName>
               </ListItem>
+              <ListItem>
+                <Label>Path</Label>
+                <PropertyName>Path</PropertyName>
+              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
