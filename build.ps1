@@ -25,6 +25,8 @@ $ModuleManifestFile = (Get-ChildItem -Path $PSScriptRoot -Recurse -Filter 'cChoc
 Write-Host "NUSPEC FILE: $NuspecFile" -ForegroundColor Cyan
 Write-Host "BUILD DIRECTORY: $BuildDirectory" -ForegroundColor Cyan
 
+Register-PSRepository -Name $BuildRepository -SourceLocation $LocalRepository -PublishLocation $LocalRepository -InstallationPolicy Trusted
+
 #Test Builds
 if (-Not($Publish)) {
     #Dependencies
@@ -32,9 +34,7 @@ if (-Not($Publish)) {
     if (-not(Test-Path "$PSScriptRoot\nuget.exe")) {
         Invoke-WebRequest -Uri 'https://dist.nuget.org/win-x86-commandline/latest/nuget.exe' -OutFile "$PSScriptRoot\nuget.exe"
     }
-
-    Register-PSRepository -Name $env:cChocoEx_BuildRepository -SourceLocation $LocalRepository -PublishLocation $LocalRepository -InstallationPolicy Trusted
-
+    
     #Version Update
     [version]$CurrentVersion = (Import-PowerShellDataFile -Path $ModuleManifestFile).ModuleVersion
     [version]$DateVersion = Get-Date -f yy.MM.dd
@@ -67,6 +67,7 @@ if (-Not($Publish)) {
         Write-Host "$NuSpecFile -- Original Version: $CurrentVersion -- Updated to $BuildVersion"
     }
     catch {
+        Unregister-PSRepository -Name $BuildRepository
         throw $_.Exception.Message
         return
     }
@@ -99,11 +100,19 @@ if (-Not($Publish)) {
 }
 #PSGallery Publish
 if ($Publish) {
-    $Guid = New-Guid | Select-Object -ExpandProperty Guid
-    $TempPath = New-Item -ItemType Directory -Path (Join-Path $env:TEMP "$Guid\cChocoEx") -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path "$SourceFolder\*" -Destination $TempPath.FullName -Force -Recurse
-    Publish-Module -Path $TempPath -Repository $BuildRepository -NuGetApiKey $APIKey_PSGallery -Force -Verbose -WhatIf
-
-    #Cleanup
-    Remove-Item -Path $TempPath -Recurse -Force
+    try {
+        $Guid = New-Guid | Select-Object -ExpandProperty Guid
+        $TempPath = New-Item -ItemType Directory -Path (Join-Path $env:TEMP "$Guid\cChocoEx") -Force -ErrorAction SilentlyContinue
+        Copy-Item -Path "$SourceFolder\*" -Destination $TempPath.FullName -Force -Recurse
+        Publish-Module -Path $TempPath -Repository 'PSGallery' -NuGetApiKey $APIKey_PSGallery -Force       
+    }
+    catch {
+        Write-Error $_.Exception.Message
+        Write-Error 'Module Failed to Publish!!!'
+    }
+    finally {
+        #Cleanup
+        Remove-Item -Path $TempPath -Recurse -Force
+        Unregister-PSRepository -Name $BuildRepository
+    }
 }
