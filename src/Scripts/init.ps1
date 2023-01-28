@@ -27,5 +27,14 @@ if (Get-ScheduledTask -TaskName 'cChocoExBootstrapTask') {
     exit 0
 }
 
-#Register cChocoEx DSC Task
-Register-cChocoExBootStrapTask
+try {
+    #Register cChocoEx DSC Task
+    Register-cChocoExBootStrapTask
+
+    #Kick off first run
+    Get-ScheduledTask -TaskName 'cChocoExBootstrapTask' | Start-ScheduledTask    
+}
+catch {
+    Write-Warning $_.Exception.Message
+}
+
