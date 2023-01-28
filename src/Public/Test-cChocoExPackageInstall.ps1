@@ -114,10 +114,10 @@ function Test-cChocoExPackageInstall {
                         $item.InstallDate = $InstallDate
                     }
                 }
-                return $Status
+                return ($Status | Sort-Object -Property Name)
             }
             else {
-                return $Status
+                return ($Status | Sort-Object -Property Name)
             }
         }
     }
