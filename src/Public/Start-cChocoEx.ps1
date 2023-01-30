@@ -70,7 +70,11 @@ function Start-cChocoEx {
         # Enable Desktop Notifications
         [Parameter()]
         [Switch]
-        $EnableNotifications
+        $EnableNotifications,
+        # Set machine enviroment variables
+        [Parameter()]
+        [switch]
+        $SetcChocoExEnvironment
     )
 
     #Ensure Running as Administrator
@@ -176,6 +180,84 @@ function Start-cChocoEx {
     }
     
     #####################################
+    #   Gather Environment Variables
+    #####################################
+        
+    #ChocoInstallScriptUrl
+    if ($env:ChocoInstallScriptUrl) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:ChocoInstallScriptUrl: $env:ChocoInstallScriptUrl"
+        $ChocoInstallScriptUrl = $env:ChocoInstallScriptUrl
+    }
+    #ChocoDownloadUrl
+    if ($env:ChocoDownloadUrl -and ([string]::IsNullOrEmpty($ChocoDownloadUrl))) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:ChocoDownloadUrl: $env:ChocoDownloadUrl"
+        $ChocoDownloadUrl = $env:ChocoDownloadUrl
+    }
+    #cChocoExChocoConfig
+    if ($env:cChocoExChocoConfig -and ([string]::IsNullOrEmpty($ChocoConfig))) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:cChocoExChocoConfig: $env:cChocoExChocoConfig"
+        $ChocoConfig = $env:cChocoExChocoConfig
+    }
+    #cChocoExSourcesConfig
+    if ($env:cChocoExSourcesConfig -and ([string]::IsNullOrEmpty($SourcesConfig))) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:cChocoExSourcesConfig: $env:cChocoExSourcesConfig"
+        $SourcesConfig = $env:cChocoExSourcesConfig
+    }
+    #cChocoExPackageConfig
+    if ($env:cChocoExPackageConfig -and ([string]::IsNullOrEmpty($PackageConfig))) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:cChocoExPackageConfig: $env:cChocoExPackageConfig"
+        $PackageConfig = $env:cChocoExPackageConfig -join ','
+    }
+    #cChocoExFeatureConfig
+    if ($env:cChocoExFeatureConfig -and ([string]::IsNullOrEmpty($FeatureConfig))) {
+        Write-Log -Severity 'Information' -Message "Environment Variable `$env:cChocoExFeatureConfig: $env:cChocoExFeatureConfig"
+        $FeatureConfig = $env:cChocoExFeatureConfig
+    }
+
+    #####################################
+    #   Set Environment Variables
+    #####################################
+    if ($SetcChocoExEnvironment) {
+        #ChocoInstallScriptUrl
+        if ($ChocoInstallScriptUrl) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:ChocoInstallScriptUrl: $ChocoInstallScriptUrl"
+            [Environment]::SetEnvironmentVariable('ChocoInstallScriptUrl', $ChocoInstallScriptUrl, 'Machine')
+            $env:ChocoInstallScriptUrl = $ChocoInstallScriptUrl  
+        }
+        #ChocoDownloadUrl
+        if ($ChocoDownloadUrl) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:ChocoDownloadUrl: $ChocoDownloadUrl"
+            [Environment]::SetEnvironmentVariable('ChocoDownloadUrl', $ChocoDownloadUrl, 'Machine')  
+            $env:ChocoDownloadUrl = $ChocoDownloadUrl     
+        }
+        #cChocoExChocoConfig
+        if ($ChocoConfig) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:ChocoConfig: $ChocoConfig"
+            [Environment]::SetEnvironmentVariable('cChocoExChocoConfig', $ChocoConfig, 'Machine')
+            $env:cChocoExChocoConfig = $ChocoConfig
+        }
+        #cChocoExSourcesConfig
+        if ($SourcesConfig) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:SourcesConfig: $SourcesConfig"
+            [Environment]::SetEnvironmentVariable('cChocoExSourcesConfig', $SourcesConfig, 'Machine')
+            $env:cChocoExSourcesConfig = $SourcesConfig
+        }
+        #cChocoExPackageConfig
+        if ($PackageConfig) {
+            $PackageConfigString = $PackageConfig -join ','
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:cChocoExPackageConfig: $PackageConfigString"
+            [Environment]::SetEnvironmentVariable('cChocoExPackageConfig', $PackageConfigString, 'Machine')
+            $env:cChocoExPackageConfig = $PackageConfigString
+        }
+        #cChocoExFeatureConfig
+        if ($FeatureConfig) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:FeatureConfig: $FeatureConfig"
+            [Environment]::SetEnvironmentVariable('cChocoExFeatureConfig', $FeatureConfig, 'Machine')
+            $env:cChocoExFeatureConfig = $FeatureConfig
+        }
+    }
+
+    #####################################
     #   cChocoInstaller          
     #####################################
     $Configuration = @{
@@ -259,7 +341,6 @@ function Start-cChocoEx {
         if ($NoCache) {
             $Global:ChocoConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "config.psd1")
         }
-
         try {
             Write-Log -Severity 'Information' -Message "Downloading Choco Config File"
             Write-Log -Severity 'Information' -Message "Source: $ChocoConfig"
@@ -282,7 +363,6 @@ function Start-cChocoEx {
         if ($NoCache) {
             $Global:SourcesConfigDestination = (Join-Path $cChocoExTMPConfigurationFolder "sources.psd1")
         }
-
         try {
             Write-Log -Severity 'Information' -Message "Downloading Source Config File"
             Write-Log -Severity 'Information' -Message "Source: $SourcesConfig"
@@ -357,7 +437,7 @@ function Start-cChocoEx {
         Start-cChocoConfig -ConfigImport $ConfigImport
     }
     else {
-        Write-Log -Severity 'Information'  -Message "File not found, configuration will not be modified"
+        Write-Log -Severity 'Information' -Message "File not found, configuration will not be modified"
     }
     #####################################
     #   cChocoFeature          

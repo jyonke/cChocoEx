@@ -35,6 +35,12 @@ function Get-cChocoExEnvironment {
             cChocoExDataFolder             = $Global:cChocoExDataFolder
             cChocoExConfigurationFolder    = $Global:cChocoExConfigurationFolder
             cChocoExTMPConfigurationFolder = $Global:cChocoExTMPConfigurationFolder
+            ChocoInstallScriptUrl          = $env:ChocoInstallScriptUrl
+            ChocoDownloadUrl               = $env:ChocoDownloadUrl
+            cChocoExChocoConfig            = $env:cChocoExChocoConfig
+            cChocoExSourcesConfig          = $env:cChocoExSourcesConfig
+            cChocoExPackageConfig          = $env:cChocoExPackageConfig
+            ChocoExFeatureConfig           = $env:cChocoExFeatureConfig
             LogPath                        = $Global:LogPath
             cChocoExMediaFolder            = $Global:cChocoExMediaFolder
             Ring                           = $Ring
