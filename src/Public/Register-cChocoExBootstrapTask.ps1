@@ -28,7 +28,7 @@ function Register-cChocoExBootStrapTask {
     $ScheduledTaskSettingsSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances 'IgnoreNew'
     $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserId $UserID -LogonType ServiceAccount -RunLevel Highest
     $TaskTrigger01 = New-ScheduledTaskTrigger -AtStartup
-    $TaskTrigger01.Delay = 'PT1M'
+    $TaskTrigger01.Delay = 'PT5M' #Wait 300s to run
     $TaskTrigger02 = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes($LoopDelay)) -RepetitionInterval (New-TimeSpan -Minutes $LoopDelay) -RepetitionDuration (New-TimeSpan -Days 1024)
     $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""
         

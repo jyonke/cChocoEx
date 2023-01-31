@@ -21,7 +21,9 @@ function Register-cChocoExInitTask {
     $ScheduledTaskSettingsSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances 'IgnoreNew'
     $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserId $UserID -LogonType ServiceAccount -RunLevel Highest
     $TaskTrigger01 = New-ScheduledTaskTrigger -AtStartup
+    $TaskTrigger01.Delay = 'PT5M' #Wait 300s to run
     $TaskTrigger02 = New-ScheduledTaskTrigger -AtLogOn
+    $TaskTrigger02.Delay = 'PT5M' #Wait 300s to run
     $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""
         
     #ScheduledTaskSplat
