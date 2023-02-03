@@ -19,7 +19,7 @@ function Get-PowerHistory {
     
         }
         try {
-            $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction 'SilentlyContinue'
+            $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction 'SilentlyContinue' | Where-Object { [datetime]$_.timecreated -lt (Get-Date) }
             $TextInfo = (Get-Culture).TextInfo    
         }
         catch {
