@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Creates a PowerShell Task that runs as SYSTEM to automatically runs cChocoEx init at startup to ensure looping is enabled post environment restrictions are gone.
+    Creates a PowerShell Task that runs as SYSTEM to automatically run cChocoEx init at startup to ensure looping is enabled post environment restrictions are gone.
 .INPUTS
     None
 .OUTPUTS
@@ -16,7 +16,7 @@ function Register-cChocoExInitTask {
     $TaskPath = '\cChocoEx\'
     $UserID = "NT AUTHORITY\SYSTEM"
     $FilePath = (Join-Path -Path ($PSScriptRoot | Split-Path) -ChildPath 'scripts\init.ps1')
-    $Description = "This task is part of the loop functionality in cChocoEx. It runs $FilePath at startup and will be removed once enviroment restrictions are gone."
+    $Description = "This task is part of the loop functionality in cChocoEx. It runs Request-cChocoExInit at startup with a 5 minute delay and will be removed once environment restrictions are gone."
 
     $ScheduledTaskSettingsSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances 'IgnoreNew'
     $ScheduledTaskPrincipal = New-ScheduledTaskPrincipal -UserId $UserID -LogonType ServiceAccount -RunLevel Highest
@@ -24,7 +24,7 @@ function Register-cChocoExInitTask {
     $TaskTrigger01.Delay = 'PT5M' #Wait 300s to run
     $TaskTrigger02 = New-ScheduledTaskTrigger -AtLogOn
     $TaskTrigger02.Delay = 'PT5M' #Wait 300s to run
-    $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -File `"$FilePath`""
+    $ScheduledTaskAction = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-Executionpolicy Bypass -NoLogo -NonInteractive -WindowStyle Hidden -Command Request-cChocoExInit"
         
     #ScheduledTaskSplat
     $ScheduledTaskParams = @{

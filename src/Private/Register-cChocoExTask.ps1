@@ -21,10 +21,10 @@ function Register-cChocoExTask {
         Write-Log -Severity "Information" -Message "Task Sequence Environment Detected, Registration of $TaskName Restricted"
         return
     }
-    if ((Test-AutopilotESP) -eq $true) {
-        Write-Log -Severity "Information" -Message "Autopilot Enrollment Status Page Environment Detected, Registration of $TaskName Restricted"
-        return
-    }
+    #if ((Test-AutopilotESP) -eq $true) {
+    #    Write-Log -Severity "Information" -Message "Autopilot Enrollment Status Page Environment Detected, Registration of $TaskName Restricted"
+    #    return
+    #}
     if ((Test-IsWinPe) -eq $true) {
         Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of $TaskName Restricted"
         return

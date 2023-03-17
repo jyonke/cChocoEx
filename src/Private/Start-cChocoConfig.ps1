@@ -58,12 +58,12 @@ function Start-cChocoConfig {
         Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
         return
     }
-    if (Test-AutopilotESP) {
-        Write-Log -Severity 'Information' -Message "Autopilot Enrollment Status Page Environment Detected, Overriding Maintenance Window Settings"
-        Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
-        Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
-        return
-    }
+    #if (Test-AutopilotESP) {
+    #    Write-Log -Severity 'Information' -Message "Autopilot Enrollment Status Page Environment Detected, Overriding Maintenance Window Settings"
+    #    Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"
+    #    Write-Log -Severity 'Information' -Message "MaintenanceWindowActive: $($MaintenanceWindowActive)"
+    #    return
+    #}
     if (Test-IsWinPe) {
         Write-Log -Severity 'Information' -Message "WinPE Environment Detected, Overriding Maintenance Window Settings"
         Write-Log -Severity 'Information' -Message "MaintenanceWindowEnabled: $($MaintenanceWindowEnabled)"

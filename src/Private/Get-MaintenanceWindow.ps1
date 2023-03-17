@@ -63,11 +63,11 @@ function Get-MaintenanceWindow {
         Write-Verbose 'Task Sequence Environment True - Overriding Maintenance Window'
     }
 
-    if ((Test-AutopilotESP) -eq $True) {
-        $Global:MaintenanceWindowEnabled = $True
-        $Global:MaintenanceWindowActive = $True
-        Write-Verbose 'Autopilot Enrollment Status Page Environment True - Overriding Maintenance Window'
-    }
+    #if ((Test-AutopilotESP) -eq $True) {
+    #    $Global:MaintenanceWindowEnabled = $True
+    #    $Global:MaintenanceWindowActive = $True
+    #    Write-Verbose 'Autopilot Enrollment Status Page Environment True - Overriding Maintenance Window'
+    #}
 
     if ($Global:OverrideMaintenanceWindow) {
         $Global:MaintenanceWindowEnabled = $True

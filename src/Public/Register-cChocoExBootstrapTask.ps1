@@ -38,11 +38,11 @@ function Register-cChocoExBootStrapTask {
         Register-cChocoExInitTask
         return
     }
-    if ((Test-AutopilotESP) -eq $true) {
-        Write-Log -Severity "Information" -Message "Autopilot Enrollment Status Page Environment Detected, Registration of $TaskName Restricted"
-        Register-cChocoExInitTask
-        return
-    }
+    #if ((Test-AutopilotESP) -eq $true) {
+    #    Write-Log -Severity "Information" -Message "Autopilot Enrollment Status Page Environment Detected, Registration of $TaskName Restricted"
+    #    Register-cChocoExInitTask
+    #    return
+    #}
     if (Test-IsWinPe) {
         Write-Log -Severity "Information" -Message "WinPE Environment Detected, Registration of $TaskName Restricted"
         Register-cChocoExInitTask

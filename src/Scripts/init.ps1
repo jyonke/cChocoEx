@@ -7,9 +7,9 @@ $TaskPath = '\cChocoEx\'
 if ((Test-TSEnv) -eq $true) {
     return
 }
-if ((Test-AutopilotESP) -eq $true) {
-    return
-}
+#if ((Test-AutopilotESP) -eq $true) {
+#    return
+#}
 if ((Test-IsWinPe) -eq $true) {
     return
 }
