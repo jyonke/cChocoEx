@@ -46,7 +46,7 @@ Function Get-LoggedInUser () {
         foreach ($computer in $ComputerName) {
             try {
                 Write-Information "Testing connection to $computer" -Tags 'Process'
-                if (Test-Connection -ComputerName $computer -Count 1 -Quiet) {
+                if ($True) {
                     $Users = quser.exe /server:$computer 2>$null | Select-Object -Skip 1
 
                     if (!$?) {
