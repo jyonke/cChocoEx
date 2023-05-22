@@ -1,109 +1,96 @@
-# Copyright (c) 2017 Chocolatey Software, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 @{
-    "adobereader"                        = @{
-        Name        = "adobereader"
+    "7zip.install-Broad"                       = @{
+        Name        = '7zip.install'
         Ensure      = 'Present'
-        AutoUpgrade = $True
+        AutoUpgrade = $true
+        Ring        = 'Broad'
+        Priority    = 0
+    }
+    "adobeair-Broad"                           = @{
+        Name        = 'adobeair'
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        VPN         = $true
+        Ring        = 'Broad'
+    }
+    "adobereader-Broad"                        = @{
+        Name        = 'adobereader'
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        Ring        = 'Broad'
         Priority    = 10
     }
-    "7zip.install"                       = @{
-        Name        = "7zip.install"
+    "chocolatey-windowsupdate.extension-Broad" = @{
+        Name        = 'chocolatey-windowsupdate.extension'
         Ensure      = 'Present'
-        AutoUpgrade = $True
-        Priority    = 0
+        AutoUpgrade = $true
+        VPN         = $false
+        Ring        = 'Broad'
     }
-    "notepadplusplus.install"            = @{
-        Name        = "notepadplusplus.install"
+    "firefox-Pilot"                            = @{
+        Name        = 'firefox'
         Ensure      = 'Present'
-        AutoUpgrade = $True
-        Priority    = 0
+        AutoUpgrade = $true
+        Ring        = 'Pilot'
     }
-    "vlc-broad"                          = @{
-        Name                      = "vlc"
-        MinimumVersion            = "2.0.1"
-        Ensure                    = 'Present'
-        OverrideMaintenanceWindow = $True
-        Ring                      = 'Broad'
-    }
-    "vlc-preview"                        = @{
-        Name        = "vlc"
-        Ensure      = 'Present'
-        AutoUpgrade = $True
-        Ring        = 'Preview'
-    }
-    "vlc-slow"                           = @{
-        Name           = "vlc"
-        Ensure         = 'Present'
-        MinimumVersion = "3.0.0"
-        Ring           = 'Slow'
-    }
-    "vlc-fast"                           = @{
-        Name                      = "vlc"
-        Ensure                    = 'Present'
-        MinimumVersion            = "3.0.15"
-        OverrideMaintenanceWindow = $True
-        Ring                      = 'Fast'
-    }
-    "jre8"                               = @{
-        Name                      = "jre8"
-        Ensure                    = 'Present'
-        AutoUpgrade               = $True
-        OverrideMaintenanceWindow = $False
-    }
-    "git.install"                        = @{
-        Name        = "git.install"
-        Ensure      = 'Present'
-        AutoUpgrade = $True
-        chocoParams = '--execution-timeout 0'
-        Source      = 'https://chocolatey.org/api/v2/'
-    }
-    "adobeair"                           = @{
-        Name        = "adobeair"
-        Ensure      = 'Present'
-        AutoUpgrade = $True
-        VPN         = $True
-    }
-    "chocolatey-windowsupdate.extension" = @{
-        Name        = "chocolatey-windowsupdate.extension"
-        Ensure      = 'Present'
-        AutoUpgrade = $True
-        VPN         = $False
-    }
-    'firefox'                            = @{
+    "firefox-broad"                            = @{
         Name    = 'firefox'
-        Version = "87.0"
+        Version = '87.0'
         Ensure  = 'Present'
         Ring    = 'broad'
     }
-    'firefox-latest'                     = @{
-        Name        = 'firefox'
+    "git.install-Broad"                        = @{
+        Name        = 'git.install'
+        Source      = 'https://chocolatey.org/api/v2/'
         Ensure      = 'Present'
-        AutoUpgrade = $True
-        Ring        = 'Pilot'
-    }
-    'microsoft-edge'                     = @{
-        Name        = 'microsoft-edge'
-        Ensure      = 'Present'
-        AutoUpgrade = $True
+        AutoUpgrade = $true
+        ChocoParams = '--execution-timeout 0'
         Ring        = 'Broad'
     }
-    'winscp'                             = @{
+    "jre8-Broad"                               = @{
+        Name        = 'jre8'
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        Ring        = 'Broad'
+    }
+    "microsoft-edge-Broad"                     = @{
+        Name        = 'microsoft-edge'
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        Ring        = 'Broad'
+    }
+    "notepadplusplus.install-Broad"            = @{
+        Name        = 'notepadplusplus.install'
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        Ring        = 'Broad'
+        Priority    = 0
+    }
+    "office365business-Broad"                  = @{
+        Name           = 'office365business'
+        Ensure         = 'Present'
+        Ring           = 'Broad'
+        EnvRestriction = @('TSEnv', 'OOBE')
+    }
+    "vlc-Fast"                                 = @{
+        Name                      = 'vlc'
+        MinimumVersion            = '3.0.15'
+        Ensure                    = 'Present'
+        OverrideMaintenanceWindow = $true
+        Ring                      = 'Fast'
+    }
+    "vlc-Broad"                                = @{
+        Name                      = 'vlc'
+        MinimumVersion            = '2.0.1'
+        Ensure                    = 'Present'
+        OverrideMaintenanceWindow = $true
+        Ring                      = 'Broad'
+    }
+    "winscp-Broad"                             = @{
         Name        = 'winscp'
         Ensure      = 'Present'
-        AutoUpgrade = $True
+        AutoUpgrade = $true
         Ring        = 'Broad'
     }
 }
+

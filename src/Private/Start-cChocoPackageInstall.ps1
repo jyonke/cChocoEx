@@ -13,7 +13,9 @@ function Start-cChocoPackageInstall {
     $Ring = Get-cChocoExRing
     Write-Log -Severity 'Information' -Message "Local Machine Deployment Ring: $Ring"
     
-    #Evaluate VPN Status
+    #Get Environment Restriction Status
+    $OOBEStatsu = Test-IsWinOS.OOBE
+    $TSStatus = Test-TSEnv
     $VPNStatus = Get-VPN -Active
 
     #Validate No Duplicate Package/Rings
@@ -45,6 +47,7 @@ function Start-cChocoPackageInstall {
             Write-Log -Severity 'Warning' -Message "Ring: $($_.Ring)"
             Write-Log -Severity 'Warning' -Message "Priority: $($_.Priority)"
             Write-Log -Severity 'Warning' -Message "OverrideMaintenanceWindow: $($_.OverrideMaintenanceWindow)"
+            Write-Log -Severity 'Warning' -Message "EnvRestriction: $($_.EnvRestriction)"
             Write-Log -Severity 'Warning' -Message "Duplicate Package Defined"
         }
         #Filter Out Duplicates and Clear all package configuration files for next time processing
@@ -79,6 +82,7 @@ function Start-cChocoPackageInstall {
             Ring                      = $Configuration.Ring
             Priority                  = $Configuration.Priority
             OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
+            EnvRestriction            = $Configuration.EnvRestriction
             Warning                   = $null
         }
 
@@ -92,7 +96,7 @@ function Start-cChocoPackageInstall {
         else {
             $StatusMessage = "$($Configuration.Name)"
         }
-        Write-Progress -Activity "cChocoPackageInstall - $i/$($PriorityConfigurations.Count)" -Status $StatusMessage -PercentComplete ( ( $i / $PriorityConfigurations.Count ) * 100 )
+        Write-Progress -Activity "cChocoPackageInstall - $i/$(($PriorityConfigurations | Measure-Object).Count)" -Status $StatusMessage -PercentComplete ( ( $i / ($PriorityConfigurations | Measure-Object).Count ) * 100 )
         $i++
         
         #Evaluate VPN Restrictions
@@ -102,6 +106,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
                 $Object.Warning = "Configuration restricted when VPN is connected"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -113,6 +118,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
                 $Object.Warning = "Configuration restricted when VPN is not established"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -133,6 +139,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object        
@@ -148,6 +155,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -155,12 +163,63 @@ function Start-cChocoPackageInstall {
                 if (($Global:EnableNotifications) -and (-not($DSC))) {
                     $UpdateToast = $true
                 }
-
+                return
+            }
+        }
+        #Evaluate Environment Restrictions
+        if ($Configuration.EnvRestriction) {
+            if ($Configuration.EnvRestriction -match 'TS|TSEnv|TaskSequence|Task Sequence' -and $TSStatus) {
+                $Object.Warning = "Task Sequence Environment detected configuration restricted "
+                $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Ring")
+                $Configuration.Remove("VPN")
+                $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
+                $DSC = Test-TargetResource @Configuration
+                $Object.DSC = $DSC
+                $Status += $Object   
+                #Create Pending Update Notice
+                if (($Global:EnableNotifications) -and (-not($DSC))) {
+                    $UpdateToast = $true
+                }
+                return
+            }
+            if ($Configuration.EnvRestriction -match 'OOBE|ESP|Autopilot' -and $OOBEStatsu) {
+                $Object.Warning = "OOBE Environment detected configuration restricted "
+                $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Ring")
+                $Configuration.Remove("VPN")
+                $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
+                $DSC = Test-TargetResource @Configuration
+                $Object.DSC = $DSC
+                $Status += $Object   
+                #Create Pending Update Notice
+                if (($Global:EnableNotifications) -and (-not($DSC))) {
+                    $UpdateToast = $true
+                }
+                return
+            }
+            if ($Configuration.EnvRestriction -match 'VPN' -and $VPNStatus) {
+                $Object.Warning = "Active VPN Environment detected configuration restricted "
+                $Configuration.Remove("OverrideMaintenanceWindow")
+                $Configuration.Remove("Ring")
+                $Configuration.Remove("VPN")
+                $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
+                $DSC = Test-TargetResource @Configuration
+                $Object.DSC = $DSC
+                $Status += $Object   
+                #Create Pending Update Notice
+                if (($Global:EnableNotifications) -and (-not($DSC))) {
+                    $UpdateToast = $true
+                }
                 return
             }
         }
         $Configuration.Remove("OverrideMaintenanceWindow")
         $Configuration.Remove("Priority")
+        $Configuration.Remove("EnvRestriction")
 
         $DSC = Test-TargetResource @Configuration
         if (-not($DSC)) {

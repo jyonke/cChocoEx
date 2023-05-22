@@ -72,11 +72,13 @@ function Test-cChocoExPackageInstall {
                     Ring                      = $Configuration.Ring
                     Priority                  = $Configuration.Priority
                     OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
+                    EnvRestriction            = $Configuration.EnvRestriction
                 }
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
+                $Configuration.Remove("EnvRestriction")
     
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC

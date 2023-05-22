@@ -66,6 +66,10 @@ function Update-cChocoExPackageInstallFile {
         [Parameter(ParameterSetName = 'Present')]
         [System.Nullable[int]]
         $Priority,
+        # Parameter help description
+        [Parameter(ParameterSetName = 'Present')]
+        [array]
+        $EnvRestriction,
         # Remove
         [Parameter(ParameterSetName = 'Remove')]
         [switch]
@@ -81,7 +85,7 @@ function Update-cChocoExPackageInstallFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object -ExcludeProperty Path
+            [array]$Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message
@@ -117,6 +121,7 @@ function Update-cChocoExPackageInstallFile {
                 $Package.Params = $Params
                 $Package.ChocoParams = $ChocoParams
                 $Package.Priority = $Priority
+                $Package.EnvRestriction = $EnvRestriction
             }
             if (($Package | Measure-Object).Count -gt 1) {
                 throw "Multiple packages found for Name $Name and Ring $Ring"
@@ -137,6 +142,7 @@ function Update-cChocoExPackageInstallFile {
                     Params                    = $Params
                     ChocoParams               = $ChocoParams
                     Priority                  = $Priority
+                    EnvRestriction            = $EnvRestriction
                 }
             }        
         }        
@@ -152,7 +158,7 @@ function Update-cChocoExPackageInstallFile {
 
         #Generate File Data
         Add-Content -Path $TMPFile.FullName -Value '@{'
-        foreach ($Item in ($DataF | Sort-Object -Property Name)) {
+        foreach ($Item in ($DataF | Sort-Object -Property Name, Ring)) {
             #Default Ring Value
             if ([string]::IsNullOrWhiteSpace($Item.'Ring')) {
                 $Item | Add-Member -MemberType NoteProperty -Name 'Ring' -Value 'Broad' -Force
@@ -200,6 +206,12 @@ function Update-cChocoExPackageInstallFile {
                             Add-Content -Path $TMPFile.FullName -Value "$Property = `'$($Item.$Property)`'" 
                         }
                     }
+                    continue
+                }
+                #Array
+                if ($Property -match 'EnvRestriction') {
+                    $String = ($($Item.$Property) | ForEach-Object { "`'$_`'" }) -join ','
+                    Add-Content -Path $TMPFile.FullName -Value "$Property = @($String)" 
                     continue
                 }
             }

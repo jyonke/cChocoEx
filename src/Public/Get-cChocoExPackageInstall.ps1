@@ -65,7 +65,12 @@ function Get-cChocoExPackageInstall {
         # Priority
         [Parameter(ParameterSetName = 'Present')]
         [System.Nullable[int]]
-        $Priority
+        $Priority,
+        # EnvRestriction
+        [Parameter(ParameterSetName = 'Present')]
+        [ValidateSet("VPN", "TSEnv", "OOBE", "Autopilot")]
+        [string]
+        $EnvRestriction = $null
     )
     
     begin {
@@ -93,6 +98,7 @@ function Get-cChocoExPackageInstall {
                 VPN                       = $null
                 Ring                      = $null
                 Priority                  = $null
+                EnvRestriction            = $null
             }
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
@@ -122,6 +128,7 @@ function Get-cChocoExPackageInstall {
                     VPN                       = $_.VPN
                     Ring                      = $_.Ring
                     Priority                  = $_.Priority
+                    EnvRestriction            = $_.EnvRestriction
                     Path                      = $FullName
                 }
             }
@@ -168,6 +175,9 @@ function Get-cChocoExPackageInstall {
         }
         if ($OverrideMaintenanceWindow -ne $Null) {
             $array = $array | Where-Object { [string]$_.OverrideMaintenanceWindow -eq [string]$OverrideMaintenanceWindow }
+        }
+        if ($EnvRestriction) {
+            $array = $array | Where-Object { $_.EnvRestriction -contains $EnvRestriction }
         }
         
         return ($array | Sort-Object -Property Name)

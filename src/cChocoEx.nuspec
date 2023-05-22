@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>cChocoEx</id>
-    <version>23.3.17.2</version>
+    <version>23.5.21.1</version>
     <title>cChocoEx</title>
     <authors>Jonathan Yonke</authors>
     <projectUrl>https://github.com/jyonke/cChocoEx</projectUrl>
