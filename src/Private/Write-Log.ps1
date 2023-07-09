@@ -14,7 +14,10 @@ function Write-Log {
         $Path = (Join-Path $LogPath "cChoco.log"),
         [Parameter()]
         [Switch]
-        $New
+        $New,
+        [Parameter()]
+        [switch]
+        $NoOutput
     )
  
     if ($env:ChocolateyInstall) {
@@ -49,5 +52,7 @@ function Write-Log {
     catch {
         Write-Warning $_.Exception.Message
     }
-    Write-Host "$($Object.Time) - $($Object.Severity) - $($Object.Message)" -ForegroundColor $Color
+    if (-Not($NoOutput)) {
+        Write-Host "$($Object.Time) - $($Object.Severity) - $($Object.Message)" -ForegroundColor $Color
+    }
 }

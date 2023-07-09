@@ -55,7 +55,7 @@ function Update-cChocoExSourceFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExSource -Path $FullName | Select-Object -ExcludeProperty Path
+            [array]$Data = Get-cChocoExSource -Path $FullName | Select-Object * -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message

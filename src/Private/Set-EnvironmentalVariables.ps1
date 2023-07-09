@@ -8,4 +8,5 @@ function Set-EnvironmentalVariables {
     $env:cChocoExTMPConfigurationFolder = (Join-Path -Path "$env:TEMP\cChocoEx" -ChildPath 'config')
     $env:cChocoExLogPath = (Join-Path -Path $env:cChocoExDataFolder -ChildPath "logs")
     $env:cChocoExMediaFolder = (Join-Path -Path $env:cChocoExDataFolder -ChildPath "media")
+    $env:cChocoExBootstrap = (Join-Path -Path $env:cChocoExDataFolder -ChildPath "bootstrap.ps1")
 }

@@ -18,7 +18,7 @@ $NugetRepositoryURI = 'https://www.contoso.com/api/v2'
 $NuGetPackageProviderURI = 'https://onegetcdn.azureedge.net/providers/Microsoft.PackageManagement.NuGetProvider-2.8.5.208.dll'
 
 #Optional URI to this script source to self update
-$BootstrapUri = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExBootstrapExample.ps1'
+$env:cChocoExBootstrapUr = 'https://raw.githubusercontent.com/jyonke/cChocoEx/master/examples/cChocoExBootstrapExample.ps1'
 
 #Start-cChocoEx Paramater Splat
 $cChocoExParamters = @{
@@ -76,15 +76,25 @@ if (-Not(Get-Module -Name $Name -ListAvailable | Where-Object { [version]$_.Vers
 }
 
 Write-Host 'Import cChocoEx Module' -ForegroundColor Cyan
-Import-Module -Name 'cChocoEx' -Force -Verbose
+Import-Module -Name 'cChocoEx' -Force
 
-#Update cChocoEx Bootstrap
-if ($BootstrapUri) {
-    Update-cChocoExBootstrap -Uri $BootstrapUri
+Write-Host "Check for updated bootstrap"
+if ($env:cChocoExBootstrapUri) {
+    $Updated = Update-cChocoExBootstrap -ErrorAction SilentlyContinue
 }
-
-#Start cChocoEx
-Start-cChocoEx @cChocoExParamters 
-
-#Stop Logging
-$null = Stop-Transcript
+if (($Updated).Updated -eq $true) {
+    Write-Host "Restarting bootstrap.ps1"
+    #Stop Logging
+    $null = Stop-Transcript
+    Start-Sleep -Seconds 3
+    $Arguments = "-ExecutionPolicy ByPass -File `"" + $env:cChocoExBootstrap + "`""
+    $Exe = (Join-Path $env:SystemRoot -ChildPath "\System32\WindowsPowerShell\v1.0\powershell.exe")
+    Start-Process $Exe -ArgumentList $Arguments -Wait -NoNewWindow
+}
+else {
+    #Start cChocoEx
+    Write-Host "Start cChocoEx"
+    Start-cChocoEx @cChocoExParamters
+    #Stop Logging
+    $null = Stop-Transcript
+}

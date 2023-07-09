@@ -85,7 +85,7 @@ function Update-cChocoExPackageInstallFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            [array]$Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object -ExcludeProperty Path
+            [array]$Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object * -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message

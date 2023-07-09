@@ -110,6 +110,21 @@ function Start-cChocoEx {
         Break
     }
 
+    #Ensure cChocoExBootStrapTask is not running
+    $PendingFile = Join-Path $env:cChocoExDataFolder '.cChocoExPending'
+    if (Test-Path -Path $PendingFile) {
+        #Autoremove is older than 24 hours
+        if ((Get-Item -Path $PendingFile).CreationTime -lt (Get-Date).AddDays(-1)) {
+            Write-Log -Severity 'Warning' -Message 'Stale cChocoEx pending file found, removing'
+            Remove-Item -Path $PendingFile -Force
+        }
+    }
+    if (Test-Path -Path $PendingFile) {
+        Write-Log -Severity 'Warning' -Message 'cChocoEx pending completion, please wait until it finishes to invoke again'
+        break
+    }
+    Set-Content -Path $PendingFile -Value '' -Force
+
     #Ensure choco.exe is not active
     $i = 0
     do {
@@ -254,6 +269,11 @@ function Start-cChocoEx {
             Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:FeatureConfig: $FeatureConfig"
             [Environment]::SetEnvironmentVariable('cChocoExFeatureConfig', $FeatureConfig, 'Machine')
             $env:cChocoExFeatureConfig = $FeatureConfig
+        }
+        #cChocoExBootStrapUri
+        if ($env:cChocoExBootStrapUri) {
+            Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:cChocoExBootStrapUri: $env:cChocoExBootStrapUri"
+            [Environment]::SetEnvironmentVariable('cChocoExBootStrapUri', $env:cChocoExBootStrapUri, 'Machine')
         }
     }
 
@@ -491,7 +511,10 @@ function Start-cChocoEx {
         Write-Log -Severity "Information" -Message "Looping Delay: $LoopDelay Minutes"
         Register-cChocoExBootStrapTask -LoopDelay $LoopDelay
     }
-
+    #Clear Pending file
+    if (Test-Path -Path $PendingFile) {
+        Remove-Item -Path $PendingFile -Force    
+    }
     $null = Set-ExecutionPolicy $CurrentExecutionPolicy -Scope CurrentUser -ErrorAction SilentlyContinue
     Write-EventLog -LogName 'Application' -Source 'cChocoEx' -EventId 4001 -EntryType Information -Message 'cChocoEx Finished'
     RotateLog

@@ -31,7 +31,7 @@ function Update-cChocoExFeatureFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $Data = Get-cChocoExFeature -Path $FullName | Select-Object -ExcludeProperty Path
+            [array]$Data = Get-cChocoExFeature -Path $FullName | Select-Object * -ExcludeProperty Path
         }
         catch {
             Write-Error $_.Exception.Message

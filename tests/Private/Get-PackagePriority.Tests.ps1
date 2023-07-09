@@ -116,7 +116,7 @@ InModuleScope 'cChocoEx' {
             (Get-PackagePriority -Configurations $Configurations).Count | Should -Be 5
         }
         It 'Validate Broad Ring' {
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Broad'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } ).Ring | Should -Be 'Broad'
         }
     }
     Describe 'Test Package Fast Priority Success Scenarios' {
@@ -134,7 +134,7 @@ InModuleScope 'cChocoEx' {
             (Get-PackagePriority -Configurations $Configurations).Count | Should -Be 5
         }
         It 'Validate Fast Ring' {
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Fast'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' }).Ring | Should -Be 'Fast'
         }
     }
     Describe 'Test Package Slow Priority Success Scenarios' {
@@ -152,7 +152,7 @@ InModuleScope 'cChocoEx' {
             (Get-PackagePriority -Configurations $Configurations).Count | Should -Be 5
         }
         It 'Validate Slow Ring' {
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Slow'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' }).Ring | Should -Be 'Slow'
         }
     }
     Describe 'Test Package Pilot Priority Success Scenarios' {
@@ -171,7 +171,7 @@ InModuleScope 'cChocoEx' {
         }
         It 'Validate Pilot Ring' {
             #Return Fast Ring as no Pilot Ring Exists
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Fast'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' }).Ring | Should -Be 'Fast'
         }
     }
     Describe 'Test Package Canary Priority Success Scenarios' {
@@ -189,7 +189,7 @@ InModuleScope 'cChocoEx' {
             (Get-PackagePriority -Configurations $Configurations).Count | Should -Be 5
         }
         It 'Validate Canary Ring' {
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Preview'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' }).Ring | Should -Be 'Preview'
         }
     }
     Describe 'Test Package Preview Priority Success Scenarios' {
@@ -207,7 +207,7 @@ InModuleScope 'cChocoEx' {
             (Get-PackagePriority -Configurations $Configurations).Count | Should -Be 5
         }
         It 'Validate Preview Ring' {
-            Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' } | Select-Object -ExpandProperty Ring | Should -Be 'Preview'
+            (Get-PackagePriority -Configurations $Configurations | Where-Object { $_.Name -eq 'vlc' }).Ring | Should -Be 'Preview'
         }
     }
     Describe 'Test Package Priorty Order' {
@@ -215,10 +215,10 @@ InModuleScope 'cChocoEx' {
             Mock Get-cChocoExRing { Return 'Broad' }
         }
         It 'Returns jre8 from Priorty 0' {
-            Get-PackagePriority -Configurations $Configurations | Select-Object -First 1 -ExpandProperty Name | Should -Be 'jre8'
+            (Get-PackagePriority -Configurations $Configurations | Select-Object -First 1).Name | Should -Be 'jre8'
         }
         It 'Returns firefox from Priority 4' {
-            Get-PackagePriority -Configurations $Configurations | Select-Object -Last 1 -ExpandProperty Name | Should -Be 'firefox'
+            (Get-PackagePriority -Configurations $Configurations | Select-Object -Last 1).Name | Should -Be 'firefox'
         }
     }
 }

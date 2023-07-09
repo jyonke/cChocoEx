@@ -37,7 +37,7 @@ function Update-cChocoExMaintenanceWindowFile {
         try {
             Install-PSScriptAnalyzer
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
-            $DataR = Get-cChocoExConfig -Path $FullName | Select-Object -ExcludeProperty Path
+            [array]$DataR = Get-cChocoExConfig -Path $FullName | Select-Object * -ExcludeProperty Path
             $Data = Get-cChocoExMaintenanceWindow -Path $FullName | Select-Object -Property 'ConfigName', 'UTC', 'EffectiveDateTime', 'Start', 'End'
         }
         catch {

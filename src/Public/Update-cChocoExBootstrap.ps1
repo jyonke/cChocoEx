@@ -13,9 +13,9 @@
 function Update-cChocoExBootstrap {
     param (
         # URI of the bootstrap powershell script
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [string]
-        $Uri
+        $Uri = $env:cChocoExBootstrapUri
     )
 
     #Ensure Running as Administrator
@@ -24,9 +24,15 @@ function Update-cChocoExBootstrap {
         Break
     }
 
-    Write-Log -Severity 'Information' -Message "Checking for Bootstrap Updates"
+    #Ensure Uri is defined
+    if ([String]::IsNullOrEmpty($Uri)) {
+        Write-Warning "Uri Value not found, please pass as a parameter or set cChocoExBootstrapUri environment variable"
+        Break
+    }
 
-    $Path = Join-Path -Path $Global:cChocoExDataFolder -ChildPath 'bootstrap.ps1'
+    Write-Log -Severity 'Information' -Message "Checking for Bootstrap Updates" -NoOutput
+
+    $Path = $env:cChocoExBootstrap
     $Updated = $false
     try {
         $wc = [System.Net.WebClient]::new()
@@ -51,9 +57,20 @@ function Update-cChocoExBootstrap {
         }
     }
 
-    Write-Log -Severity 'Information' -Message "Local Path: $Path"
-    Write-Log -Severity 'Information' -Message "Uri: $Uri"
-    Write-Log -Severity 'Information' -Message "File Hash: $FileHash"
-    Write-Log -Severity 'Information' -Message "Remote Hash: $RemoteHash"
-    Write-Log -Severity 'Information' -Message "Updated: $Updated"
+    $object = [PSCustomObject]@{
+        "Path"        = $Path
+        "Uri"         = $Uri
+        "File Hash"   = $FileHash
+        "Remote Hash" = $RemoteHash
+        "Updated"     = $Updated
+    }
+
+    Write-Log -Severity 'Information' -Message "Local Path: $Path" -NoOutput
+    Write-Log -Severity 'Information' -Message "Uri: $Uri" -NoOutput
+    Write-Log -Severity 'Information' -Message "File Hash: $FileHash" -NoOutput
+    Write-Log -Severity 'Information' -Message "Remote Hash: $RemoteHash" -NoOutput
+    Write-Log -Severity 'Information' -Message "Updated: $Updated" -NoOutput
+
+    return $object
+
 }

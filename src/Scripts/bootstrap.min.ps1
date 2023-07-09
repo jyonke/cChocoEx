@@ -32,13 +32,23 @@ if (-Not(Get-Module -Name 'cChocoEx' -ListAvailable)) {
 Write-Host 'Import cChocoEx Module' -ForegroundColor Cyan
 Import-Module -Name 'cChocoEx' -Force
 
-#Update cChocoEx Bootstrap
-if ($BootstrapUri) {
-    Update-cChocoExBootstrap -Uri $BootstrapUri
+Write-Host "Check for bootstrap updates"
+if ($env:cChocoExBootstrapUri) {
+    $Updated = Update-cChocoExBootstrap -ErrorAction SilentlyContinue
 }
-
-#Start cChocoEx
-Start-cChocoEx @cChocoExParamters 
-
-#Stop Logging
-$null = Stop-Transcript
+if (($Updated).Updated -eq $true) {
+    Write-Host "Restarting bootstrap.ps1"
+    #Stop Logging
+    $null = Stop-Transcript
+    Start-Sleep -Seconds 3
+    $Arguments = "-ExecutionPolicy ByPass -File `"" + $env:cChocoExBootstrap + "`""
+    $Exe = (Join-Path $env:SystemRoot -ChildPath "\System32\WindowsPowerShell\v1.0\powershell.exe")
+    Start-Process $Exe -ArgumentList $Arguments -Wait -NoNewWindow
+}
+else {
+    #Start cChocoEx
+    Write-Host "Start cChocoEx"
+    Start-cChocoEx @cChocoExParamters
+    #Stop Logging
+    $null = Stop-Transcript
+}

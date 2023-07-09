@@ -59,13 +59,13 @@ function Start-cChocoPackageInstall {
     #Filter and Validate Packages with defined deploymentrings
     Write-Log -Severity 'Information' -Message "Getting Valid Deployment Ring Packages"
     $PriorityConfigurations = Get-PackagePriority -Configurations $Configurations
-    
-    $ModulePath = (Join-Path $ModuleBase "cChocoPackageInstall")
-    Import-Module $ModulePath
-    
+      
     $i = 0
     $Status = @()
+    $ModulePath = (Join-Path $ModuleBase "cChocoPackageInstall")
+    Write-Log -Severity "Information" -Message "Starting cChocoPackageInstall"
     $PriorityConfigurations | ForEach-Object {
+        Import-Module $ModulePath
         $DSC = $null
         $Configuration = $_
         $Object = [PSCustomObject]@{
@@ -98,6 +98,9 @@ function Start-cChocoPackageInstall {
         }
         Write-Progress -Activity "cChocoPackageInstall - $i/$(($PriorityConfigurations | Measure-Object).Count)" -Status $StatusMessage -PercentComplete ( ( $i / ($PriorityConfigurations | Measure-Object).Count ) * 100 )
         $i++
+
+        #Evaluate Maintenance Window
+        Start-cChocoConfig.MaintWindow -ConfigImport $Global:ChocoConfigDestination
         
         #Evaluate VPN Restrictions
         if ($null -ne $Configuration.VPN) {
@@ -110,7 +113,27 @@ function Start-cChocoPackageInstall {
                 $Object.Warning = "Configuration restricted when VPN is connected"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
-                $Status += $Object        
+                $Status += $Object    
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }    
                 return
             }
             if ($Configuration.VPN -eq $true -and -not($VPNStatus)) {
@@ -123,6 +146,26 @@ function Start-cChocoPackageInstall {
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }
                 return
             }
             $Configuration.Remove("VPN")
@@ -142,7 +185,27 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("EnvRestriction")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
-                $Status += $Object        
+                $Status += $Object   
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }     
                 return
             }
             $Configuration.Remove("Ring")
@@ -163,6 +226,26 @@ function Start-cChocoPackageInstall {
                 if (($Global:EnableNotifications) -and (-not($DSC))) {
                     $UpdateToast = $true
                 }
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }
                 return
             }
         }
@@ -182,6 +265,26 @@ function Start-cChocoPackageInstall {
                 if (($Global:EnableNotifications) -and (-not($DSC))) {
                     $UpdateToast = $true
                 }
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }
                 return
             }
             if ($Configuration.EnvRestriction -match 'OOBE|ESP|Autopilot' -and $OOBEStatsu) {
@@ -198,6 +301,26 @@ function Start-cChocoPackageInstall {
                 if (($Global:EnableNotifications) -and (-not($DSC))) {
                     $UpdateToast = $true
                 }
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
+                }
                 return
             }
             if ($Configuration.EnvRestriction -match 'VPN' -and $VPNStatus) {
@@ -213,6 +336,26 @@ function Start-cChocoPackageInstall {
                 #Create Pending Update Notice
                 if (($Global:EnableNotifications) -and (-not($DSC))) {
                     $UpdateToast = $true
+                }
+                #Remove Module for Write-Host limitations
+                Remove-Module "cChocoPackageInstall"
+
+                Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+                Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+                Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+                Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
+                Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
+                Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+                Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+                Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+                Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+                Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+                Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+                Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+                Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+                Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+                if ($Object.Warning) {
+                    Write-Log -Severity Warning -Message "$($Object.Warning)"
                 }
                 return
             }
@@ -233,31 +376,29 @@ function Start-cChocoPackageInstall {
         }
         $Object.DSC = $DSC
         $Status += $Object
-    }
-    #Remove Module for Write-Host limitations
-    Remove-Module "cChocoPackageInstall"
 
-    Write-Progress -Activity 'cChocoPackageInstall' -Completed
-    Write-Log -Severity "Information" -Message "Starting cChocoPackageInstall"
-    $Status | ForEach-Object {
-        Write-Host '----------cChocoPackageInstall----------' -ForegroundColor DarkCyan
-        Write-Log -Severity 'Information' -Message "Name: $($_.Name)"
-        Write-Log -Severity 'Information' -Message "DSC: $($_.DSC)"
-        Write-Log -Severity 'Information' -Message "Version $($_.Version)"
+        #Remove Module for Write-Host limitations
+        Remove-Module "cChocoPackageInstall"
+
+        Write-Host "----------cChocoPackageInstall $i/$(($PriorityConfigurations | Measure-Object).Count)-------" -ForegroundColor DarkCyan
+        Write-Log -Severity 'Information' -Message "Name: $($Object.Name)"
+        Write-Log -Severity 'Information' -Message "DSC: $($Object.DSC)"
+        Write-Log -Severity 'Information' -Message "Version $($Object.Version)"
         Write-Log -Severity 'Information' -Message "MinimumVersion $($_.MinimumVersion)"
-        Write-Log -Severity 'Information' -Message "Source: $($_.Source)"
-        Write-Log -Severity 'Information' -Message "Ensure: $($_.Ensure)"
-        Write-Log -Severity 'Information' -Message "AutoUpgrade: $($_.AutoUpgrade)"
-        Write-Log -Severity 'Information' -Message "VPN: $($_.VPN)"
-        Write-Log -Severity 'Information' -Message "Params: $($_.Params)"
-        Write-Log -Severity 'Information' -Message "ChocoParams: $($_.ChocoParams)"
-        Write-Log -Severity 'Information' -Message "Ring: $($_.Ring)"
-        Write-Log -Severity 'Information' -Message "Priority: $($_.Priority)"
-        Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($_.OverrideMaintenanceWindow)"
-        if ($_.Warning) {
-            Write-Log -Severity Warning -Message "$($_.Warning)"
+        Write-Log -Severity 'Information' -Message "Source: $($Object.Source)"
+        Write-Log -Severity 'Information' -Message "Ensure: $($Object.Ensure)"
+        Write-Log -Severity 'Information' -Message "AutoUpgrade: $($Object.AutoUpgrade)"
+        Write-Log -Severity 'Information' -Message "VPN: $($Object.VPN)"
+        Write-Log -Severity 'Information' -Message "Params: $($Object.Params)"
+        Write-Log -Severity 'Information' -Message "ChocoParams: $($Object.ChocoParams)"
+        Write-Log -Severity 'Information' -Message "Ring: $($Object.Ring)"
+        Write-Log -Severity 'Information' -Message "Priority: $($Object.Priority)"
+        Write-Log -Severity 'Information' -Message "OverrideMaintenanceWindow: $($Object.OverrideMaintenanceWindow)"
+        if ($Object.Warning) {
+            Write-Log -Severity Warning -Message "$($Object.Warning)"
         }
     }
+    Write-Progress -Activity 'cChocoPackageInstall' -Completed
     Write-Host '----------cChocoPackageInstall----------' -ForegroundColor DarkCyan
     
     #Complete Active Toast Notification
