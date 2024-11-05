@@ -10,16 +10,31 @@ function Get-PowerHistory {
         #Gather Event Log Data
         $FilterHashTable = @{
             logname = 'System'
-            id      = 1074, 6005, 6006, 6008, 42
+            id      = 42, 1074, 6005, 6006, 6008  # Removed 1 from here as we'll handle it separately
         }
         if ($Days) {
             $DaysInv = $Days * -1
             $StartTime = (Get-Date).AddDays($DaysInv)
             $FilterHashTable.StartTime = $StartTime
-    
         }
         try {
-            $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction 'SilentlyContinue' | Where-Object { [datetime]$_.timecreated -lt (Get-Date) }
+            # Get the main events
+            $WinEvents = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction 'SilentlyContinue'
+            
+            # Get wake events separately with provider filter
+            $WakeFilterHashTable = @{
+                logname      = 'System'
+                id           = 1
+                ProviderName = 'Microsoft-Windows-Power-Troubleshooter'
+            }
+            if ($Days) {
+                $WakeFilterHashTable.StartTime = $StartTime
+            }
+            
+            $WakeEvents = Get-WinEvent -FilterHashtable $WakeFilterHashTable -ErrorAction 'SilentlyContinue'
+            
+            # Combine the events
+            $WinEvents = @($WinEvents) + @($WakeEvents) | Where-Object { [datetime]$_.timecreated -lt (Get-Date) }
             $TextInfo = (Get-Culture).TextInfo    
         }
         catch {
@@ -28,8 +43,26 @@ function Get-PowerHistory {
     }
     
     process {
+        # Create a hashtable to track unique datetime stamps
+        $uniqueEvents = @{}
+        
         foreach ($Event in $WinEvents) {
             switch ($Event.Id) {
+                1 {
+                    # Only process Event ID 1 if it's from the Power Troubleshooter
+                    if ($Event.ProviderName -eq 'Microsoft-Windows-Power-Troubleshooter') {
+                        $Event.Message = 'Wake from Sleep'
+                        # Only add the event if we haven't seen this timestamp before
+                        $timeKey = $Event.TimeCreated.ToString()
+                        if (-not $uniqueEvents.ContainsKey($timeKey)) {
+                            $uniqueEvents[$timeKey] = $Event
+                        }
+                    }
+                    continue  # Skip to next event if not from correct provider
+                }
+                42 {
+                    $Event.Message = 'Sleep'
+                }
                 1074 {
                     $Event.Message = $TextInfo.ToTitleCase($Event.Properties.value[4])
                 }
@@ -42,12 +75,18 @@ function Get-PowerHistory {
                 6008 {
                     $Event.Message = 'Unexpected Shutdown'
                 }
-                42 {
-                    $Event.Message = 'Sleep'
-                }
                 Default {}
             }
+            
+            # Only add non-wake events if we haven't seen this timestamp before
+            $timeKey = $Event.TimeCreated.ToString()
+            if (-not $uniqueEvents.ContainsKey($timeKey)) {
+                $uniqueEvents[$timeKey] = $Event
+            }
         }
+        
+        # Replace $WinEvents with the deduplicated events
+        $WinEvents = $uniqueEvents.Values
     }
     
     end {

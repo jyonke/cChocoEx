@@ -1,10 +1,99 @@
 <#
-.SYNOPSIS
-Bootstraps the cChoco PowerShell DSC Module
+    .SYNOPSIS
+        Bootstraps and manages the cChocoEx PowerShell DSC Module configuration.
 
-.DESCRIPTION
-Bootstraps the cChoco PowerShell DSC Module
-#>
+    .DESCRIPTION
+        Comprehensive function that initializes, configures, and manages the cChocoEx environment.
+        Handles installation, configuration management, and scheduled task creation for Chocolatey
+        package management.
+
+        Key features:
+        - Chocolatey installation and configuration
+        - Package source management
+        - Feature configuration
+        - Package installation
+        - Maintenance window management
+        - Environment variable configuration
+        - Scheduled task management
+
+    .PARAMETER SettingsURI
+        URI to a PowerShell Data File containing cChocoEx settings.
+
+    .PARAMETER InstallDir
+        Installation directory for Chocolatey. Defaults to "$env:ProgramData\chocolatey".
+
+    .PARAMETER ChocoInstallScriptUrl
+        URL to the Chocolatey installation script. Defaults to official source.
+
+    .PARAMETER ChocoDownloadUrl
+        Optional URL to a specific Chocolatey nupkg for installation.
+
+    .PARAMETER SourcesConfig
+        Path or URL to the Chocolatey sources configuration file.
+
+    .PARAMETER PackageConfig
+        Array of paths or URLs to package configuration files.
+
+    .PARAMETER ChocoConfig
+        Path or URL to the Chocolatey configuration file.
+
+    .PARAMETER FeatureConfig
+        Path or URL to the Chocolatey features configuration file.
+
+    .PARAMETER NoCache
+        Prevents caching of configuration files. Files are downloaded to temp location.
+
+    .PARAMETER WipeCache
+        Clears all cached configuration files before processing.
+
+    .PARAMETER RandomDelay
+        Adds a random delay (0-1800 seconds) before processing.
+
+    .PARAMETER Loop
+        Enables continuous execution through scheduled task.
+
+    .PARAMETER LoopDelay
+        Minutes to wait between loops when Loop is enabled. Defaults to 60.
+
+    .PARAMETER MigrateLegacyConfigurations
+        Migrates legacy configuration files to current format.
+
+    .PARAMETER OverrideMaintenanceWindow
+        Bypasses maintenance window restrictions.
+
+    .PARAMETER EnableNotifications
+        Enables desktop notifications for operations (Windows 10+ only).
+
+    .PARAMETER SetcChocoExEnvironment
+        Persists configuration to machine environment variables.
+
+    .EXAMPLE
+        Start-cChocoEx -SettingsURI "https://config.contoso.com/chocolatey/settings.psd1"
+        Initializes cChocoEx using settings from a remote configuration file.
+
+    .EXAMPLE
+        Start-cChocoEx -Loop -LoopDelay 120 -RandomDelay
+        Starts cChocoEx in continuous mode with 2-hour intervals and random startup delay.
+
+    .EXAMPLE
+        Start-cChocoEx -PackageConfig @("packages1.psd1", "packages2.psd1") -NoCache
+        Processes multiple package configurations without caching files.
+
+    .NOTES
+        Author: Jon Yonke
+        Version: 2.0
+        Created: 2024-02-11
+        Requires: Administrative privileges
+        
+        Environment Variables Used:
+        - ChocoInstallScriptUrl
+        - ChocoDownloadUrl
+        - cChocoExChocoConfig
+        - cChocoExSourcesConfig
+        - cChocoExPackageConfig
+        - cChocoExFeatureConfig
+        - cChocoExBootStrapUri
+    #>
 function Start-cChocoEx {
     [CmdletBinding()]
     param (
@@ -113,8 +202,10 @@ function Start-cChocoEx {
     #Ensure cChocoExBootStrapTask is not running
     $PendingFile = Join-Path $env:cChocoExDataFolder '.cChocoExPending'
     if (Test-Path -Path $PendingFile) {
-        #Autoremove is older than 24 hours
-        if ((Get-Item -Path $PendingFile).CreationTime -lt (Get-Date).AddDays(-1)) {
+        $PendingFileItem = Get-Item -Path $PendingFile
+        $LastBootTime = (Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime
+        #Autoremove if older than 24 hours or older than last reboot
+        if ($PendingFileItem.CreationTime -lt (Get-Date).AddDays(-1) -or $PendingFileItem.CreationTime -lt $LastBootTime) {
             Write-Log -Severity 'Warning' -Message 'Stale cChocoEx pending file found, removing'
             Remove-Item -Path $PendingFile -Force
         }

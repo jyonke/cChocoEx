@@ -19,10 +19,22 @@ function Get-cChocoExHistory {
     }
     else {
         $PowerHistory = Get-PowerHistory
-
     }
-    $cChocoEventlogs = Get-WinEvent -FilterHashtable $FilterHashTable
-    $EventLogRecord = $cChocoEventlogs + $PowerHistory | Sort-Object TimeCreated | Select-Object TimeCreated, Id, LevelDisplayName, Message
+
+    # Attempt to get cChocoEx event logs, suppressing errors
+    try {
+        $cChocoEventlogs = Get-WinEvent -FilterHashtable $FilterHashTable -ErrorAction SilentlyContinue
+    }
+    catch {
+        $cChocoEventlogs = @()
+        Write-Warning "No cChocoEx event logs found. Continuing with PowerHistory only."
+    }
+
+    # Combine and sort events, handling the case where $cChocoEventlogs might be empty
+    $EventLogRecord = @($cChocoEventlogs) + @($PowerHistory) | 
+    Where-Object { $_ -ne $null } |
+    Sort-Object TimeCreated | 
+    Select-Object TimeCreated, Id, LevelDisplayName, Message
 
     return $EventLogRecord
 }

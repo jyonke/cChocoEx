@@ -1,3 +1,57 @@
+<#
+.SYNOPSIS
+Updates or removes a Chocolatey source in a cChocoEx source configuration file.
+
+.DESCRIPTION
+This function allows you to add, update, or remove Chocolatey sources in a cChocoEx source configuration file.
+It can modify existing sources or add new ones, and it ensures that the resulting file is properly formatted.
+
+.PARAMETER Path
+The path to the cChocoEx source configuration file.
+
+.PARAMETER Name
+The name of the Chocolatey source to update or remove.
+
+.PARAMETER Ensure
+Specifies whether the source should be present or absent. Default is 'Present'.
+
+.PARAMETER Source
+The URL or path of the Chocolatey source.
+
+.PARAMETER Priority
+The priority of the source. Lower numbers have higher priority.
+
+.PARAMETER User
+The username for authenticated sources.
+
+.PARAMETER Password
+The password for authenticated sources.
+
+.PARAMETER Keyfile
+The path to the keyfile for authenticated sources.
+
+.PARAMETER VPN
+Indicates whether a VPN is required to access the source.
+
+.PARAMETER Remove
+Switch to remove the specified source from the configuration file.
+
+.EXAMPLE
+Update-cChocoExSourceFile -Path 'C:\ProgramData\cChocoEx\config\sources.psd1' -Name 'chocolatey' -Source 'https://chocolatey.org/api/v2/' -Priority 0
+
+This example updates or adds the 'chocolatey' source in the specified configuration file.
+
+.EXAMPLE
+Update-cChocoExSourceFile -Path 'C:\ProgramData\cChocoEx\config\sources.psd1' -Name 'internal' -Remove
+
+This example removes the 'internal' source from the specified configuration file.
+
+.NOTES
+This function requires the PSScriptAnalyzer module for formatting the output file.
+
+.LINK
+https://github.com/jyonke/cChocoEx
+#>
 function Update-cChocoExSourceFile {
     [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (

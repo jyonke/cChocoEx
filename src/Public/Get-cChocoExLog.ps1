@@ -1,8 +1,35 @@
 <#
 .SYNOPSIS
-Returns Chocolatey DSC Logs in cChocoEx
+    Retrieves cChocoEx log entries.
+
 .DESCRIPTION
-Returns Chocolatey DSC Logs in cChocoEx as a PowerShell Custom Object. Optional parameters for limiting return by count and dates.
+    Returns Chocolatey DSC Logs from cChocoEx as PowerShell Custom Objects.
+    Supports filtering by date and limiting the number of entries returned.
+
+.PARAMETER Path
+    The path to the cChocoEx log files. If not specified, uses the default log path.
+
+.PARAMETER Last
+    Limits the number of log entries returned.
+
+.PARAMETER Date
+    Filters log entries to a specific date.
+
+.EXAMPLE
+    Get-cChocoExLog -Last 10
+    Returns the last 10 log entries.
+
+.EXAMPLE
+    Get-cChocoExLog -Date (Get-Date).AddDays(-1)
+    Returns all log entries from yesterday.
+
+.OUTPUTS
+    [PSCustomObject[]] Array of log entries
+
+.NOTES
+    Author: Jon Yonke
+    Version: 1.0
+    Created: 2024-11-02
 #>
 function Get-cChocoExLog {
     [CmdletBinding()]
