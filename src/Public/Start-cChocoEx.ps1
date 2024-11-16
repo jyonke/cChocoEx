@@ -312,7 +312,7 @@ function Start-cChocoEx {
     #cChocoExPackageConfig
     if ($env:cChocoExPackageConfig -and ([string]::IsNullOrEmpty($PackageConfig))) {
         Write-Log -Severity 'Information' -Message "Environment Variable `$env:cChocoExPackageConfig: $env:cChocoExPackageConfig"
-        $PackageConfig = $env:cChocoExPackageConfig -join ','
+        $PackageConfig = $env:cChocoExPackageConfig -split ';'
     }
     #cChocoExFeatureConfig
     if ($env:cChocoExFeatureConfig -and ([string]::IsNullOrEmpty($FeatureConfig))) {
@@ -350,7 +350,7 @@ function Start-cChocoEx {
         }
         #cChocoExPackageConfig
         if ($PackageConfig) {
-            $PackageConfigString = $PackageConfig -join ','
+            $PackageConfigString = $PackageConfig -join ';'
             Write-Log -Severity 'Information' -Message "Setting Environment Variable `$env:cChocoExPackageConfig: $PackageConfigString"
             [Environment]::SetEnvironmentVariable('cChocoExPackageConfig', $PackageConfigString, 'Machine')
             $env:cChocoExPackageConfig = $PackageConfigString
