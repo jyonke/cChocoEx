@@ -14,11 +14,13 @@
 @{
     "allowGlobalConfirmation" = @{
         FeatureName = "allowGlobalConfirmation"
-        Ensure      = 'Present'    
+        Ensure      = 'Present'
+        Tags        = @('global', 'confirmation')
     }    
     "powershellHost"          = @{        
         FeatureName = "powershellHost"
         Ensure      = 'Absent'
+        Tags        = @('powershell', 'host')
     }
 }
  

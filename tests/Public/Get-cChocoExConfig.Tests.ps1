@@ -1,10 +1,7 @@
-
 $root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 
 Import-Module -Name $Module -Force
-
-
 
 Describe 'Get-cChocoExConfig Tests' {
     BeforeAll {
@@ -15,11 +12,13 @@ Describe 'Get-cChocoExConfig Tests' {
                 ConfigName = "webRequestTimeoutSeconds"
                 Ensure     = 'Present'
                 Value      = 30
+                Tags       = @("timeout", "web")
             }
         
             "proxy"                    = @{
                 ConfigName = "proxy"
                 Ensure     = 'Absent'
+                Tags       = @("network", "proxy")
             }
         
             "MaintenanceWindow"        = @{
@@ -28,6 +27,7 @@ Describe 'Get-cChocoExConfig Tests' {
                 Start             = '23:00'
                 End               = '05:30'
                 UTC               = $false
+                Tags              = @("maintenance", "window")
             }
         }
 '@
@@ -50,5 +50,19 @@ Describe 'Get-cChocoExConfig Tests' {
     }
     It 'Verify Return Type' {
         (Get-cChocoExConfig -Path $Path) | Should -BeOfType PSCustomObject
+    }
+    It 'Filters by Tag' {
+        $result = Get-cChocoExConfig -Path $Path -Tag "network"
+        $result.Count | Should -Be 1
+        $result.ConfigName | Should -Be "proxy"
+    }
+    It 'Filters by Multiple Tags' {
+        $result = Get-cChocoExConfig -Path $Path -Tag @("timeout", "web")
+        $result.Count | Should -Be 1
+        $result.ConfigName | Should -Be "webRequestTimeoutSeconds"
+    }
+    It 'Returns Empty When No Tags Match' {
+        $result = Get-cChocoExConfig -Path $Path -Tag "nonexistent"
+        $result.Count | Should -Be 0
     }
 }

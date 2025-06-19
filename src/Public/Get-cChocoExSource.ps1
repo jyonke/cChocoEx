@@ -45,7 +45,11 @@ function Get-cChocoExSource {
         # VPN
         [Parameter(ParameterSetName = 'Present')]
         [Nullable[boolean]]
-        $VPN = $null     
+        $VPN = $null,
+        # Tag
+        [Parameter()]
+        [string[]]
+        $Tag
     )
     
     begin {
@@ -69,6 +73,7 @@ function Get-cChocoExSource {
                 Password = $null
                 KeyFile  = $null
                 VPN      = $null
+                Tags     = $null
             }
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
@@ -89,6 +94,7 @@ function Get-cChocoExSource {
                     Password   = $_.Password
                     KeyFile    = $_.KeyFile
                     VPN        = $_.VPN
+                    Tags       = $_.Tags
                     Path       = $FullName
                 }
             }
@@ -123,6 +129,15 @@ function Get-cChocoExSource {
         }
         if ($VPN -ne $Null) {
             $array = $array | Where-Object { [string]$_.VPN -eq [string]$VPN }
+        }
+        if ($Tag) {
+            $array = $array | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $Tag | Where-Object { $configTags -contains $_ }
+                }
+            }
         }
         return $array
     }

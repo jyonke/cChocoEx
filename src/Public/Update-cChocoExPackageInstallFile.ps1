@@ -1,3 +1,75 @@
+<#
+.SYNOPSIS
+Updates or removes a Chocolatey package installation configuration in a cChocoEx package configuration file.
+
+.DESCRIPTION
+This function allows you to add, update, or remove Chocolatey package installations in a cChocoEx package configuration file.
+It can modify existing package configurations or add new ones, and it ensures that the resulting file is properly formatted.
+
+.PARAMETER Path
+The path to the cChocoEx package configuration file.
+
+.PARAMETER Name
+The name of the Chocolatey package to update or remove.
+
+.PARAMETER Ring
+The deployment ring for the package. Valid values are: Preview, Canary, Pilot, Fast, Slow, Broad, Exclude.
+
+.PARAMETER Ensure
+Specifies whether the package should be present or absent. Default is 'Present'.
+
+.PARAMETER Source
+The source URL or path for the package.
+
+.PARAMETER MinimumVersion
+The minimum version of the package to install.
+
+.PARAMETER Version
+The specific version of the package to install.
+
+.PARAMETER OverrideMaintenanceWindow
+Whether to override the maintenance window for this package installation.
+
+.PARAMETER AutoUpgrade
+Whether to automatically upgrade the package when a new version is available.
+
+.PARAMETER VPN
+Whether a VPN connection is required to access the package source.
+
+.PARAMETER Params
+Additional parameters to pass to the package installation.
+
+.PARAMETER ChocoParams
+Additional parameters to pass to Chocolatey during installation.
+
+.PARAMETER Priority
+The installation priority of the package. Lower numbers have higher priority.
+
+.PARAMETER EnvRestriction
+An array of environment restrictions for the package installation.
+
+.PARAMETER Tags
+An array of tags to associate with the package. These tags can be used for filtering and organization.
+
+.PARAMETER Remove
+Switch to remove the specified package from the configuration file.
+
+.EXAMPLE
+Update-cChocoExPackageInstallFile -Path 'C:\ProgramData\cChocoEx\config\packages.psd1' -Name 'firefox' -Ring 'Broad' -Ensure 'Present' -AutoUpgrade $true -Tags @('browser', 'default')
+
+This example updates or adds the Firefox package configuration for the Broad ring with auto-upgrade enabled and associated tags.
+
+.EXAMPLE
+Update-cChocoExPackageInstallFile -Path 'C:\ProgramData\cChocoEx\config\packages.psd1' -Name 'vlc' -Ring 'Fast' -Remove
+
+This example removes the VLC package configuration for the Fast ring from the specified configuration file.
+
+.NOTES
+This function requires the PSScriptAnalyzer module for formatting the output file.
+
+.LINK
+https://github.com/jyonke/cChocoEx
+#>
 function Update-cChocoExPackageInstallFile {
     [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (
@@ -70,6 +142,10 @@ function Update-cChocoExPackageInstallFile {
         [Parameter(ParameterSetName = 'Present')]
         [array]
         $EnvRestriction,
+        # Tags
+        [Parameter(ParameterSetName = 'Present')]
+        [array]
+        $Tags,
         # Remove
         [Parameter(ParameterSetName = 'Remove')]
         [switch]
@@ -84,6 +160,10 @@ function Update-cChocoExPackageInstallFile {
         #Create Data Object and Ensure it is valid
         try {
             Install-PSScriptAnalyzer
+            if (-not (Test-Path $Path)) {
+                Write-Warning "File not found at path: $Path"
+                continue
+            }
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
             [array]$Data = Get-cChocoExPackageInstall -Path $FullName | Select-Object * -ExcludeProperty Path
         }
@@ -122,6 +202,9 @@ function Update-cChocoExPackageInstallFile {
                 $Package.ChocoParams = $ChocoParams
                 $Package.Priority = $Priority
                 $Package.EnvRestriction = $EnvRestriction
+                if ($Tags) {
+                    $Package.Tags = $Tags
+                }
             }
             if (($Package | Measure-Object).Count -gt 1) {
                 throw "Multiple packages found for Name $Name and Ring $Ring"
@@ -143,6 +226,7 @@ function Update-cChocoExPackageInstallFile {
                     ChocoParams               = $ChocoParams
                     Priority                  = $Priority
                     EnvRestriction            = $EnvRestriction
+                    Tags                      = $Tags
                 }
             }        
         }        
@@ -209,7 +293,7 @@ function Update-cChocoExPackageInstallFile {
                     continue
                 }
                 #Array
-                if ($Property -match 'EnvRestriction') {
+                if ($Property -match 'EnvRestriction|Tags') {
                     $String = ($($Item.$Property) | ForEach-Object { "`'$_`'" }) -join ','
                     Add-Content -Path $TMPFile.FullName -Value "$Property = @($String)" 
                     continue

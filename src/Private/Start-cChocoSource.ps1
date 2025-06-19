@@ -3,7 +3,13 @@ function Start-cChocoSource {
     param (
         [Parameter()]
         [hashtable]
-        $ConfigImport
+        $ConfigImport,
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
 
     #Evaluate VPN Status
@@ -14,6 +20,34 @@ function Start-cChocoSource {
     Import-Module $ModulePath
     $Configurations = $ConfigImport | ForEach-Object { $_.Values }
     $Status = @()
+    
+    # Process Tag Filters
+    if ($TagFilter -or $ExcludeTagFilter) {
+        Write-Log -Severity 'Information' -Message "Processing Tag Filters for Sources"
+        if ($TagFilter) {
+            Write-Log -Severity 'Information' -Message "Including sources with tags: $($TagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $TagFilter | Where-Object { $configTags -contains $_ }
+                }
+            }
+        }
+        if ($ExcludeTagFilter) {
+            Write-Log -Severity 'Information' -Message "Excluding sources with tags: $($ExcludeTagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object {
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                }
+                else {
+                    $true
+                }
+            }
+        }
+    }
     
     $Configurations | ForEach-Object {
         $DSC = $null
@@ -63,10 +97,14 @@ function Start-cChocoSource {
                 $Status += $Object
                 return
             }
+            # Remove non-standard properties
             $Configuration.Remove("User")
             $Configuration.Remove("Password")
             $Configuration.Remove("KeyFile")
         }
+        # Remove non-standard properties
+        $Configuration.Remove("Tags")
+        
         $null = Set-TargetResource @Configuration
         $DSC = Test-TargetResource @Configuration
         

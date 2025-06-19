@@ -14,7 +14,15 @@ function Test-cChocoExPackageInstall {
         # Return True or False for all tests
         [Parameter()]
         [switch]
-        $Quiet
+        $Quiet,
+        # TagFilter
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # ExcludeTagFilter
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
     
     begin {
@@ -46,6 +54,29 @@ function Test-cChocoExPackageInstall {
             $Configurations = Filter-PackageRing -Configurations $Configurations
             $Configurations = Filter-PackageVPN -Configurations $Configurations
             $Configurations = $Configurations | Where-Object { $_.Name }
+
+            # Apply tag filtering
+            if ($TagFilter) {
+                $Configurations = $Configurations | Where-Object { 
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        $TagFilter | Where-Object { $configTags -contains $_ }
+                    }
+                }
+            }
+            if ($ExcludeTagFilter) {
+                $Configurations = $Configurations | Where-Object {
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                    }
+                    else {
+                        $true
+                    }
+                }
+            }
             
             if (($Configurations | Measure-Object).Count -lt 1) {
                 Write-Warning 'No elegible packages found to test'
@@ -73,12 +104,14 @@ function Test-cChocoExPackageInstall {
                     Priority                  = $Configuration.Priority
                     OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
                     EnvRestriction            = $Configuration.EnvRestriction
+                    Tags                      = $Configuration.Tags
                 }
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Ring")
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
     
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -116,12 +149,11 @@ function Test-cChocoExPackageInstall {
                         $item.InstallDate = $InstallDate
                     }
                 }
-                return ($Status | Sort-Object -Property Name)
+                return , ($Status | Sort-Object -Property Name)
             }
             else {
-                return ($Status | Sort-Object -Property Name)
+                return , ($Status | Sort-Object -Property Name)
             }
         }
     }
-    
 }

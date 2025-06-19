@@ -5,6 +5,7 @@
         AutoUpgrade = $true
         Ring        = 'Broad'
         Priority    = 0
+        Tags        = @('compression', 'utility')
     }
     "chocolatey-windowsupdate.extension-Broad" = @{
         Name        = 'chocolatey-windowsupdate.extension'
@@ -12,6 +13,7 @@
         AutoUpgrade = $true
         VPN         = $false
         Ring        = 'Broad'
+        Tags        = @('windows', 'update', 'extension')
     }
     "firefox-Pilot"                            = @{
         Name           = 'firefox'
@@ -19,6 +21,7 @@
         AutoUpgrade    = $true
         Ring           = 'Pilot'
         EnvRestriction = @('TSEnv', 'OOBE')
+        Tags           = @('browser', 'web')
     }
     "firefox-broad"                            = @{
         Name           = 'firefox'
@@ -26,6 +29,7 @@
         Ensure         = 'Present'
         Ring           = 'Broad'
         EnvRestriction = @('TSEnv', 'OOBE')
+        Tags           = @('browser', 'web', 'stable')
     }
     "git.install-Broad"                        = @{
         Name        = 'git.install'
@@ -34,6 +38,7 @@
         AutoUpgrade = $true
         ChocoParams = '--execution-timeout 0'
         Ring        = 'Broad'
+        Tags        = @('development', 'version-control')
     }
     "notepadplusplus.install-Broad"            = @{
         Name        = 'notepadplusplus.install'
@@ -41,11 +46,13 @@
         AutoUpgrade = $true
         Ring        = 'Broad'
         Priority    = 0
+        Tags        = @('editor', 'text')
     }
     "winscp-Broad"                             = @{
         Name        = 'winscp'
         Ensure      = 'Present'
         AutoUpgrade = $true
         Ring        = 'Broad'
+        Tags        = @('ftp', 'sftp', 'transfer')
     }
 }

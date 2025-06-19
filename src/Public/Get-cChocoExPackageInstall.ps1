@@ -70,7 +70,11 @@ function Get-cChocoExPackageInstall {
         [Parameter(ParameterSetName = 'Present')]
         [ValidateSet("VPN", "TSEnv", "OOBE", "Autopilot")]
         [string]
-        $EnvRestriction = $null
+        $EnvRestriction = $null,
+        # Tag
+        [Parameter()]
+        [string[]]
+        $Tag
     )
     
     begin {
@@ -99,6 +103,7 @@ function Get-cChocoExPackageInstall {
                 Ring                      = $null
                 Priority                  = $null
                 EnvRestriction            = $null
+                Tags                      = $null
             }
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
@@ -129,6 +134,7 @@ function Get-cChocoExPackageInstall {
                     Ring                      = $_.Ring
                     Priority                  = $_.Priority
                     EnvRestriction            = $_.EnvRestriction
+                    Tags                      = $_.Tags
                     Path                      = $FullName
                 }
             }
@@ -178,6 +184,15 @@ function Get-cChocoExPackageInstall {
         }
         if ($EnvRestriction) {
             $array = $array | Where-Object { $_.EnvRestriction -contains $EnvRestriction }
+        }
+        if ($Tag) {
+            $array = $array | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $Tag | Where-Object { $configTags -contains $_ }
+                }
+            }
         }
         
         return ($array | Sort-Object -Property Name)

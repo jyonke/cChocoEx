@@ -17,18 +17,21 @@
         ConfigName = "webRequestTimeoutSeconds"
         Ensure     = 'Present'
         Value      = 30
+        Tags       = @('network', 'timeout', 'web')
     }
 
     "proxy"                    = @{
         ConfigName = "proxy"
         Ensure     = 'Absent'
+        Tags       = @('network', 'proxy')
     }
 
-    "MaintenanceWindow" = @{
+    "MaintenanceWindow"        = @{
         Name              = 'MaintenanceWindow'
         EffectiveDateTime = "04-05-2021 21:00"
         Start             = '23:00'
         End               = '05:30'
         UTC               = $false
+        Tags              = @('maintenance', 'schedule')
     }
 }

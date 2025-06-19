@@ -26,6 +26,11 @@ function Test-cChocoExMaintenanceWindow {
     
     process {
         if ($cChocoExConfigFile) {
+            if (-not (Test-Path -Path $cChocoExConfigFile)) {
+                Write-Warning "The configuration file '$cChocoExConfigFile' does not exist. Skipping import."
+                return
+            }
+            $FileFullPath = (Resolve-Path -Path $cChocoExConfigFile).Path
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile -ErrorAction Stop
             $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
             $MaintenanceWindowTest = Get-MaintenanceWindow -StartTime $MaintenanceWindowConfig.Start -EndTime $MaintenanceWindowConfig.End -EffectiveDateTime $MaintenanceWindowConfig.EffectiveDateTime -UTC $MaintenanceWindowConfig.UTC
@@ -56,6 +61,7 @@ function Test-cChocoExMaintenanceWindow {
                     CurrentDate              = $CurrentDate
                     CurrentDateUTC           = $CurrentDateUTC
                     CurrentTZ                = $CurrentTZ
+                    Path                     = $FileFullPath
                 }
             }
         }

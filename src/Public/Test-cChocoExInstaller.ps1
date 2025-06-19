@@ -50,7 +50,7 @@ function Test-cChocoExInstaller {
             }
         }
         else {
-            return $Status
+            return , $Status
         }
     }
     

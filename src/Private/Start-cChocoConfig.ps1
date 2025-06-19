@@ -3,7 +3,13 @@ function Start-cChocoConfig {
     param (
         [Parameter()]
         [hashtable]
-        $ConfigImport
+        $ConfigImport,
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
 
     Write-Log -Severity 'Information' -Message "cChocoConfig:Validating Chocolatey Configurations are Setup"
@@ -12,6 +18,34 @@ function Start-cChocoConfig {
     $Configurations = $ConfigImport | ForEach-Object { $_.Values | Where-Object { $_.ConfigName -ne 'MaintenanceWindow' -and $_.Name -ne 'MaintenanceWindow' } } 
     $MaintenanceWindowConfig = $ConfigImport | ForEach-Object { $_.Values  | Where-Object { $_.ConfigName -eq 'MaintenanceWindow' -or $_.Name -eq 'MaintenanceWindow' } }
     $Status = @()
+    
+    # Process Tag Filters
+    if ($TagFilter -or $ExcludeTagFilter) {
+        Write-Log -Severity 'Information' -Message "Processing Tag Filters for Configurations"
+        if ($TagFilter) {
+            Write-Log -Severity 'Information' -Message "Including configurations with tags: $($TagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $TagFilter | Where-Object { $configTags -contains $_ }
+                }
+            }
+        }
+        if ($ExcludeTagFilter) {
+            Write-Log -Severity 'Information' -Message "Excluding configurations with tags: $($ExcludeTagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object {
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                }
+                else {
+                    $true
+                }
+            }
+        }
+    }
     
     $Configurations | ForEach-Object {
         $DSC = $null
@@ -22,6 +56,8 @@ function Start-cChocoConfig {
             Ensure     = $Configuration.Ensure
             Value      = $Configuration.Value
         }
+        # Remove non-standard properties
+        $Configuration.Remove("Tags")
         
         $DSC = Test-TargetResource @Configuration
         if (-not($DSC)) {

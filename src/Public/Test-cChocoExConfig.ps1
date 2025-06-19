@@ -14,7 +14,15 @@ function Test-cChocoExConfig {
         # Return True or False for all tests
         [Parameter()]
         [switch]
-        $Quiet
+        $Quiet,
+        # TagFilter
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # ExcludeTagFilter
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
     
     begin {
@@ -32,8 +40,41 @@ function Test-cChocoExConfig {
     
     process {
         if ($cChocoExConfigFile) {
+            if (-not (Test-Path -Path $cChocoExConfigFile)) {
+                Write-Warning "The configuration file '$cChocoExConfigFile' does not exist. Skipping import."
+                return
+            }
+            $FileFullPath = (Resolve-Path -Path $cChocoExConfigFile).Path
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExConfigFile
-            $Configurations = $ConfigImport | ForEach-Object { $_.Values | Where-Object { $_.ConfigName -ne 'MaintenanceWindow' -and $_.Name -ne 'MaintenanceWindow' } } 
+            $Configurations = @()
+            foreach ($value in $ConfigImport.Values) {
+                if ($value.ConfigName -ne 'MaintenanceWindow' -and $value.Name -ne 'MaintenanceWindow') {
+                    $Configurations += $value
+                }
+            }
+
+            # Apply tag filtering
+            if ($TagFilter) {
+                $Configurations = $Configurations | Where-Object { 
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        $TagFilter | Where-Object { $configTags -contains $_ }
+                    }
+                }
+            }
+            if ($ExcludeTagFilter) {
+                $Configurations = $Configurations | Where-Object {
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                    }
+                    else {
+                        $true
+                    }
+                }
+            }
  
             $Configurations | ForEach-Object {
                 $DSC = $null
@@ -44,9 +85,10 @@ function Test-cChocoExConfig {
                     DSC        = $null
                     Ensure     = $Configuration.Ensure
                     Value      = $Configuration.Value
+                    Tags       = $Configuration.Tags
+                    Path       = $FileFullPath
                 }
-                
-                $DSC = Test-TargetResource @Configuration
+                $DSC = Test-TargetResource -ConfigName $Configuration.ConfigName -Ensure $Configuration.Ensure -Value $Configuration.Value
                 $Object.DSC = $DSC
                 $Status += $Object
             }
@@ -69,7 +111,7 @@ function Test-cChocoExConfig {
             }
         }
         else {
-            return $Status
+            return , $Status
         }
     }
 }

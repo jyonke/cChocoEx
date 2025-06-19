@@ -28,7 +28,15 @@ function Get-cChocoExMaintenanceWindow {
         # UTC
         [Parameter()]
         [Nullable[boolean]]
-        $UTC = $null
+        $UTC = $null,
+        # Tags to include in the results
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # Tags to exclude from the results
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
     
     begin {
@@ -65,6 +73,7 @@ function Get-cChocoExMaintenanceWindow {
                     CurrentDateUTC    = $CurrentDateUTC
                     CurrentTZ         = $CurrentTZ
                     Path              = $FullName
+                    Tags              = $_.Tags
                 }
             }
         }
@@ -87,6 +96,32 @@ function Get-cChocoExMaintenanceWindow {
         if ($EffectiveDateTime) {
             $array = $array | Where-Object { $_.EffectiveDateTime -eq $EffectiveDateTime }
         }
+
+        # Process Tag Filters
+        if ($TagFilter) {
+            Write-Verbose "Filtering by included tags: $($TagFilter -join ', ')"
+            $array = $array | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $TagFilter | Where-Object { $configTags -contains $_ }
+                }
+            }
+        }
+        if ($ExcludeTagFilter) {
+            Write-Verbose "Filtering by excluded tags: $($ExcludeTagFilter -join ', ')"
+            $array = $array | Where-Object {
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                }
+                else {
+                    $true
+                }
+            }
+        }
+
         return $array
     }
 }

@@ -36,6 +36,10 @@ function Update-cChocoExMaintenanceWindowFile {
         #Create Data Object and Ensure it is valid
         try {
             Install-PSScriptAnalyzer
+            if (-not (Test-Path $Path)) {
+                Write-Warning "File not found at path: $Path"
+                continue
+            }
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
             [array]$DataR = Get-cChocoExConfig -Path $FullName | Select-Object * -ExcludeProperty Path
             $Data = Get-cChocoExMaintenanceWindow -Path $FullName | Select-Object -Property 'ConfigName', 'UTC', 'EffectiveDateTime', 'Start', 'End'

@@ -33,6 +33,9 @@ The path to the keyfile for authenticated sources.
 .PARAMETER VPN
 Indicates whether a VPN is required to access the source.
 
+.PARAMETER Tags
+The tags for the source.
+
 .PARAMETER Remove
 Switch to remove the specified source from the configuration file.
 
@@ -94,6 +97,10 @@ function Update-cChocoExSourceFile {
         [Parameter(Mandatory = $false, ParameterSetName = 'Present')]
         [Nullable[boolean]]
         $VPN = $null,
+        # Tags
+        [Parameter(Mandatory = $false, ParameterSetName = 'Present')]
+        [array]
+        $Tags,
         # Remove
         [Parameter(Mandatory = $false, ParameterSetName = 'Remove')]
         [switch]
@@ -108,6 +115,10 @@ function Update-cChocoExSourceFile {
         #Create Data Object and Ensure it is valid
         try {
             Install-PSScriptAnalyzer
+            if (-not (Test-Path $Path)) {
+                Write-Warning "File not found at path: $Path"
+                continue
+            }
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
             [array]$Data = Get-cChocoExSource -Path $FullName | Select-Object * -ExcludeProperty Path
         }
@@ -135,6 +146,9 @@ function Update-cChocoExSourceFile {
                 $SourceObject.User = $User
                 $SourceObject.Password = $Password
                 $SourceObject.Keyfile = $Keyfile
+                if ($Tags) {
+                    $SourceObject.Tags = $Tags
+                }
             }
             if (($SourceObject | Measure-Object).Count -gt 1) {
                 throw "Multiple packages found for Name $Name"
@@ -151,6 +165,7 @@ function Update-cChocoExSourceFile {
                     User     = $User
                     Password = $Password
                     Keyfile  = $Keyfile
+                    Tags     = $Tags
                 }
             }        
         }        
@@ -195,6 +210,12 @@ function Update-cChocoExSourceFile {
                 #Integer
                 if ($Property -match 'Priority') {
                     Add-Content -Path $TMPFile.FullName -Value "$Property = $($Item.$Property)"
+                    continue
+                }
+                #Array
+                if ($Property -match 'Tags') {
+                    $String = ($($Item.$Property) | ForEach-Object { "`'$_`'" }) -join ','
+                    Add-Content -Path $TMPFile.FullName -Value "$Property = @($String)" 
                     continue
                 }
             }

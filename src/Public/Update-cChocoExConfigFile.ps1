@@ -1,3 +1,45 @@
+<#
+.SYNOPSIS
+Updates or removes a Chocolatey configuration in a cChocoEx configuration file.
+
+.DESCRIPTION
+This function allows you to add, update, or remove Chocolatey configurations in a cChocoEx configuration file.
+It can modify existing configurations or add new ones, and it ensures that the resulting file is properly formatted.
+
+.PARAMETER Path
+The path to the cChocoEx configuration file.
+
+.PARAMETER ConfigName
+The name of the Chocolatey configuration to update or remove.
+
+.PARAMETER Ensure
+Specifies whether the configuration should be present or absent. Default is 'Present'.
+
+.PARAMETER Value
+The value to set for the configuration.
+
+.PARAMETER Tags
+An array of tags to associate with the configuration. These tags can be used for filtering and organization.
+
+.PARAMETER Remove
+Switch to remove the specified configuration from the configuration file.
+
+.EXAMPLE
+Update-cChocoExConfigFile -Path 'C:\ProgramData\cChocoEx\config\config.psd1' -ConfigName 'webRequestTimeoutSeconds' -Value '30' -Tags @('timeout', 'web')
+
+This example updates or adds the 'webRequestTimeoutSeconds' configuration with a value of 30 and associated tags.
+
+.EXAMPLE
+Update-cChocoExConfigFile -Path 'C:\ProgramData\cChocoEx\config\config.psd1' -ConfigName 'proxy' -Remove
+
+This example removes the 'proxy' configuration from the specified configuration file.
+
+.NOTES
+This function requires the PSScriptAnalyzer module for formatting the output file.
+
+.LINK
+https://github.com/jyonke/cChocoEx
+#>
 function Update-cChocoExConfigFile {
     [CmdletBinding(DefaultParameterSetName = 'Present')]
     param (
@@ -20,6 +62,10 @@ function Update-cChocoExConfigFile {
         [Parameter(ParameterSetName = 'Present')]
         [string]
         $Value,
+        # Tags
+        [Parameter(ParameterSetName = 'Present')]
+        [array]
+        $Tags,
         # Remove
         [Parameter(ParameterSetName = 'Remove')]
         [switch]
@@ -34,6 +80,10 @@ function Update-cChocoExConfigFile {
         #Create Data Object and Ensure it is valid
         try {
             Install-PSScriptAnalyzer
+            if (-not (Test-Path $Path)) {
+                Write-Warning "File not found at path: $Path"
+                continue
+            }
             $FullName = Get-Item $Path | Select-Object -ExpandProperty FullName
             $DataR = Get-cChocoExMaintenanceWindow -Path $FullName | Select-Object -Property 'ConfigName', 'UTC', 'EffectiveDateTime', 'Start', 'End' 
             [array]$Data = Get-cChocoExConfig -Path $FullName | Select-Object * -ExcludeProperty Path
@@ -59,6 +109,9 @@ function Update-cChocoExConfigFile {
                 Write-Verbose "Updating configuration $ConfigName"
                 $Config.Ensure = $Ensure
                 $Config.Value = $Value
+                if ($Tags) {
+                    $Config.Tags = $Tags
+                }
             }
             if (($Config | Measure-Object).Count -gt 1) {
                 throw "Multiple configurations found for ConfigName $ConfigName"
@@ -70,6 +123,7 @@ function Update-cChocoExConfigFile {
                     ConfigName = $ConfigName
                     Ensure     = $Ensure
                     Value      = $Value
+                    Tags       = $Tags
                 }
             }        
         }        
@@ -94,6 +148,11 @@ function Update-cChocoExConfigFile {
             #Build properties and account for both single and double quote usage
             foreach ($Property in $Properties) {
                 Write-Verbose "Formatting Property $Property"
+                if ($Property -match 'Tags') {
+                    $String = ($($Item.$Property) | ForEach-Object { "`'$_`'" }) -join ','
+                    Add-Content -Path $TMPFile.FullName -Value "$Property = @($String)" 
+                    continue
+                }
                 Add-Content -Path $TMPFile.FullName -Value "$Property = `'$($Item.$Property)`'" 
             }
             Add-Content -Path $TMPFile.FullName -Value '}'

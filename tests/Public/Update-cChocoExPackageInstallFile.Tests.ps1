@@ -157,3 +157,114 @@ InModuleScope 'cChocoEx' {
         
     }
 }
+
+Describe 'Update-cChocoExPackageInstallFile Tests' {
+    BeforeAll {
+        $Path = 'TestDrive:\packages.psd1'
+        Set-Content -Path $Path -Value @'
+@{
+    "firefox-Broad" = @{
+        Name        = "firefox"
+        Ring        = "Broad"
+        Ensure      = 'Present'
+        AutoUpgrade = $true
+        Tags        = @("browser", "default")
+    }
+
+    "vlc-Fast" = @{
+        Name        = "vlc"
+        Ring        = "Fast"
+        Ensure      = 'Present'
+        AutoUpgrade = $false
+        Tags        = @("media", "player")
+    }
+}
+'@
+    }
+
+    Context 'Adding a new package' {
+        It 'Should add a new package with tags' {
+            Update-cChocoExPackageInstallFile -Path $Path -Name 'adobereader' -Ring 'Broad' -Ensure 'Present' -AutoUpgrade $true -Tags @('pdf', 'reader')
+            
+            $result = Get-cChocoExPackageInstall -Path $Path | Where-Object { $_.Name -eq 'adobereader' -and $_.Ring -eq 'Broad' }
+            $result | Should -Not -BeNullOrEmpty
+            $result.Name | Should -Be 'adobereader'
+            $result.Ring | Should -Be 'Broad'
+            $result.AutoUpgrade | Should -Be $true
+            $result.Tags | Should -Contain 'pdf'
+            $result.Tags | Should -Contain 'reader'
+        }
+
+        It 'Should add a new package without tags' {
+            Update-cChocoExPackageInstallFile -Path $Path -Name 'notepadplusplus' -Ring 'Fast' -Ensure 'Present'
+            
+            $result = Get-cChocoExPackageInstall -Path $Path | Where-Object { $_.Name -eq 'notepadplusplus' -and $_.Ring -eq 'Fast' }
+            $result | Should -Not -BeNullOrEmpty
+            $result.Name | Should -Be 'notepadplusplus'
+            $result.Ring | Should -Be 'Fast'
+        }
+    }
+
+    Context 'Updating an existing package' {
+        It 'Should update an existing package with new tags' {
+            Update-cChocoExPackageInstallFile -Path $Path -Name 'firefox' -Ring 'Broad' -Ensure 'Present' -AutoUpgrade $true -Tags @('browser', 'default', 'updated')
+            
+            $result = Get-cChocoExPackageInstall -Path $Path | Where-Object { $_.Name -eq 'firefox' -and $_.Ring -eq 'Broad' }
+            $result | Should -Not -BeNullOrEmpty
+            $result.AutoUpgrade | Should -Be $true
+            $result.Tags | Should -Contain 'updated'
+        }
+
+        It 'Should update an existing package without modifying tags' {
+            Update-cChocoExPackageInstallFile -Path $Path -Name 'vlc' -Ring 'Fast' -Ensure 'Present' -AutoUpgrade $true
+            
+            $result = Get-cChocoExPackageInstall -Path $Path | Where-Object { $_.Name -eq 'vlc' -and $_.Ring -eq 'Fast' }
+            $result | Should -Not -BeNullOrEmpty
+            $result.AutoUpgrade | Should -Be $true
+            $result.Tags | Should -Contain 'media'
+            $result.Tags | Should -Contain 'player'
+        }
+    }
+
+    Context 'Removing a package' {
+        It 'Should remove an existing package' {
+            Update-cChocoExPackageInstallFile -Path $Path -Name 'firefox' -Ring 'Broad' -Remove
+            
+            $result = Get-cChocoExPackageInstall -Path $Path | Where-Object { $_.Name -eq 'firefox' -and $_.Ring -eq 'Broad' }
+            $result | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'Error handling' {
+        It 'Should not throw an error when removing a non-existent package' {
+            { Update-cChocoExPackageInstallFile -Path $Path -Name 'nonexistent' -Ring 'Broad' -Remove } | Should -Not -Throw
+        }
+
+        It 'Should write a warning when path is invalid' {
+            Update-cChocoExPackageInstallFile -Path 'nonexistent.psd1' -Name 'test' -Ring 'Broad' -Ensure 'Present' -WarningVariable warningOutput
+            $warningOutput | Should -Match "File not found at path: nonexistent.psd1"
+        }
+    }
+
+    Context 'Parameter validation' {
+        It 'Should accept valid Ensure values' {
+            { Update-cChocoExPackageInstallFile -Path $Path -Name 'testPackage' -Ring 'Broad' -Ensure 'Present' } | Should -Not -Throw
+            { Update-cChocoExPackageInstallFile -Path $Path -Name 'testPackage' -Ring 'Broad' -Ensure 'Absent' } | Should -Not -Throw
+        }
+
+        It 'Should reject invalid Ensure values' {
+            { Update-cChocoExPackageInstallFile -Path $Path -Name 'testPackage' -Ring 'Broad' -Ensure 'Invalid' } | Should -Throw
+        }
+
+        It 'Should accept valid Ring values' {
+            $validRings = @('Preview', 'Canary', 'Pilot', 'Fast', 'Slow', 'Broad', 'Exclude')
+            foreach ($ring in $validRings) {
+                { Update-cChocoExPackageInstallFile -Path $Path -Name 'testPackage' -Ring $ring -Ensure 'Present' } | Should -Not -Throw
+            }
+        }
+
+        It 'Should reject invalid Ring values' {
+            { Update-cChocoExPackageInstallFile -Path $Path -Name 'testPackage' -Ring 'Invalid' -Ensure 'Present' } | Should -Throw
+        }
+    }
+}

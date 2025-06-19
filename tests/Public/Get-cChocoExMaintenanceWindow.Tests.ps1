@@ -12,11 +12,13 @@ Describe 'Get-cChocoExMaintenanceWindow Tests' {
                 ConfigName = "webRequestTimeoutSeconds"
                 Ensure     = 'Present'
                 Value      = 30
+                Tags       = @("timeout", "web")
             }
         
             "proxy"                    = @{
                 ConfigName = "proxy"
                 Ensure     = 'Absent'
+                Tags       = @("network", "proxy")
             }
         
             "MaintenanceWindow"        = @{
@@ -25,6 +27,7 @@ Describe 'Get-cChocoExMaintenanceWindow Tests' {
                 Start             = '23:00'
                 End               = '05:30'
                 UTC               = $false
+                Tags              = @("maintenance", "window", "schedule")
             }
         }
 '@
@@ -53,5 +56,19 @@ Describe 'Get-cChocoExMaintenanceWindow Tests' {
     }
     It 'Verify Return Type' {
         (Get-cChocoExMaintenanceWindow -Path $Path) | Should -BeOfType PSCustomObject
+    }
+    It 'Filters by Tag' {
+        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "maintenance"
+        $result.Count | Should -Be 1
+        $result.ConfigName | Should -Be "MaintenanceWindow"
+    }
+    It 'Filters by Multiple Tags' {
+        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag @("window", "schedule")
+        $result.Count | Should -Be 1
+        $result.ConfigName | Should -Be "MaintenanceWindow"
+    }
+    It 'Returns Empty When No Tags Match' {
+        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "nonexistent"
+        $result.Count | Should -Be 0
     }
 }

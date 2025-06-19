@@ -3,7 +3,13 @@ function Start-cChocoPackageInstall {
     param (
         [Parameter()]
         [array]
-        $Configurations
+        $Configurations,
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
 
     $ActiveToast = $false
@@ -18,10 +24,38 @@ function Start-cChocoPackageInstall {
     $TSStatus = Test-TSEnv
     $VPNStatus = Get-VPN -Active
 
+    # Process Tag Filters
+    if ($TagFilter -or $ExcludeTagFilter) {
+        Write-Log -Severity 'Information' -Message "Processing Tag Filters for Packages"
+        if ($TagFilter) {
+            Write-Log -Severity 'Information' -Message "Including packages with tags: $($TagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $TagFilter | Where-Object { $configTags -contains $_ }
+                }
+            }
+        }
+        if ($ExcludeTagFilter) {
+            Write-Log -Severity 'Information' -Message "Excluding packages with tags: $($ExcludeTagFilter -join ', ')"
+            $Configurations = $Configurations | Where-Object {
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                }
+                else {
+                    $true
+                }
+            }
+        }
+    }
+
     #Validate No Duplicate Package/Rings
     $PSCustomObject = $Configurations | ForEach-Object {
         if (-Not($_.Ring)) {
-            $_.Ring -eq 'Broad'
+            $_.Ring = 'Broad'
         }
         [PSCustomObject]@{
             Name = $_.Name
@@ -83,6 +117,7 @@ function Start-cChocoPackageInstall {
             Priority                  = $Configuration.Priority
             OverrideMaintenanceWindow = $Configuration.OverrideMaintenanceWindow
             EnvRestriction            = $Configuration.EnvRestriction
+            Tags                      = $Configuration.Tags
             Warning                   = $null
         }
 
@@ -110,6 +145,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $Object.Warning = "Configuration restricted when VPN is connected"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -142,6 +178,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("OverrideMaintenanceWindow")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $Object.Warning = "Configuration restricted when VPN is not established"
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
@@ -183,6 +220,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -219,6 +257,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -258,6 +297,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -294,6 +334,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -330,6 +371,7 @@ function Start-cChocoPackageInstall {
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("Priority")
                 $Configuration.Remove("EnvRestriction")
+                $Configuration.Remove("Tags")
                 $DSC = Test-TargetResource @Configuration
                 $Object.DSC = $DSC
                 $Status += $Object   
@@ -363,6 +405,7 @@ function Start-cChocoPackageInstall {
         $Configuration.Remove("OverrideMaintenanceWindow")
         $Configuration.Remove("Priority")
         $Configuration.Remove("EnvRestriction")
+        $Configuration.Remove("Tags")
 
         $DSC = Test-TargetResource @Configuration
         if (-not($DSC)) {

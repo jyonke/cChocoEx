@@ -21,8 +21,11 @@ function Get-cChocoExFeature {
         [Parameter(ParameterSetName = 'Absent')]
         [ValidateSet('Present', 'Absent')]
         [string]
-        $Ensure
-              
+        $Ensure,
+        # Tag
+        [Parameter()]
+        [string[]]
+        $Tag
     )
     
     begin {
@@ -40,6 +43,7 @@ function Get-cChocoExFeature {
             $ValidHashTable = @{
                 FeatureName = $null
                 Ensure      = $null
+                Tags        = $null
             }
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
@@ -53,6 +57,7 @@ function Get-cChocoExFeature {
                     PSTypeName  = 'cChocoExFeature'
                     FeatureName = $_.FeatureName
                     Ensure      = $_.Ensure
+                    Tags        = $_.Tags
                     Path        = $FullName
                 }
             }
@@ -69,6 +74,15 @@ function Get-cChocoExFeature {
         }
         if ($Ensure) {
             $array = $array | Where-Object { $_.Ensure -eq $Ensure }
+        }
+        if ($Tag) {
+            $array = $array | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $Tag | Where-Object { $configTags -contains $_ }
+                }
+            }
         }
         return $array
     }

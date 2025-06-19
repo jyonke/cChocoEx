@@ -67,6 +67,12 @@
     .PARAMETER SetcChocoExEnvironment
         Persists configuration to machine environment variables.
 
+    .PARAMETER TagFilter
+        Filter configurations by tags.
+
+    .PARAMETER ExcludeTagFilter
+        Exclude configurations by tags.
+
     .EXAMPLE
         Start-cChocoEx -SettingsURI "https://config.contoso.com/chocolatey/settings.psd1"
         Initializes cChocoEx using settings from a remote configuration file.
@@ -163,7 +169,15 @@ function Start-cChocoEx {
         # Set machine enviroment variables
         [Parameter()]
         [switch]
-        $SetcChocoExEnvironment
+        $SetcChocoExEnvironment,
+        # Filter configurations by tags
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # Exclude configurations by tags
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
 
     #Ensure Running as Administrator
@@ -545,7 +559,7 @@ function Start-cChocoEx {
     if (Test-Path $ChocoConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $ChocoConfigDestination
-        Start-cChocoConfig -ConfigImport $ConfigImport
+        Start-cChocoConfig -ConfigImport $ConfigImport -TagFilter $TagFilter -ExcludeTagFilter $ExcludeTagFilter
     }
     else {
         Write-Log -Severity 'Information' -Message "File not found, configuration will not be modified"
@@ -556,7 +570,7 @@ function Start-cChocoEx {
     if (Test-Path $FeatureConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $FeatureConfigDestination
-        Start-cChocoFeature -ConfigImport $ConfigImport
+        Start-cChocoFeature -ConfigImport $ConfigImport -TagFilter $TagFilter -ExcludeTagFilter $ExcludeTagFilter
     }
     else {
         Write-Log -Severity 'Information' -Message "File not found, features will not be modified"
@@ -567,7 +581,7 @@ function Start-cChocoEx {
     if (Test-Path $SourcesConfigDestination ) {
         $ConfigImport = $null
         $ConfigImport = Import-PowerShellDataFile $SourcesConfigDestination
-        Start-cChocoSource -ConfigImport $ConfigImport
+        Start-cChocoSource -ConfigImport $ConfigImport -TagFilter $TagFilter -ExcludeTagFilter $ExcludeTagFilter
     }
     else {
         Write-Log -Severity 'Information' -Message "File not found, sources will not be modified"
@@ -582,8 +596,8 @@ function Start-cChocoEx {
         $Configurations += $ConfigImport | ForEach-Object { $_.Keys | ForEach-Object { $ConfigImport.$_ } }
     }
 
-    if ($Configurations ) {
-        Start-cChocoPackageInstall -Configurations $Configurations
+    if ($Configurations) {
+        Start-cChocoPackageInstall -Configurations $Configurations -TagFilter $TagFilter -ExcludeTagFilter $ExcludeTagFilter
     }
     else {
         Write-Log -Severity 'Information' -Message "File not found, packages will not be modified"

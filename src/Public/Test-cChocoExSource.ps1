@@ -14,7 +14,15 @@ function Test-cChocoExSource {
         # Return True or False for all tests
         [Parameter()]
         [switch]
-        $Quiet
+        $Quiet,
+        # TagFilter
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # ExcludeTagFilter
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
     
     begin {
@@ -32,8 +40,39 @@ function Test-cChocoExSource {
     
     process {
         if ($cChocoExSourceFile) {
+            if (-not (Test-Path -Path $cChocoExSourceFile)) {
+                Write-Warning "The source file '$cChocoExSourceFile' does not exist. Skipping import."
+                return
+            }
+            $FileFullPath = (Resolve-Path -Path $cChocoExSourceFile).Path
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExSourceFile
-            $Configurations = $ConfigImport | ForEach-Object { $_.Values }
+            $Configurations = @()
+            foreach ($value in $ConfigImport.Values) {
+                $Configurations += $value
+            }
+
+            # Apply tag filtering
+            if ($TagFilter) {
+                $Configurations = $Configurations | Where-Object { 
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        $TagFilter | Where-Object { $configTags -contains $_ }
+                    }
+                }
+            }
+            if ($ExcludeTagFilter) {
+                $Configurations = $Configurations | Where-Object {
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                    }
+                    else {
+                        $true
+                    }
+                }
+            }
                     
             $Configurations | ForEach-Object {
                 $DSC = $null
@@ -48,14 +87,17 @@ function Test-cChocoExSource {
                     User       = $Configuration.User
                     KeyFile    = $Configuration.KeyFile
                     VPN        = $Configuration.VPN
+                    Tags       = $Configuration.Tags
                     Warning    = $null
+                    Path       = $FileFullPath
                 }
                 $Configuration.Remove("VPN")
                 $Configuration.Remove("User")
                 $Configuration.Remove("Password")
                 $Configuration.Remove("KeyFile")
+                $Configuration.Remove("Tags")
     
-                $DSC = Test-TargetResource @Configuration
+                $DSC = Test-TargetResource -Name $Configuration.Name -Ensure $Configuration.Ensure -Source $Configuration.Source -Priority $Configuration.Priority
                 $Object.DSC = $DSC
                 $Status += $Object
             }
@@ -78,8 +120,7 @@ function Test-cChocoExSource {
             }
         }
         else {
-            return $Status
+            return , $Status
         }
     }
-    
 }

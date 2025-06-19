@@ -26,7 +26,11 @@ function Get-cChocoExConfig {
         # Value
         [Parameter(ParameterSetName = 'Present')]
         [string]
-        $Value
+        $Value,
+        # Tag
+        [Parameter()]
+        [string[]]
+        $Tag
     )
     
     begin {
@@ -45,6 +49,7 @@ function Get-cChocoExConfig {
                 ConfigName = $null
                 Ensure     = $null
                 Value      = $null
+                Tags       = $null
             }
             
             $Configurations.Keys | Sort-Object -Unique | ForEach-Object {
@@ -56,10 +61,11 @@ function Get-cChocoExConfig {
             
             $array += $Configurations | ForEach-Object {
                 [PSCustomObject]@{
-                    #PSTypeName = 'cChocoExConfig'
+                    PSTypeName = 'cChocoExConfig'
                     ConfigName = $_.ConfigName
                     Value      = $_.Value
                     Ensure     = $_.Ensure
+                    Tags       = $_.Tags
                     Path       = $FullName
                 }
             }
@@ -79,6 +85,15 @@ function Get-cChocoExConfig {
         }
         if ($Value) {
             $array = $array | Where-Object { $_.Value -eq $Value }
+        }
+        if ($Tag) {
+            $array = $array | Where-Object { 
+                $config = $_
+                $configTags = $config.Tags
+                if ($configTags) {
+                    $Tag | Where-Object { $configTags -contains $_ }
+                }
+            }
         }
         return $array
     }

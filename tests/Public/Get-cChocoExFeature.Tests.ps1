@@ -1,10 +1,7 @@
-
 $root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 
 Import-Module -Name $Module -Force
-
-
 
 Describe 'Get-cChocoExFeature Tests' {
     BeforeAll {
@@ -13,11 +10,18 @@ Describe 'Get-cChocoExFeature Tests' {
         @{
             "allowGlobalConfirmation" = @{
                 FeatureName = "allowGlobalConfirmation"
-                Ensure      = 'Present'    
+                Ensure      = 'Present'
+                Tags        = @("confirmation", "global")
             }    
             "powershellHost"          = @{        
                 FeatureName = "powershellHost"
                 Ensure      = 'Absent'
+                Tags        = @("powershell", "host")
+            }
+            "useFipsCompliantChecksums" = @{
+                FeatureName = "useFipsCompliantChecksums"
+                Ensure      = 'Present'
+                Tags        = @("security", "fips")
             }
         }
 '@
@@ -26,8 +30,8 @@ Describe 'Get-cChocoExFeature Tests' {
     It 'Confirm Configuration Data File Exits' {
         $Path | Should -Exist
     }
-    It 'Returns 2 Feature Names' {
-        (Get-cChocoExFeature -Path $Path | Select-Object -ExpandProperty FeatureName).Count | Should -Be 2 
+    It 'Returns 3 Feature Names' {
+        (Get-cChocoExFeature -Path $Path | Select-Object -ExpandProperty FeatureName).Count | Should -Be 3 
     }
     It 'Verify Ensure Values' {
         (Get-cChocoExFeature -Path $Path | Select-Object -ExpandProperty Ensure) | Should -Match 'Absent|Present'
@@ -37,5 +41,19 @@ Describe 'Get-cChocoExFeature Tests' {
     }
     It 'Verify Return Type' {
         (Get-cChocoExFeature -Path $Path) | Should -BeOfType PSCustomObject
+    }
+    It 'Filters by Tag' {
+        $result = Get-cChocoExFeature -Path $Path -Tag "security"
+        $result.Count | Should -Be 1
+        $result.FeatureName | Should -Be "useFipsCompliantChecksums"
+    }
+    It 'Filters by Multiple Tags' {
+        $result = Get-cChocoExFeature -Path $Path -Tag @("powershell", "host")
+        $result.Count | Should -Be 1
+        $result.FeatureName | Should -Be "powershellHost"
+    }
+    It 'Returns Empty When No Tags Match' {
+        $result = Get-cChocoExFeature -Path $Path -Tag "nonexistent"
+        $result.Count | Should -Be 0
     }
 }

@@ -14,7 +14,15 @@ function Test-cChocoExFeature {
         # Return True or False for all tests
         [Parameter()]
         [switch]
-        $Quiet
+        $Quiet,
+        # TagFilter
+        [Parameter()]
+        [string[]]
+        $TagFilter,
+        # ExcludeTagFilter
+        [Parameter()]
+        [string[]]
+        $ExcludeTagFilter
     )
     
     begin {
@@ -32,8 +40,39 @@ function Test-cChocoExFeature {
     
     process {
         if ($cChocoExFeatureFile) {
+            if (-not (Test-Path -Path $cChocoExFeatureFile)) {
+                Write-Warning "The feature file '$cChocoExFeatureFile' does not exist. Skipping import."
+                return
+            }
+            $FileFullPath = (Resolve-Path -Path $cChocoExFeatureFile).Path
             $ConfigImport = Import-PowerShellDataFile -Path $cChocoExFeatureFile
-            $Configurations = $ConfigImport | ForEach-Object { $_.Values }
+            $Configurations = @()
+            foreach ($value in $ConfigImport.Values) {
+                $Configurations += $value
+            }
+
+            # Apply tag filtering
+            if ($TagFilter) {
+                $Configurations = $Configurations | Where-Object { 
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        $TagFilter | Where-Object { $configTags -contains $_ }
+                    }
+                }
+            }
+            if ($ExcludeTagFilter) {
+                $Configurations = $Configurations | Where-Object {
+                    $config = $_
+                    $configTags = $config.Tags
+                    if ($configTags) {
+                        -not ($ExcludeTagFilter | Where-Object { $configTags -contains $_ })
+                    }
+                    else {
+                        $true
+                    }
+                }
+            }
 
             $Configurations | ForEach-Object {
                 $DSC = $null
@@ -43,8 +82,10 @@ function Test-cChocoExFeature {
                     FeatureName = $Configuration.FeatureName
                     DSC         = $null
                     Ensure      = $Configuration.Ensure
+                    Tags        = $Configuration.Tags
+                    Path        = $FileFullPath
                 }
-                $DSC = Test-TargetResource @Configuration
+                $DSC = Test-TargetResource -FeatureName $Configuration.FeatureName -Ensure $Configuration.Ensure
                 $Object.DSC = $DSC
                 $Status += $Object
             }
@@ -67,8 +108,7 @@ function Test-cChocoExFeature {
             }
         }
         else {
-            return $Status
+            return , $Status
         }
     }
-    
 }
