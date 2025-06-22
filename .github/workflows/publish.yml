@@ -1,0 +1,70 @@
+name: Build and Publish PowerShell Module
+
+on:
+  push:
+    branches: [ main, master, '**' ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pester
+        run: Install-Module -Name Pester -Force -Scope CurrentUser
+        shell: pwsh
+      - name: Run Pester Tests
+        run: Invoke-Pester -Path ./tests -Output Detailed
+        shell: pwsh
+
+  build-and-publish:
+    needs: test
+    runs-on: windows-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PowerShell
+        uses: actions/setup-powershell@v2
+
+      - name: Set Build Environment Variables
+        run: |
+          echo "cChocoEx_BuildDirectory=${{ github.workspace }}/build" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "cChocoEx_BuildRepository=GitHub" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "cChocoEx_PublishAPIKey=${{ secrets.PSGALLERY_API_KEY }}" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
+
+      - name: Build Package
+        env:
+          cChocoEx_BuildDirectory: ${{ github.workspace }}/build
+          cChocoEx_BuildRepository: GitHub
+          cChocoEx_PublishAPIKey: ${{ secrets.PSGALLERY_API_KEY }}
+        run: |
+          $branch = "${{ github.ref }}".Split('/')[-1]
+          $isMain = $branch -eq 'main' -or $branch -eq 'master'
+          if ($isMain) {
+            .\build.ps1 -Publish PSGallery -IncrementVersion
+          } else {
+            .\build.ps1 -Publish Local -IncrementVersion -PrereleaseTag 'beta'
+          }
+        shell: pwsh
+
+      - name: Find nupkg
+        id: find_nupkg
+        run: |
+          $pkg = Get-ChildItem -Path build -Filter *.nupkg -Recurse | Select-Object -First 1
+          if (-not $pkg) { throw 'No nupkg found!' }
+          echo "NUPKG_PATH=$($pkg.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
+
+      - name: Publish to GitHub Packages
+        run: |
+          dotnet nuget add source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --name github --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+          dotnet nuget push "$env:NUPKG_PATH" --source github --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        shell: pwsh
+
+      - name: Upload nupkg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cChocoEx-nupkg
+          path: build/**/*.nupkg 

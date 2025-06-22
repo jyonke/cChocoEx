@@ -17,6 +17,9 @@
     When specified, increments the revision number of the module version.
     If not specified, uses the current version number.
 
+.PARAMETER PrereleaseTag
+    Specifies the prerelease tag for the module version.
+
 .EXAMPLE
     .\build.ps1 -Publish Local
     Creates a build and publishes to the local repository using current version.
@@ -42,7 +45,11 @@ param (
 
     [Parameter()]
     [switch]
-    $IncrementVersion
+    $IncrementVersion,
+
+    [Parameter()]
+    [string]
+    $PrereleaseTag
 )
 
 #Region Setup
@@ -77,54 +84,50 @@ function Get-BuildVersion {
     param (
         [Parameter(Mandatory)]
         [string]$CurrentVersion,
-        
+
         [Parameter()]
         [string]$Repository,
 
         [Parameter()]
         [switch]$IncrementVersion
     )
-    
-    # Safely parse the current version
+
+    # Parse the current version, fallback to 0.0.0.1
     try {
-        [version]$parsedVersion = [version]::new(0, 0, 0, 0)
+        [version]$parsedVersion = [version]::new(0, 0, 0, 1)
         if (![version]::TryParse($CurrentVersion, [ref]$parsedVersion)) {
-            Write-Warning "Could not parse current version '$CurrentVersion'. Starting from 0.0.0.0"
+            Write-Warning "Could not parse current version '$CurrentVersion'. Starting from 0.0.0.1"
         }
     }
     catch {
-        Write-Warning "Error parsing current version. Starting from 0.0.0.0"
-        $parsedVersion = [version]::new(0, 0, 0, 0)
+        Write-Warning "Error parsing current version. Starting from 0.0.0.1"
+        $parsedVersion = [version]::new(0, 0, 0, 1)
     }
 
+    # Use date-based versioning: Major=yy, Minor=MM, Build=dd, Revision=1+
+    $today = Get-Date
+    $dateVersion = [version]::new(
+        [int]($today.ToString('yy')),
+        [int]($today.ToString('MM')),
+        [int]($today.ToString('dd')),
+        1
+    )
+
     if ($IncrementVersion) {
-        # Use 4-part version (Major.Minor.Build.Revision)
-        [version]$DateVersion = [version]::new(
-            [int](Get-Date -f yy),
-            [int](Get-Date -f MM),
-            [int](Get-Date -f dd),
-            0  # Start revision at 0
-        )
-        
-        if ($parsedVersion.Major -eq $DateVersion.Major -and 
-            $parsedVersion.Minor -eq $DateVersion.Minor -and 
-            $parsedVersion.Build -eq $DateVersion.Build) {
+        if ($parsedVersion.Major -eq $dateVersion.Major -and
+            $parsedVersion.Minor -eq $dateVersion.Minor -and
+            $parsedVersion.Build -eq $dateVersion.Build) {
             # Same date, increment revision
             $BuildVersion = [version]::new(
                 $parsedVersion.Major,
                 $parsedVersion.Minor,
                 $parsedVersion.Build,
-                ($parsedVersion.Revision + 1)
+                $parsedVersion.Revision + 1
             )
         }
         else {
             # New date, start at revision 1
-            $BuildVersion = [version]::new(
-                $DateVersion.Major,
-                $DateVersion.Minor,
-                $DateVersion.Build,
-                1
-            )
+            $BuildVersion = $dateVersion
         }
         Write-Host "Incrementing version to: $BuildVersion"
     }
@@ -175,14 +178,27 @@ function Update-ModuleVersion {
     param (
         [Parameter(Mandatory)]
         [version]$Version,
-        
         [Parameter(Mandatory)]
-        [hashtable]$ManifestParams
+        [hashtable]$ManifestParams,
+        [Parameter()]
+        [string]$PrereleaseTag
     )
-    
     $ManifestParams.ModuleVersion = $Version
-    Update-ModuleManifest @ManifestParams
-    Write-Host "Updated module version to $Version"
+    if ($PrereleaseTag) {
+        Update-ModuleManifest @ManifestParams -Prerelease $PrereleaseTag
+        Write-Host "Updated module version to $Version-$PrereleaseTag"
+    }
+    else {
+        # Remove Prerelease from manifest if present
+        $manifest = Import-PowerShellDataFile -Path $ManifestParams.Path
+        if ($manifest.PrivateData -and $manifest.PrivateData.PSData -and $manifest.PrivateData.PSData.Prerelease) {
+            $psd1 = Get-Content $ManifestParams.Path
+            $psd1 = $psd1 -replace "(?m)^\s*Prerelease\s*=.*$", ""
+            Set-Content -Path $ManifestParams.Path -Value $psd1
+        }
+        Update-ModuleManifest @ManifestParams
+        Write-Host "Updated module version to $Version (stable)"
+    }
 }
 #EndRegion Functions
 
@@ -200,6 +216,10 @@ try {
     # Get current version and calculate new version
     $manifestData = Import-PowerShellDataFile -Path $ModuleManifestFile
     $CurrentVersion = $manifestData.ModuleVersion
+    $CurrentPrerelease = $null
+    if ($manifestData.PrivateData -and $manifestData.PrivateData.PSData -and $manifestData.PrivateData.PSData.Prerelease) {
+        $CurrentPrerelease = $manifestData.PrivateData.PSData.Prerelease
+    }
     Write-Host "Current version from manifest: $CurrentVersion"
     $BuildVersion = Get-BuildVersion -CurrentVersion $CurrentVersion -Repository $BuildRepository -IncrementVersion:$IncrementVersion
     
@@ -210,6 +230,34 @@ try {
         Write-Host "Using current version: $BuildVersion"
     }
 
+    # Handle prerelease versioning
+    if ($PrereleaseTag) {
+        $ModuleVersion = "$($BuildVersion.Major).$($BuildVersion.Minor).$($BuildVersion.Build)"
+        # Determine next prerelease tag
+        if ($CurrentVersion -eq $ModuleVersion) {
+            if (-not $CurrentPrerelease) {
+                $Prerelease = $PrereleaseTag
+            }
+            elseif ($CurrentPrerelease -eq $PrereleaseTag) {
+                $Prerelease = "$PrereleaseTag1"
+            }
+            elseif ($CurrentPrerelease -match "^$PrereleaseTag(\\d+)$") {
+                $num = [int]$matches[1] + 1
+                $Prerelease = "$PrereleaseTag$num"
+            }
+            else {
+                $Prerelease = $PrereleaseTag
+            }
+        }
+        else {
+            $Prerelease = $PrereleaseTag
+        }
+    }
+    else {
+        $ModuleVersion = $BuildVersion.ToString()
+        $Prerelease = $null
+    }
+
     # Get module components
     $FunctionsToExport = Get-ModuleFunctions -Path (Join-Path $PSScriptRoot 'src\Public')
     $FormatsToProcess = Get-ModuleFormats -Path (Join-Path $PSScriptRoot 'src\Formats')
@@ -218,7 +266,7 @@ try {
     Write-Host "Updating module manifest"
     $manifestParams = @{
         Path              = $ModuleManifestFile
-        ModuleVersion     = $BuildVersion
+        ModuleVersion     = $ModuleVersion
         FunctionsToExport = $FunctionsToExport
         FormatsToProcess  = $FormatsToProcess
     }
@@ -231,7 +279,7 @@ try {
         $manifestParams['DscResourcesToExport'] = $dscResources
     }
 
-    Update-ModuleManifest @manifestParams
+    Update-ModuleVersion -Version $ModuleVersion -ManifestParams $manifestParams -PrereleaseTag $Prerelease
 
     # Create temporary build location
     $BuildGuid = New-Guid
@@ -272,7 +320,7 @@ try {
                 if ($_.Exception.Message -match 'already available') {
                     Write-Host "Incrementing version and retrying"
                     $BuildVersion = Get-BuildVersion -CurrentVersion $BuildVersion -Repository $BuildRepository -IncrementVersion:$IncrementVersion
-                    Update-ModuleVersion -Version $BuildVersion -ManifestParams $manifestParams
+                    Update-ModuleVersion -Version $BuildVersion -ManifestParams $manifestParams -PrereleaseTag $Prerelease
                     Publish-Module @publishParams
                 }
                 else {
@@ -300,7 +348,7 @@ try {
                 if ($_.Exception.Message -match 'already available') {
                     Write-Host "Incrementing version and retrying"
                     $BuildVersion = Get-BuildVersion -CurrentVersion $BuildVersion -Repository $BuildRepository -IncrementVersion:$IncrementVersion
-                    Update-ModuleVersion -Version $BuildVersion -ManifestParams $manifestParams
+                    Update-ModuleVersion -Version $BuildVersion -ManifestParams $manifestParams -PrereleaseTag $Prerelease
                     Publish-Module @publishParams
                 }
                 else {
