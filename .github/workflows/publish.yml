@@ -23,10 +23,6 @@ jobs:
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up PowerShell
-        uses: powershell/setup-powershell@v2
-
       - name: Set Build Environment Variables
         run: |
           echo "cChocoEx_BuildDirectory=${{ github.workspace }}/build" | Out-File -FilePath $env:GITHUB_ENV -Append
