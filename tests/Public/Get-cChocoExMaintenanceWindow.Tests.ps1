@@ -1,12 +1,13 @@
-$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
+$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -split '\\tests\\' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 
 Import-Module -Name $Module -Force
+InModuleScope 'cChocoEx' {
 
-Describe 'Get-cChocoExMaintenanceWindow Tests' {
-    BeforeAll {
-        $Path = 'TestDrive:\config.psd1'
-        Set-Content -Path $Path -Value @'
+    Describe 'Get-cChocoExMaintenanceWindow Tests' {
+        BeforeAll {
+            $Path = 'TestDrive:\config.psd1'
+            Set-Content -Path $Path -Value @'
         @{
             "webRequestTimeoutSeconds" = @{
                 ConfigName = "webRequestTimeoutSeconds"
@@ -32,43 +33,44 @@ Describe 'Get-cChocoExMaintenanceWindow Tests' {
         }
 '@
 
-    }
-    It 'Confirm Configuration Data File Exits' {
-        $Path | Should -Exist
-    }
-    It 'Returns 1 Maintenance Window' {
-        (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'ConfigName').Count | Should -Be 1
-    }
-    It 'Verify ConfigName' {
-        (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'ConfigName') | Should -Not -BeNullOrEmpty
-    }
-    It 'Verify EffectiveDateTime' {
-        [datetime](Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'EffectiveDateTime') | Should -BeOfType DateTime
-    }
-    It 'Verify Start Value' {
-        (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'Start') | Should -Be '23:00'
-    }
-    It 'Verify End Value' {
-        (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'End') | Should -Be '05:30'
-    }
-    It 'Verify UTC Value' {
-        (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'UTC') | Should -Be $false
-    }
-    It 'Verify Return Type' {
-        (Get-cChocoExMaintenanceWindow -Path $Path) | Should -BeOfType PSCustomObject
-    }
-    It 'Filters by Tag' {
-        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "maintenance"
-        $result.Count | Should -Be 1
-        $result.ConfigName | Should -Be "MaintenanceWindow"
-    }
-    It 'Filters by Multiple Tags' {
-        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag @("window", "schedule")
-        $result.Count | Should -Be 1
-        $result.ConfigName | Should -Be "MaintenanceWindow"
-    }
-    It 'Returns Empty When No Tags Match' {
-        $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "nonexistent"
-        $result.Count | Should -Be 0
+        }
+        It 'Confirm Configuration Data File Exits' {
+            $Path | Should -Exist
+        }
+        It 'Returns 1 Maintenance Window' {
+            (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'ConfigName').Count | Should -Be 1
+        }
+        It 'Verify ConfigName' {
+            (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'ConfigName') | Should -Not -BeNullOrEmpty
+        }
+        It 'Verify EffectiveDateTime' {
+            [datetime](Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'EffectiveDateTime') | Should -BeOfType DateTime
+        }
+        It 'Verify Start Value' {
+            (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'Start') | Should -Be '23:00'
+        }
+        It 'Verify End Value' {
+            (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'End') | Should -Be '05:30'
+        }
+        It 'Verify UTC Value' {
+            (Get-cChocoExMaintenanceWindow -Path $Path | Select-Object -ExpandProperty 'UTC') | Should -Be $false
+        }
+        It 'Verify Return Type' {
+            (Get-cChocoExMaintenanceWindow -Path $Path) | Should -BeOfType PSCustomObject
+        }
+        It 'Filters by Tag' {
+            $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "maintenance"
+            $result.Count | Should -Be 1
+            $result.ConfigName | Should -Be "MaintenanceWindow"
+        }
+        It 'Filters by Multiple Tags' {
+            $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag @("window", "schedule")
+            $result.Count | Should -Be 1
+            $result.ConfigName | Should -Be "MaintenanceWindow"
+        }
+        It 'Returns Empty When No Tags Match' {
+            $result = Get-cChocoExMaintenanceWindow -Path $Path -Tag "nonexistent"
+            $result.Count | Should -Be 0
+        }
     }
 }

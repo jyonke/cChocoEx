@@ -1,12 +1,12 @@
-$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
+$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -split '\\tests\\' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 
 Import-Module -Name $Module -Force
-
-Describe 'Get-cChocoExPackageInstall Tests' {
-    BeforeAll {
-        $Path = 'TestDrive:\packages.psd1'
-        Set-Content -Path $Path -Value @'        
+InModuleScope 'cChocoEx' {
+    Describe 'Get-cChocoExPackageInstall Tests' {
+        BeforeAll {
+            $Path = 'TestDrive:\packages.psd1'
+            Set-Content -Path $Path -Value @'        
         @{
             "adobereader"                        = @{
                 Name        = "adobereader"
@@ -118,41 +118,42 @@ Describe 'Get-cChocoExPackageInstall Tests' {
             }
         }
 '@
-    }
+        }
 
-    It 'Confirm Configuration Data File Exits' {
-        $Path | Should -Exist
-    }
-    It 'Returns 15 Packages' {
-        (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Name').Count | Should -Be 15
-    }
-    It 'Verify Name' {
-        (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Name') | Should -Not -BeNullOrEmpty
-    }
-    It 'Verify Ensure' {
-        (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Ensure') | Should -Match 'Absent|Present'
-    }
-    It 'Verify Return Type' {
-        (Get-cChocoExPackageInstall -Path $Path) | Should -BeOfType PSCustomObject
-    }
-    It 'Filters by Tag' {
-        $result = Get-cChocoExPackageInstall -Path $Path -Tag "browser"
-        $result.Count | Should -Be 4
-        $result.Name | Should -Contain "adobereader"
-        $result.Name | Should -Contain "firefox"
-        $result.Name | Should -Contain "firefox-esr"
-        $result.Name | Should -Contain "microsoft-edge"
-    }
-    It 'Filters by Multiple Tags' {
-        $result = Get-cChocoExPackageInstall -Path $Path -Tag @("media", "adobe", "ftp")
-        $result.Count | Should -Be 6
-        $result.Name | Should -Contain "vlc"
-        $result.Name | Should -Contain "winscp"
-        $result.Name | Should -Not -Contain "git.install"
-        $result.Name | Should -Contain "adobeair"
-    }
-    It 'Returns Empty When No Tags Match' {
-        $result = Get-cChocoExPackageInstall -Path $Path -Tag "nonexistent"
-        $result.Count | Should -Be 0
+        It 'Confirm Configuration Data File Exits' {
+            $Path | Should -Exist
+        }
+        It 'Returns 15 Packages' {
+            (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Name').Count | Should -Be 15
+        }
+        It 'Verify Name' {
+            (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Name') | Should -Not -BeNullOrEmpty
+        }
+        It 'Verify Ensure' {
+            (Get-cChocoExPackageInstall -Path $Path | Select-Object -ExpandProperty 'Ensure') | Should -Match 'Absent|Present'
+        }
+        It 'Verify Return Type' {
+            (Get-cChocoExPackageInstall -Path $Path) | Should -BeOfType PSCustomObject
+        }
+        It 'Filters by Tag' {
+            $result = Get-cChocoExPackageInstall -Path $Path -Tag "browser"
+            $result.Count | Should -Be 4
+            $result.Name | Should -Contain "adobereader"
+            $result.Name | Should -Contain "firefox"
+            $result.Name | Should -Contain "firefox-esr"
+            $result.Name | Should -Contain "microsoft-edge"
+        }
+        It 'Filters by Multiple Tags' {
+            $result = Get-cChocoExPackageInstall -Path $Path -Tag @("media", "adobe", "ftp")
+            $result.Count | Should -Be 6
+            $result.Name | Should -Contain "vlc"
+            $result.Name | Should -Contain "winscp"
+            $result.Name | Should -Not -Contain "git.install"
+            $result.Name | Should -Contain "adobeair"
+        }
+        It 'Returns Empty When No Tags Match' {
+            $result = Get-cChocoExPackageInstall -Path $Path -Tag "nonexistent"
+            $result.Count | Should -Be 0
+        }
     }
 }
