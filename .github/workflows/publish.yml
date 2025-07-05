@@ -48,7 +48,7 @@ jobs:
       - name: Find nupkg
         id: find_nupkg
         run: |
-          $pkg = Get-ChildItem -Path build -Filter *.nupkg -Recurse | Select-Object -First 1
+          $pkg = Get-ChildItem -Path builds -Filter *.nupkg -Recurse | Select-Object -First 1
           if (-not $pkg) { throw 'No nupkg found!' }
           echo "NUPKG_PATH=$($pkg.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
         shell: pwsh
@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cChocoEx-nupkg
-          path: build/**/*.nupkg 
+          path: builds/**/*.nupkg 
