@@ -1,4 +1,4 @@
-$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
+$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -split '\\tests\\' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 $ModulePath = (Join-Path $root "src\DSCResources\cChocoConfig")
 
@@ -164,6 +164,110 @@ InModuleScope 'cChocoEx' {
 
                 Should -Invoke Write-Log -ParameterFilter { $Message -like '*WinPE Environment Detected*' }
                 Should -Not -Invoke Get-MaintenanceWindow
+            }
+        }
+
+        Context 'Environment Restriction Tests' {
+            It 'Should override maintenance window in WinOS OOBE environment' {
+                Mock Test-IsWinOS.OOBE { return $true }
+
+                $config = @{
+                    'MaintenanceWindow' = @{
+                        ConfigName        = 'MaintenanceWindow'
+                        Start             = '22:00'
+                        End               = '06:00'
+                        EffectiveDateTime = (Get-Date)
+                        UTC               = $true
+                    }
+                }
+
+                Start-cChocoConfig -ConfigImport $config
+
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*WinOS OOBE Environment Detected*' }
+                Should -Not -Invoke Get-MaintenanceWindow
+            }
+
+            It 'Should override maintenance window in WinSE OOBE environment' {
+                Mock Test-IsWinSE { return $true }
+
+                $config = @{
+                    'MaintenanceWindow' = @{
+                        ConfigName        = 'MaintenanceWindow'
+                        Start             = '22:00'
+                        End               = '06:00'
+                        EffectiveDateTime = (Get-Date)
+                        UTC               = $true
+                    }
+                }
+
+                Start-cChocoConfig -ConfigImport $config
+
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*WinSE OOBE Environment Detected*' }
+                Should -Not -Invoke Get-MaintenanceWindow
+            }
+        }
+
+        Context 'Maintenance Window Edge Cases' {
+            It 'Should log a warning when no Maintenance Window is defined' {
+                $config = @{
+                    'Config1' = @{
+                        ConfigName = 'TestConfig'
+                        Ensure     = 'Present'
+                        Value      = 'TestValue'
+                    }
+                }
+
+                Start-cChocoConfig -ConfigImport $config
+
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*No Defined Maintenance Window*' }
+            }
+        }
+
+        Context 'Property Handling' {
+            It 'Should remove Tags property from configuration objects' {
+                $config = @{
+                    'Config1' = @{
+                        ConfigName = 'TestConfig'
+                        Ensure     = 'Present'
+                        Value      = 'TestValue'
+                        Tags       = @('Tag1')
+                    }
+                }
+
+                $global:TagsRemoved = $false
+                Mock Test-TargetResource {
+                    param($ConfigName, $Ensure, $Value)
+                    if (-not $PSBoundParameters.ContainsKey('Tags')) {
+                        $global:TagsRemoved = $true
+                    }
+                    return $true
+                }
+
+                Start-cChocoConfig -ConfigImport $config
+
+                $global:TagsRemoved | Should -Be $true
+            }
+        }
+
+        Context 'Status Logging' {
+            It 'Should log all config object properties during status reporting' {
+                $config = @{
+                    'Config1' = @{
+                        ConfigName = 'TestConfig'
+                        Ensure     = 'Present'
+                        Value      = 'TestValue'
+                    }
+                }
+
+                Mock Write-Log {}
+                Mock Write-Host {}
+
+                Start-cChocoConfig -ConfigImport $config
+
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*ConfigName: TestConfig*' }
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*DSC: True*' }
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*Ensure: Present*' }
+                Should -Invoke Write-Log -ParameterFilter { $Message -like '*Value: TestValue*' }
             }
         }
 
