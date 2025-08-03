@@ -1,11 +1,11 @@
-$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -Split '\\tests\\' | Select-Object -First 1
+$root = (Split-Path -Path $MyInvocation.MyCommand.Path -Parent) -split 'tests' | Select-Object -First 1
 $Module = Join-Path $root 'src\cChocoEx.psm1'
 
 Import-Module -Name $Module -Force
 
 InModuleScope 'cChocoEx' {
-    Describe 'Return Ring Values Based on Strings' {
-        It "Returns <expected> (<name>)" -ForEach @(
+    Describe 'Get-RingValue' {
+        It "Should return the correct integer for each ring name" -ForEach @(
             @{ Name = "preview"; Expected = 5 }
             @{ Name = "canary"; Expected = 5 }
             @{ Name = "pilot"; Expected = 4 }
@@ -13,9 +13,9 @@ InModuleScope 'cChocoEx' {
             @{ Name = "slow"; Expected = 2 }
             @{ Name = "broad"; Expected = 1 }
             @{ Name = "InvalidName"; Expected = 0 }
+            @{ Name = $null; Expected = 0 }
         ) {
-            Get-ringValue -Name $Name | Should -Be $Expected
+            Get-RingValue -Name $Name | Should -Be $Expected
         }
     }
-    
 }
